@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>비밀번호 재설정</title>
+</head>
+<body>
+<p>비밀번호 재설정을 요청하셨어요.</p>
+<p>아래 링크에서 새 비밀번호를 정해 주세요. 링크는 <span th:text="${minutes}">30</span>분 동안 한 번만 쓸 수 있어요.</p>
+<p><a th:href="${link}" th:text="${link}">재설정 링크</a></p>
+<p th:each="name : ${providers}">이 이메일로 가입한 <span th:text="${name}">Google</span> 계정도 있어요. 그 계정은 <span th:text="${name}">Google</span>로 로그인하세요.</p>
+<p>직접 요청하지 않았다면 이 메일은 무시해 주세요. 비밀번호는 바뀌지 않아요.</p>
+</body>
+</html>

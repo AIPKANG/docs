@@ -128,6 +128,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 001 US1: 가입 후 인증 안내·재발송은 로그인 필요(비회원은 로그인 화면으로)
                         .requestMatchers("/signup/verify-sent", "/auth/verify/resend").authenticated()
+                        // 001 US4: 비밀번호 찾기·재설정은 로그인 전 기능(정지·탈퇴 유예 회원도, 복구 전용 세션 예외 목록에도 있음)
+                        .requestMatchers("/password/**").permitAll()
                         // 가입·로그인·인증 링크·주소/닉네임 확인 API·정적 자원과 그 밖의 경로는 공개.
                         // 업무 권한은 URL이 아니라 Service(AccountGuard)에서 검사한다(헌법 III)
                         .anyRequest().permitAll());

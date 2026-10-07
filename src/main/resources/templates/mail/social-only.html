@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>비밀번호 찾기 안내</title>
+</head>
+<body>
+<p>비밀번호 찾기를 요청하셨어요.</p>
+<p th:each="name : ${providers}">이 이메일은 <span th:text="${name}">Google</span>로 가입되어 비밀번호가 없어요. <span th:text="${name}">Google</span>로 로그인하세요.</p>
+<p>직접 요청하지 않았다면 이 메일은 무시해 주세요.</p>
+</body>
+</html>
