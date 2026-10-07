@@ -49,14 +49,6 @@ spring:
 
 server:
   forward-headers-strategy: native
-  servlet:
-    session:
-      # 세션 쿠키(FR-028, research R-3). Spring Session의 쿠키 직렬화기가 이 값을 쓴다.
-      cookie:
-        http-only: true
-        secure: true
-        same-site: lax
-        max-age: ${blog.auth.session-timeout}
 
 blog:
   # 001-auth 정책 수치(헌법 II). AuthProperties 참고

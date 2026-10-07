@@ -16,9 +16,11 @@ import com.team.blog.shared.error.NicknameViolationException;
 import com.team.blog.shared.security.CurrentUser;
 import com.team.blog.shared.security.CurrentUserProvider;
 import com.team.blog.shared.security.LoginSessionEstablisher;
+import com.team.blog.shared.security.RedirectTargetValidator;
 import com.team.blog.shared.web.Redirects;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -120,6 +122,53 @@ public class AuthController {
     public ModelAndView verifySent() {
         requireUser();
         return new ModelAndView("auth/verify-sent");
+    }
+
+    // ----- 로그인 (US2) -----
+
+    static final String SUSPENDED_NOTICE = "LOGIN_SUSPENDED_NOTICE";
+
+    @GetMapping("/login")
+    public ModelAndView loginForm(@RequestParam(name = "redirect", required = false) String redirect,
+                                  HttpServletRequest request) {
+        ModelAndView view = new ModelAndView("auth/login");
+        view.addObject("redirect", redirect != null && RedirectTargetValidator.isSafe(redirect) ? redirect : null);
+        String message = null;
+        if (hasFlag(request, "error")) {
+            message = "social".equals(request.getParameter("error"))
+                    ? "소셜 로그인에 실패했어요. 다시 시도해 주세요" : "이메일 또는 비밀번호가 올바르지 않아요";
+        } else if (hasFlag(request, "locked")) {
+            message = "잠시 후 다시 시도해 주세요(약 15분)";
+        } else if (hasFlag(request, "suspended")) {
+            HttpSession session = request.getSession(false);
+            Object notice = session == null ? null : session.getAttribute(SUSPENDED_NOTICE);
+            if (session != null) {
+                session.removeAttribute(SUSPENDED_NOTICE);
+            }
+            message = notice instanceof String text ? text : "정지된 계정이에요";
+        } else if (hasFlag(request, "social")) {
+            message = "다시 소셜 로그인해 주세요";
+        }
+        view.addObject("message", message);
+        view.addObject("notice", hasFlag(request, "reset") ? "비밀번호를 바꿨어요. 다시 로그인해 주세요" : null);
+        return view;
+    }
+
+    /** {@code ?error}처럼 값 없는 표시 파라미터도 인식한다. */
+    private static boolean hasFlag(HttpServletRequest request, String name) {
+        if (request.getParameter(name) != null) {
+            return true;
+        }
+        String query = request.getQueryString();
+        if (query == null) {
+            return false;
+        }
+        for (String part : query.split("&")) {
+            if (part.equals(name) || part.startsWith(name + "=")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ----- 인증 -----

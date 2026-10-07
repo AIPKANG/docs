@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>탈퇴 신청한 계정이에요</title>
+</head>
+<body>
+<main>
+    <h1>탈퇴 신청한 계정이에요</h1>
+    <p>복구하면 다시 블로그를 쓸 수 있어요. 복구하지 않으면 유예 기간이 지난 뒤 계정이 정리돼요.</p>
+    <!-- 복구 동작(POST /account/restore)은 회원 탈퇴 기능(13·44)이 맡는다 -->
+    <form method="post" th:action="@{/account/restore}">
+        <button type="submit">복구하기</button>
+    </form>
+    <form method="post" th:action="@{/logout}" data-logout-form th:attr="data-member-id=${currentMemberId}">
+        <button type="submit">로그아웃</button>
+    </form>
+</main>
+</body>
+</html>

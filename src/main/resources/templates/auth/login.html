@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>로그인</title>
+</head>
+<body>
+<main>
+    <h1>로그인</h1>
+    <p class="notice" th:if="${notice != null}" th:text="${notice}" role="status">알림</p>
+    <p class="form-error" th:if="${message != null}" th:text="${message}" role="alert">오류</p>
+
+    <form method="post" th:action="@{/login}" class="auth-form">
+        <input type="hidden" name="redirect" th:if="${redirect != null}" th:value="${redirect}">
+        <div class="field">
+            <label for="email">이메일</label>
+            <input id="email" name="email" type="email" autocomplete="username" required maxlength="254">
+        </div>
+        <div class="field">
+            <label for="password">비밀번호</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit">로그인</button>
+    </form>
+    <p><a href="/password/forgot">비밀번호 찾기</a> · <a href="/signup">이메일로 가입하기</a></p>
+
+    <div class="social-login">
+        <!-- 001 US3(T164): 소셜 로그인 버튼 -->
+    </div>
+</main>
+</body>
+</html>
