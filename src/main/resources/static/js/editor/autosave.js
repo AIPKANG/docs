@@ -168,6 +168,7 @@
       /* 수동 저장: 바뀐 게 없어도 보낸다 */
       saveNow: function () { saveLocal(); return send({ manual: true, force: true }); },
       isConflict: function () { return conflict; },
+      baseVersion: function () { return base; },
       isDirty: function () { return !same(snapshot(), acked); },
       /* 불러온 로컬 내용을 이어 쓸 때: 출발 버전 그대로, 곧 서버로 */
       resumeLocal: function () { saveLocal(); idleTimer = setTimeout(function () { send({}); }, opts.serverSaveDelayMs); },

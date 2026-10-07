@@ -181,6 +181,10 @@ blog:
   post:
     title-max-length: 100
     content-max-length: 100000
+    # 005-post-publish: 태그 최대 개수(강성찬은 5로 설정 가능), 발행 요청 식별자 보관(05 §6)
+    max-tags: 10
+    publish:
+      idempotency-ttl: 10m
     autosave:
       buffer-ttl: 24h
       flush-enabled: true

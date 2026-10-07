@@ -50,7 +50,13 @@ public class EditorController {
         model.addAttribute("post", content);
         model.addAttribute("titleMaxLength", properties.titleMaxLength());
         model.addAttribute("published", content.status().name().equals("PUBLISHED"));
-        model.addAttribute("state", jsonMapper.writeValueAsString(state(user.orElseThrow().memberId(), content)));
+        PostDraftService.PublishDefaults defaults = draftService.publishDefaults(user, postId);
+        Map<String, Object> state = state(user.orElseThrow().memberId(), content);
+        state.put("visibility", defaults.visibility());
+        state.put("tags", defaults.tags());
+        state.put("maxTags", properties.maxTags());
+        model.addAttribute("visibility", defaults.visibility());
+        model.addAttribute("state", jsonMapper.writeValueAsString(state));
         return "post/editor";
     }
 

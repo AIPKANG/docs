@@ -38,8 +38,28 @@
             <button type="button" id="preview-toggle" aria-controls="preview-panel" aria-expanded="false">미리보기</button>
             <button type="button" id="discard-working-copy" th:if="${published}">변경 취소</button>
             <button type="button" id="manual-save">저장</button>
+            <button type="button" id="publish-open" aria-controls="publish-panel" aria-expanded="false">발행</button>
         </div>
     </div>
+
+    <!-- 005 발행 설정(05 §4, 22 §3) -->
+    <section id="publish-panel" class="publish-panel" aria-labelledby="publish-heading" hidden>
+        <h2 id="publish-heading">발행 설정</h2>
+        <fieldset>
+            <legend>공개 범위</legend>
+            <label><input type="radio" name="visibility" value="PUBLIC" th:checked="${visibility == 'PUBLIC'}"> 전체 공개</label>
+            <label><input type="radio" name="visibility" value="PRIVATE" th:checked="${visibility == 'PRIVATE'}"> 나만 보기</label>
+        </fieldset>
+        <div class="field">
+            <label for="tag-input">태그</label>
+            <div class="tag-chips" id="tag-chips"></div>
+            <input type="text" id="tag-input" placeholder="Enter나 쉼표로 추가" autocomplete="off">
+            <p class="help" id="tag-count"></p>
+        </div>
+        <ul id="publish-errors" class="field-error" role="alert"></ul>
+        <button type="button" id="publish-cancel">취소</button>
+        <button type="button" id="publish-submit">발행</button>
+    </section>
 
     <!-- 비교 창(04 §2-7, FR-020·FR-021) -->
     <dialog id="compare-dialog" aria-labelledby="compare-heading">
@@ -74,6 +94,7 @@
     <script src="/js/editor/autosave.js" defer></script>
     <script src="/js/editor/editor.js" defer></script>
     <script src="/js/editor/preview.js" defer></script>
+    <script src="/js/editor/publish.js" defer></script>
 </main>
 </body>
 </html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${post.title().isEmpty() ? '(제목 없음)' : post.title()}">글</title>
+</head>
+<body>
+<main>
+    <article class="post">
+        <header class="post-head">
+            <p th:if="${post.isDraft()}"><span class="badge">임시저장</span> 아직 발행하지 않은 글이에요.</p>
+            <p th:if="${!post.isDraft() and post.isPrivate()}"><span class="badge">🔒 나만 보기</span></p>
+            <p th:if="${post.editing()}" class="notice">고치는 중인 내용이 있어요. 다시 발행하기 전까지 독자에게는 이 발행본이 보여요.</p>
+            <h1 th:text="${post.title().isEmpty() ? '(제목 없음)' : post.title()}">제목</h1>
+            <p class="post-meta">
+                <th:block th:replace="~{fragments/author :: byline(${author})}"></th:block>
+                <span th:if="${publishedDate != null}"> · <time th:attr="datetime=${post.publishedAt()}" th:text="${publishedDate}">발행일</time></span>
+                <span th:if="${editedDate != null}" class="post-edited"> · 수정됨 · <time th:attr="datetime=${post.editedAt()}" th:text="${editedDate}">수정일</time></span>
+            </p>
+            <p th:if="${viewerIsAuthor}"><a th:href="@{/write/{id}(id=${post.id()})}" class="button-link">수정</a></p>
+        </header>
+        <!-- 본문: 007 렌더러가 허용 목록으로 정화해 저장한 HTML만 그대로 낸다(헌법 IV) -->
+        <div class="post-body" th:utext="${post.contentHtml()}"></div>
+        <ul class="post-tags" th:unless="${post.tags().isEmpty()}">
+            <li th:each="tag : ${post.tags()}"><span class="tag" th:text="${'#' + tag}">#태그</span></li>
+        </ul>
+    </article>
+</main>
+</body>
+</html>

@@ -238,6 +238,17 @@
       });
     }
 
+    // 005 발행 화면이 쓰는 연결점
+    window.blogEditor = {
+      state: state,
+      content: content,
+      baseVersion: function () { return autosave.baseVersion(); },
+      conflict: function (serverContent) { autosave.enterConflict(); onConflict(serverContent); openCompare(); },
+      isConflict: function () { return autosave.isConflict(); },
+      openCompare: openCompare,
+      published: function () { return autosave.disable(); }
+    };
+
     // ----- 열 때 로컬 데이터 판정(FR-019) -----
 
     store.get(backupKey).then(function (backup) {

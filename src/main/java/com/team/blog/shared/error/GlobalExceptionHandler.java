@@ -186,6 +186,18 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(ContentTooComplexException.CODE));
     }
 
+    // ----- 005: 발행 -----
+
+    @ExceptionHandler(PublishInProgressException.class)
+    public ResponseEntity<ErrorResponse> publishInProgress() {
+        return json(HttpStatus.CONFLICT, error(PublishInProgressException.CODE));
+    }
+
+    @ExceptionHandler(IdempotencyKeyReusedException.class)
+    public ResponseEntity<ErrorResponse> idempotencyKeyReused() {
+        return json(HttpStatus.UNPROCESSABLE_CONTENT, error(IdempotencyKeyReusedException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

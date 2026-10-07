@@ -10,7 +10,14 @@ import java.time.Instant;
  */
 public record PostEditRow(long id, long authorId, PostStatus status, String title, String contentMd, long postVersion,
                           Instant updatedAt, Long draftVersion, String draftTitle, String draftContentMd,
-                          Instant draftUpdatedAt) {
+                          Instant draftUpdatedAt, String visibility) {
+
+    /** 공개 범위를 모르는 곳(단위 테스트 등)용. */
+    public PostEditRow(long id, long authorId, PostStatus status, String title, String contentMd, long postVersion,
+                       Instant updatedAt, Long draftVersion, String draftTitle, String draftContentMd, Instant draftUpdatedAt) {
+        this(id, authorId, status, title, contentMd, postVersion, updatedAt, draftVersion, draftTitle, draftContentMd,
+                draftUpdatedAt, "PUBLIC");
+    }
 
     /** 작업본이 지금 발행본보다 새 버전인지. */
     public boolean hasWorkingCopy() {

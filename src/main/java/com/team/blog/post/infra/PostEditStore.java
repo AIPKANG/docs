@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostEditStore {
 
     private static final String SELECT_ROW = """
-            SELECT p.id, p.author_id, p.status, p.title, p.content_md, p.edit_version, p.updated_at,
+            SELECT p.id, p.author_id, p.status, p.visibility, p.title, p.content_md, p.edit_version, p.updated_at,
                    d.edit_version AS d_version, d.title AS d_title, d.content_md AS d_content, d.updated_at AS d_updated_at
             FROM post p LEFT JOIN post_draft d ON d.post_id = p.id
             WHERE p.id = ? AND p.deleted_at IS NULL
@@ -121,6 +121,47 @@ public class PostEditStore {
         return true;
     }
 
+    /** 발행 트랜잭션 ③(05 §7): 글 행(과 작업본 행)을 잠그고 읽는다. 휴지통·없음이면 빈 값. 트랜잭션 안에서 불러야 한다. */
+    public Optional<PostEditRow> lockForPublish(long postId) {
+        List<Long> locked = jdbc.queryForList(
+                "SELECT id FROM post WHERE id = ? AND deleted_at IS NULL FOR UPDATE", Long.class, postId);
+        if (locked.isEmpty()) {
+            return Optional.empty();
+        }
+        jdbc.queryForList("SELECT post_id FROM post_draft WHERE post_id = ? FOR UPDATE", Long.class, postId);
+        return findActive(postId);
+    }
+
+    /** 발행 반영 결과 시각. */
+    public record PublishedTimes(Instant publishedAt, Instant firstPublicAt, Instant editedAt) {
+    }
+
+    /**
+     * 발행 반영 ⑦(05 §7): 상태 발행, {@code published_at}은 처음 한 번, {@code first_public_at}은 처음 "발행 + 공개"일 때 한 번,
+     * {@code edited_at}은 다시 발행일 때만(SET 식의 {@code status}는 바꾸기 전 값). 조회수·좋아요·댓글은 건드리지 않는다.
+     */
+    public PublishedTimes applyPublish(long postId, String title, String contentMd, String contentHtml, String excerpt,
+                                       String thumbnailUrl, String visibility, int renderVersion, long version, Instant now) {
+        OffsetDateTime t = ts(now);
+        return jdbc.queryForObject("""
+                UPDATE post SET title = ?, content_md = ?, content_html = ?, excerpt = ?, thumbnail_url = ?, visibility = ?,
+                       render_version = ?,
+                       published_at = COALESCE(published_at, ?),
+                       first_public_at = CASE WHEN first_public_at IS NULL AND ? = 'PUBLIC' THEN ? ELSE first_public_at END,
+                       edited_at = CASE WHEN status = 'PUBLISHED' THEN ? ELSE edited_at END,
+                       status = 'PUBLISHED', edit_version = ?, updated_at = ?
+                WHERE id = ?
+                RETURNING published_at, first_public_at, edited_at
+                """, (rs, n) -> new PublishedTimes(instant(rs, "published_at"), instant(rs, "first_public_at"),
+                        instant(rs, "edited_at")),
+                title, contentMd, contentHtml, excerpt, thumbnailUrl, visibility, renderVersion, t, visibility, t, t,
+                version, t, postId);
+    }
+
+    public void deleteWorkingCopy(long postId) {
+        jdbc.update("DELETE FROM post_draft WHERE post_id = ?", postId);
+    }
+
     /** 내 글(휴지통 밖), 최근 수정 순. {@code editing}은 DB 작업본 기준 — 버퍼 기준 보정은 호출자가 한다. */
     public List<MyPostRow> listByAuthor(long authorId, int limit) {
         return jdbc.query("""
@@ -160,7 +201,7 @@ public class PostEditStore {
         Long dv = rs.wasNull() ? null : draftVersion;
         return new PostEditRow(rs.getLong("id"), rs.getLong("author_id"), PostStatus.valueOf(rs.getString("status")),
                 rs.getString("title"), rs.getString("content_md"), rs.getLong("edit_version"), instant(rs, "updated_at"),
-                dv, rs.getString("d_title"), rs.getString("d_content"), instant(rs, "d_updated_at"));
+                dv, rs.getString("d_title"), rs.getString("d_content"), instant(rs, "d_updated_at"), rs.getString("visibility"));
     }
 
     private static Instant instant(ResultSet rs, String column) throws SQLException {

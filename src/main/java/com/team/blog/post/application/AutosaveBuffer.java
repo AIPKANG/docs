@@ -33,6 +33,9 @@ public interface AutosaveBuffer {
     /** 버퍼 버전이 아직 {@code flushedVersion} 이하일 때만 반영 대기 목록에서 뺀다(반영 중 들어온 새 버전 보호). */
     void markFlushed(long postId, long flushedVersion);
 
-    /** 버퍼 내용과 반영 대기 표시를 지운다(변경 취소·발행 커밋 후). */
+    /** 버퍼 내용과 반영 대기 표시를 지운다(변경 취소). */
     void evict(long postId);
+
+    /** 발행 커밋 후(05 §7 ⑨): 버퍼 버전이 {@code version} 이하일 때만 지운다 — 그 사이 들어온 새 자동 저장은 남긴다. */
+    void evictUpTo(long postId, long version);
 }

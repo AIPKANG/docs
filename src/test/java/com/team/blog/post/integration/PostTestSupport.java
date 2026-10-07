@@ -33,6 +33,22 @@ final class PostTestSupport {
                 .content(body(title, content, baseVersion));
     }
 
+    static String publishBody(String title, String content, String tagsJson, String visibility, long baseVersion) {
+        return "{\"title\":" + json(title) + ",\"contentMd\":" + json(content) + ",\"tags\":" + tagsJson
+                + ",\"visibility\":" + json(visibility) + ",\"baseVersion\":" + baseVersion + "}";
+    }
+
+    static MockHttpServletRequestBuilder publish(long postId, String key, String body) {
+        MockHttpServletRequestBuilder builder = post("/api/posts/{id}/publish", postId).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(body);
+        return key == null ? builder : builder.header("Idempotency-Key", key);
+    }
+
+    static MockHttpServletRequestBuilder publish(long postId, String title, String content, long baseVersion) {
+        return publish(postId, java.util.UUID.randomUUID().toString(),
+                publishBody(title, content, "[]", "PUBLIC", baseVersion));
+    }
+
     static MockHttpServletRequestBuilder createApi(String json) {
         return post("/api/posts").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json);
     }

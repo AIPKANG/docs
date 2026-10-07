@@ -49,6 +49,17 @@ public class RedisAutosaveBuffer implements AutosaveBuffer {
             return 0
             """;
 
+    static final String EVICT_UP_TO_SCRIPT = """
+            local v = redis.call('HGET', KEYS[1], 'version')
+            if v and tonumber(v) <= tonumber(ARGV[1]) then
+              redis.call('SREM', KEYS[2], ARGV[2])
+              return redis.call('DEL', KEYS[1])
+            end
+            return 0
+            """;
+
+    private static final RedisScript<Long> EVICT_UP_TO = RedisScript.of(EVICT_UP_TO_SCRIPT, Long.class);
+
     @SuppressWarnings("rawtypes")
     private static final RedisScript<List> SAVE = RedisScript.of(SAVE_SCRIPT, List.class);
     private static final RedisScript<Long> MARK_FLUSHED = RedisScript.of(MARK_FLUSHED_SCRIPT, Long.class);
@@ -120,6 +131,11 @@ public class RedisAutosaveBuffer implements AutosaveBuffer {
     @Override
     public void markFlushed(long postId, long flushedVersion) {
         redis.execute(MARK_FLUSHED, List.of(key(postId), DIRTY_KEY), String.valueOf(flushedVersion), String.valueOf(postId));
+    }
+
+    @Override
+    public void evictUpTo(long postId, long version) {
+        redis.execute(EVICT_UP_TO, List.of(key(postId), DIRTY_KEY), String.valueOf(version), String.valueOf(postId));
     }
 
     @Override

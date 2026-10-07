@@ -50,3 +50,10 @@
 | U-1 | 충돌 코드 `EDIT_CONFLICT`(004)로 통일 | 05의 `VERSION_CONFLICT` 대신 |
 | U-2 | 발행 설정 창 태그 자동완성은 013 | 칩 입력만 |
 | U-3 | `post_image`·640 썸네일은 008 | 첫 원본 주소 |
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+- **I-1.** 충돌 응답은 004의 `EDIT_CONFLICT`(+`server`)로 통일했다(U-1). 화면은 004 비교 창을 그대로 연다.
+- **I-2.** `post_image`·640px 썸네일 연결은 008. 지금 썸네일은 본문 첫 우리 저장소 이미지의 원본 주소다(U-3).
+- **I-3.** 발행 사건 `PostPublished`/`PostEdited`는 트랜잭션 안에서 발행하고, 구독자는 `@TransactionalEventListener(AFTER_COMMIT)`로 붙인다(지금 구독자 없음).
+- **I-4.** 상세 접근 판정은 `PostAccessPolicy` 한 곳, 목록용 조건 문자열도 같은 클래스에 둔다(009·006이 넓힘).
+- **I-5.** 테스트: 005 통합 20개 + 태그 단위 24개. 전체 Gradle 테스트 464개 통과.

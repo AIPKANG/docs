@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @ConfigurationProperties("blog.post")
 public record PostProperties(@DefaultValue("100") int titleMaxLength,
                              @DefaultValue("100000") int contentMaxLength,
+                             @DefaultValue("10") int maxTags,
+                             @DefaultValue Publish publish,
                              @DefaultValue Autosave autosave,
                              @DefaultValue Editor editor,
                              @DefaultValue EmptyDraftCleanup emptyDraftCleanup) {
@@ -41,6 +43,10 @@ public record PostProperties(@DefaultValue("100") int titleMaxLength,
                          @DefaultValue("30s") Duration serverSaveMaxInterval,
                          @DefaultValue("60s") Duration retryMax,
                          @DefaultValue("7d") Duration backupTtl) {
+    }
+
+    /** 발행(005). @param idempotencyTtl 발행 요청 식별자 보관 시간(05 §6) */
+    public record Publish(@DefaultValue("10m") Duration idempotencyTtl) {
     }
 
     /** 빈 임시글 정리(04 §2-5). */

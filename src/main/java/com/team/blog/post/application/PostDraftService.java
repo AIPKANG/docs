@@ -39,10 +39,12 @@ public class PostDraftService {
     private final RedisRateLimiter rateLimiter;
     private final PostProperties properties;
     private final Clock clock;
+    private final com.team.blog.tag.application.PostTagService tagService;
 
     public PostDraftService(AccountGuard accountGuard, AccountSettingsService accountSettings, PostEditStore store,
                             AutosaveBuffer buffer, AutosaveFlusher flusher, BufferCircuit circuit,
-                            RedisRateLimiter rateLimiter, PostProperties properties, Clock clock) {
+                            RedisRateLimiter rateLimiter, PostProperties properties, Clock clock,
+                            com.team.blog.tag.application.PostTagService tagService) {
         this.accountGuard = accountGuard;
         this.accountSettings = accountSettings;
         this.store = store;
@@ -52,6 +54,7 @@ public class PostDraftService {
         this.rateLimiter = rateLimiter;
         this.properties = properties;
         this.clock = clock;
+        this.tagService = tagService;
     }
 
     /** [새 글](FR-015): 편집 버전 0인 임시글, 공개 범위는 회원 기본값. */
@@ -114,6 +117,16 @@ public class PostDraftService {
             circuit.recordFailure();
             log.warn("autosave buffer evict failed for post {} (stale buffer is ignored by version): {}", postId, e.getMessage());
         }
+    }
+
+    /** 발행 설정 창의 시작 값(005): 글의 공개 범위와 지금 달린 태그(순서대로). */
+    public record PublishDefaults(String visibility, java.util.List<String> tags) {
+    }
+
+    public PublishDefaults publishDefaults(Optional<CurrentUser> currentUser, long postId) {
+        CurrentUser user = accountGuard.requireLoggedIn(currentUser);
+        PostEditRow row = owned(user, postId);
+        return new PublishDefaults(row.visibility(), tagService.tagsOf(postId));
     }
 
     /** 발행 글을 고치는 중인지(작업본 또는 발행본보다 새 버퍼). */
@@ -194,8 +207,8 @@ public class PostDraftService {
         return new Stored(new SaveResult(direct.version(), now), false);
     }
 
-    /** DB 내용과 버퍼 내용 중 버전이 큰 쪽(같으면 버퍼). 버퍼에 닿지 못하면 DB. */
-    private EditingContent current(PostEditRow row) {
+    /** DB 내용과 버퍼 내용 중 버전이 큰 쪽(같으면 버퍼). 버퍼에 닿지 못하면 DB. 발행(005)도 이 규칙으로 현재 버전을 정한다. */
+    public EditingContent current(PostEditRow row) {
         EditingContent db = row.dbContent();
         Optional<BufferedContent> buffered = Optional.empty();
         if (circuit.allowsRedis()) {

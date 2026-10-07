@@ -21,6 +21,14 @@ public class KoreanDateFormatter {
         return instant == null ? "" : DATE_TIME.format(instant);
     }
 
+    private static final DateTimeFormatter YEAR_MONTH_DAY =
+            DateTimeFormatter.ofPattern("yyyy년 M월 d일", Locale.KOREAN).withZone(SEOUL);
+
+    /** "yyyy년 M월 d일"(005 글 상세 발행일). */
+    public static String yearMonthDay(Instant instant) {
+        return instant == null ? "" : YEAR_MONTH_DAY.format(instant);
+    }
+
     public static String monthDay(Instant instant) {
         return instant == null ? "" : MONTH_DAY.format(instant);
     }
