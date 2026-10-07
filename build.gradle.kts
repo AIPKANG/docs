@@ -33,6 +33,13 @@ dependencies {
     // 003-profile: 프로필 이미지 저장소(MinIO·S3 호환, SigV4 Presigned URL) — AWS SDK for Java v2
     implementation(platform("software.amazon.awssdk:bom:2.55.12"))
     implementation("software.amazon.awssdk:s3")
+    // 007-content-sanitize: Markdown 렌더링(CommonMark + GFM)과 허용 목록 정화(12 §1 S-3)
+    implementation("org.commonmark:commonmark:0.30.0")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:0.30.0")
+    implementation("org.commonmark:commonmark-ext-gfm-strikethrough:0.30.0")
+    implementation("org.commonmark:commonmark-ext-task-list-items:0.30.0")
+    implementation("org.commonmark:commonmark-ext-autolink:0.30.0")
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20260924.2")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
