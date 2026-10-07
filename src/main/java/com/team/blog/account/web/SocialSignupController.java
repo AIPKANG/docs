@@ -6,11 +6,13 @@ import com.team.blog.account.application.HandleService;
 import com.team.blog.account.application.InvalidEmailException;
 import com.team.blog.account.application.NicknamePolicy;
 import com.team.blog.account.application.PendingExpiredException;
+import com.team.blog.account.application.ProfileProperties;
 import com.team.blog.account.application.SocialLoginService;
 import com.team.blog.account.application.SocialSignupService;
 import com.team.blog.account.domain.HandlePrefix;
 import com.team.blog.account.domain.PendingSocialSignup;
 import com.team.blog.account.domain.Provider;
+import com.team.blog.account.domain.SocialPictureUrlPolicy;
 import com.team.blog.shared.error.HandleTakenException;
 import com.team.blog.shared.error.HandleViolationException;
 import com.team.blog.shared.error.NicknameViolationException;
@@ -24,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -39,7 +42,10 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class SocialSignupController {
 
-    /** 프로필 사진 복사 단계(003)로 넘길 사진 주소 — 003 구현 전에는 남겨 두기만 한다. */
+    /**
+     * 프로필 사진 복사 단계(003 {@code /settings/social-picture})로 넘길 사진 주소. {@link SocialPictureUrlPolicy}를 통과한
+     * 256 크기 주소만 담고, 그 화면이 한 번 꺼내 지운다(DB에 저장하지 않음).
+     */
     public static final String PENDING_PROFILE_PICTURE = "PENDING_PROFILE_PICTURE_URL";
 
     private final SocialSignupService socialSignupService;
@@ -50,11 +56,12 @@ public class SocialSignupController {
     private final AuthProperties properties;
     private final MessageSource messageSource;
     private final Clock clock;
+    private final SocialPictureUrlPolicy pictureUrlPolicy;
 
     public SocialSignupController(SocialSignupService socialSignupService, SocialLoginService socialLoginService,
                                   HandleService handleService, NicknamePolicy nicknamePolicy,
                                   LoginSessionEstablisher loginSessionEstablisher, AuthProperties properties,
-                                  MessageSource messageSource, Clock clock) {
+                                  MessageSource messageSource, Clock clock, ProfileProperties profileProperties) {
         this.socialSignupService = socialSignupService;
         this.socialLoginService = socialLoginService;
         this.handleService = handleService;
@@ -63,6 +70,8 @@ public class SocialSignupController {
         this.properties = properties;
         this.messageSource = messageSource;
         this.clock = clock;
+        this.pictureUrlPolicy = new SocialPictureUrlPolicy(profileProperties.socialPicture().hostsByProvider(),
+                profileProperties.socialPicture().size());
     }
 
     @GetMapping("/signup/social")
@@ -97,8 +106,12 @@ public class SocialSignupController {
             loginSessionEstablisher.establish(result.memberId(), "USER", request, response);
             HttpSession session = request.getSession();
             session.removeAttribute(PendingSocialSignup.SESSION_ATTRIBUTE);
-            if (result.created() && Boolean.TRUE.equals(form.useSocialPicture()) && pending.pictureUrl() != null) {
-                session.setAttribute(PENDING_PROFILE_PICTURE, pending.pictureUrl());
+            // 003: 사진 사용 + 허용 호스트 사진 + 공급자가 인증한 이메일(인증 전 회원은 사진을 올릴 수 없음, research U-6)
+            Optional<String> picture = picture(pending);
+            if (result.created() && Boolean.TRUE.equals(form.useSocialPicture()) && picture.isPresent()
+                    && pending.hasVerifiedEmail()) {
+                session.setAttribute(PENDING_PROFILE_PICTURE, picture.get());
+                return Redirects.seeOther("/settings/social-picture");
             }
             return Redirects.seeOther("/");
         } catch (PendingExpiredException e) {
@@ -148,9 +161,14 @@ public class SocialSignupController {
         view.addObject("providerName", providerName(pending.provider()));
         view.addObject("handlePrefix", HandlePrefix.of(pending.provider()).value());
         view.addObject("needsEmail", !pending.hasVerifiedEmail());
-        view.addObject("pictureUrl", pending.pictureUrl());
+        view.addObject("pictureUrl", picture(pending).orElse(null));
         view.addObject("sameEmailProviders", sameEmail.stream().map(SocialSignupController::providerName).toList());
         return view;
+    }
+
+    /** 허용 호스트·HTTPS인 소셜 사진만 256 크기 주소로(FR-020). 그 밖은 화면에 넘기지 않는다. */
+    private Optional<String> picture(PendingSocialSignup pending) {
+        return pictureUrlPolicy.sanitize(pending.provider(), pending.pictureUrl());
     }
 
     private PendingSocialSignup currentPending(HttpServletRequest request) {

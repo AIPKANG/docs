@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>프로필 사진 가져오기</title>
+</head>
+<body>
+<main>
+    <h1>가입을 마쳤어요</h1>
+    <!-- 브라우저가 소셜 사진을 받아(5초 제한) 256×256으로 바꿔 우리 저장소에 복사한다. 서버는 이 주소로 요청하지 않는다 -->
+    <div id="social-picture" th:attr="data-picture-url=${pictureUrl}">
+        <p id="social-picture-progress" aria-live="polite">프로필 사진을 가져오는 중이에요…</p>
+        <div id="social-picture-failed" hidden role="status">
+            <p>소셜 사진을 가져오지 못했어요. 설정에서 직접 올릴 수 있어요</p>
+            <p><a href="/">계속하기</a> · <a href="/settings">설정으로</a></p>
+        </div>
+    </div>
+    <noscript>
+        <p>소셜 사진을 가져오지 못했어요. 설정에서 직접 올릴 수 있어요</p>
+        <p><a href="/">계속하기</a> · <a href="/settings">설정으로</a></p>
+    </noscript>
+    <script src="/js/profile/image-upload.js" defer></script>
+    <script src="/js/profile/image-cropper.js" defer></script>
+    <script src="/js/profile/social-picture.js" defer></script>
+</main>
+</body>
+</html>

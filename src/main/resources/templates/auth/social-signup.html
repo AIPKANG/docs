@@ -58,8 +58,12 @@
             <p class="field-error" th:if="${errors['nickname'] != null}" th:text="${errors['nickname']}" role="alert"></p>
         </div>
 
-        <div class="field" th:if="${pictureUrl != null}">
-            <label><input type="checkbox" name="useSocialPicture" value="true" th:checked="${form.useSocialPicture}"> 프로필 사진 사용</label>
+        <!-- 003: 허용 호스트(HTTPS)의 소셜 사진만 256 크기로 미리보기. 가입 직후 브라우저가 우리 저장소로 복사한다 -->
+        <div class="field profile-image-row" th:if="${pictureUrl != null}">
+            <img class="avatar" th:src="${pictureUrl}" alt="" width="48" height="48" referrerpolicy="no-referrer"
+                 style="width:48px;height:48px">
+            <label><input type="checkbox" name="useSocialPicture" value="true" th:checked="${form.useSocialPicture}">
+                <span th:text="${providerName} + ' 프로필 사진 사용'">프로필 사진 사용</span></label>
         </div>
 
         <fieldset class="field">

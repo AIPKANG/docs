@@ -175,15 +175,15 @@ description: "003-profile 구현 작업 목록 (media 모듈 최소 골격 포�
 
 ### Tests for User Story 3 ⚠️ (먼저 작성, 실패 확인)
 
-- [ ] T266 [P] [US3] `src/test/java/com/team/blog/account/unit/SocialPictureUrlPolicyTest.java`: Google `…/a/abc=s96-c` → `…=s256-c`, 크기 매개변수 없으면 `=s256-c` 추가, GitHub `…/u/1?v=4` → `…?v=4&s=256`, 기존 `s` 교체; `http://`, 다른 호스트(`lh3.googleusercontent.com.evil.com`, `evil.com`), userinfo, 다른 포트, 공급자-호스트 불일치 → empty
-- [ ] T267 [P] [US3] `src/test/java/com/team/blog/account/integration/SocialPictureIT.java`: (1) 허용 호스트 사진의 Google 대기 정보 → `/signup/social` 화면에 `=s256-c` 주소·체크 상자(기본 체크) (2) 허용 밖 주소 → 화면에 주소·체크 상자 없음 (3) 체크한 채 완료 → 303 `/settings/social-picture`, 그 화면 `data-picture-url` = 거른 주소, 두 번째 열기 → 303 `/`(한 번만) (4) 체크 해제 → 303 `/`, 기본 아이콘 (5) 인증된 이메일 없는 GitHub 가입 → 303 `/` (6) 브라우저 흐름 흉내(presign → PUT → complete → PATCH) 뒤 `member.profile_image_url`이 저장소 공개 주소로 시작하고 소셜 호스트를 포함하지 않음(SC-005), DB 어디에도 소셜 주소 없음
+- [X] T266 [P] [US3] `src/test/java/com/team/blog/account/unit/SocialPictureUrlPolicyTest.java`: Google `…/a/abc=s96-c` → `…=s256-c`, 크기 매개변수 없으면 `=s256-c` 추가, GitHub `…/u/1?v=4` → `…?v=4&s=256`, 기존 `s` 교체; `http://`, 다른 호스트(`lh3.googleusercontent.com.evil.com`, `evil.com`), userinfo, 다른 포트, 공급자-호스트 불일치 → empty
+- [X] T267 [P] [US3] `src/test/java/com/team/blog/account/integration/SocialPictureIT.java`: (1) 허용 호스트 사진의 Google 대기 정보 → `/signup/social` 화면에 `=s256-c` 주소·체크 상자(기본 체크) (2) 허용 밖 주소 → 화면에 주소·체크 상자 없음 (3) 체크한 채 완료 → 303 `/settings/social-picture`, 그 화면 `data-picture-url` = 거른 주소, 두 번째 열기 → 303 `/`(한 번만) (4) 체크 해제 → 303 `/`, 기본 아이콘 (5) 인증된 이메일 없는 GitHub 가입 → 303 `/` (6) 브라우저 흐름 흉내(presign → PUT → complete → PATCH) 뒤 `member.profile_image_url`이 저장소 공개 주소로 시작하고 소셜 호스트를 포함하지 않음(SC-005), DB 어디에도 소셜 주소 없음
 
 ### Implementation for User Story 3
 
-- [ ] T268 [P] [US3] `account/domain/SocialPictureUrlPolicy.java`(`sanitize(Provider, String) → Optional<String>`, 허용 호스트·크기 설정 주입은 `ProfileProperties`) 
-- [ ] T269 [US3] `account/web/SocialSignupController.java`(001): `page()`의 `pictureUrl`을 정책 통과 값으로, 완료 후 "사진 사용" + 거른 주소 + `pending.hasVerifiedEmail()`이면 세션 `PENDING_PROFILE_PICTURE_URL`에 넣고 303 `/settings/social-picture`, 아니면 `/`. `social-signup.html` 체크 상자 옆 미리보기 `<img alt="" width=48 height=48>`
-- [ ] T270 [US3] `SettingsController` `GET /settings/social-picture`(로그인 필요, 세션 값을 꺼내 지움, 없으면 303 `/`) + `templates/settings/social-picture.html`(진행 표시, 실패 안내 "소셜 사진을 가져오지 못했어요. 설정에서 직접 올릴 수 있어요" + [계속하기] `/`·[설정으로] `/settings`, `<noscript>`에 같은 안내)
-- [ ] T271 [US3] `static/js/profile/social-picture.js`: `fetch(url, {mode:'cors', credentials:'omit', referrerPolicy:'no-referrer'})` 5초 `AbortController` → `createImageBitmap` → 가운데 정사각형 → 256×256 WebP 0.85 → `image-upload.js` 흐름 → `PATCH /api/me/profile {profileImageId}` → 성공 `/`, 실패 안내 표시
+- [X] T268 [P] [US3] `account/domain/SocialPictureUrlPolicy.java`(`sanitize(Provider, String) → Optional<String>`, 허용 호스트·크기 설정 주입은 `ProfileProperties`) 
+- [X] T269 [US3] `account/web/SocialSignupController.java`(001): `page()`의 `pictureUrl`을 정책 통과 값으로, 완료 후 "사진 사용" + 거른 주소 + `pending.hasVerifiedEmail()`이면 세션 `PENDING_PROFILE_PICTURE_URL`에 넣고 303 `/settings/social-picture`, 아니면 `/`. `social-signup.html` 체크 상자 옆 미리보기 `<img alt="" width=48 height=48>`
+- [X] T270 [US3] `SettingsController` `GET /settings/social-picture`(로그인 필요, 세션 값을 꺼내 지움, 없으면 303 `/`) + `templates/settings/social-picture.html`(진행 표시, 실패 안내 "소셜 사진을 가져오지 못했어요. 설정에서 직접 올릴 수 있어요" + [계속하기] `/`·[설정으로] `/settings`, `<noscript>`에 같은 안내)
+- [X] T271 [US3] `static/js/profile/social-picture.js`: `fetch(url, {mode:'cors', credentials:'omit', referrerPolicy:'no-referrer'})` 5초 `AbortController` → `createImageBitmap` → 가운데 정사각형 → 256×256 WebP 0.85 → `image-upload.js` 흐름 → `PATCH /api/me/profile {profileImageId}` → 성공 `/`, 실패 안내 표시
 
 **Checkpoint**: 모든 스토리 독립 동작.
 
