@@ -24,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 글 저장 요청 본문 1MB 제한(FR-008) → 413 {@code PAYLOAD_TOO_LARGE}. {@code Content-Length}가 있으면 그것으로, 없으면
+ * 글 저장·미리보기 요청 본문 1MB 제한(004 FR-008) → 413 {@code PAYLOAD_TOO_LARGE}. {@code Content-Length}가 있으면 그것으로, 없으면
  * 최대 한도+1바이트까지만 읽어 판정하고 읽은 본문을 그대로 다음 단계에 넘긴다.
  */
 @Component
@@ -44,7 +44,8 @@ public class AutosaveBodyLimitFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
         String method = request.getMethod();
-        return !(path.startsWith("/api/posts") && ("PUT".equals(method) || "POST".equals(method)));
+        return !((path.startsWith("/api/posts") || path.startsWith("/api/markdown"))
+                && ("PUT".equals(method) || "POST".equals(method)));
     }
 
     @Override

@@ -202,3 +202,13 @@ blog:
       min-age: 24h
       batch-size: 500
       lock-ttl: 10m
+  # 007-content-sanitize: 렌더링 한도·미리보기·다시 렌더링(12 §7). MarkdownProperties 참고
+  markdown:
+    max-nesting: 20
+    render-timeout: 1s
+    site-origin: ${blog.auth.mail.link-base-url}
+    preview-per-minute: 60
+    rerender:
+      enabled: true
+      cron: "0 10 5 * * *"
+      batch-size: 100

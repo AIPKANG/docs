@@ -26,10 +26,16 @@
         <label for="post-content" class="visually-hidden">본문 (Markdown)</label>
         <textarea id="post-content" placeholder="Markdown으로 써 보세요" th:text="${post.contentMd()}"></textarea>
     </div>
+    <!-- 007 미리보기: 서버 렌더러와 같은 결과(12 §7-6) -->
+    <section id="preview-panel" class="preview-panel" aria-label="미리보기" hidden>
+        <p id="preview-status" class="help" role="status"></p>
+        <div id="preview-body" class="post-body"></div>
+    </section>
 
     <div class="editor-bar">
         <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
         <div class="editor-actions">
+            <button type="button" id="preview-toggle" aria-controls="preview-panel" aria-expanded="false">미리보기</button>
             <button type="button" id="discard-working-copy" th:if="${published}">변경 취소</button>
             <button type="button" id="manual-save">저장</button>
         </div>
@@ -67,6 +73,7 @@
     <script src="/js/editor/diff.js" defer></script>
     <script src="/js/editor/autosave.js" defer></script>
     <script src="/js/editor/editor.js" defer></script>
+    <script src="/js/editor/preview.js" defer></script>
 </main>
 </body>
 </html>

@@ -179,6 +179,13 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.SERVICE_UNAVAILABLE, error(SaveDelayedException.CODE).withVersion(e.getVersion()));
     }
 
+    // ----- 007: 본문 렌더링 -----
+
+    @ExceptionHandler(ContentTooComplexException.class)
+    public ResponseEntity<ErrorResponse> contentTooComplex() {
+        return json(HttpStatus.BAD_REQUEST, error(ContentTooComplexException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {
