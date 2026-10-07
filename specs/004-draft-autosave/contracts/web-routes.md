@@ -11,7 +11,7 @@
 | 메서드·경로 | 결과 | 요구사항 |
 |---|---|---|
 | `POST /write` | 새 임시글(`edit_version` 0, 공개 범위 = 회원 기본값) → 303 `/write/{postId}` | FR-015, US1-1 |
-| `GET /write/{postId}` | 편집 화면: 제목·본문(현재 내용, research R-2), 상태 줄, [저장], 발행 글이면 "수정 중" 안내와 [변경 취소], 충돌 배너·비교 창 자리. 서버 내용은 `<script type="application/json" id="editor-state">`로 | FR-019, FR-023 |
+| `GET /write/{postId}` | 편집 화면: 제목·본문(현재 내용, research R-2), 상태 줄, [저장], 발행 글이면 "수정 중" 안내와 [변경 취소], 충돌 배너·비교 창 자리. 서버 내용과 저장 간격은 `#editor[data-state]` 속성 하나에 JSON으로(속성 값은 Thymeleaf가 이스케이프) | FR-019, FR-023 |
 | `GET /manage/posts` | 내 글 최소 목록: 제목(없으면 "(제목 없음)"), 배지 `임시저장`/`발행`/`수정 중`, 마지막 수정 시각, 편집 링크, [새 글] | FR-023 |
 
 머리글(로그인 시): [새 글](POST /write 폼), [내 글](/manage/posts).

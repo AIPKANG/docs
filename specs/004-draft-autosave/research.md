@@ -80,7 +80,7 @@
 
 - **Decision**:
   - `POST /write`(폼, CSRF) → 새 임시글 → 303 `/write/{postId}`. 머리글에 [새 글] 버튼(로그인 시).
-  - `GET /write/{postId}` → 편집 화면(제목 입력, Markdown 본문 `textarea`, 상태 줄, [저장], 발행 글이면 [변경 취소]). 서버 현재 내용(R-2)을 `data-*`가 아닌 `<script type="application/json">`(Thymeleaf `th:inline` 없이 `th:text`로 JSON 문자열 이스케이프)로 넘긴다.
+  - `GET /write/{postId}` → 편집 화면(제목 입력, Markdown 본문 `textarea`, 상태 줄, [저장], 발행 글이면 [변경 취소]). 서버 현재 내용(R-2)은 `data-state` 속성 하나에 JSON으로 넘긴다(구현 메모 I-2).
   - `GET /manage/posts` → 최소 "내 글" 목록(제목 또는 "(제목 없음)", 배지 임시저장/발행/수정 중, 마지막 수정 시각, 편집 링크). 탭·페이지·휴지통·삭제는 011이 넓힌다.
   - 발행 버튼은 005가 더한다. 미리보기(렌더링)는 005·007.
 - **Rationale**: "다른 날 다시 열어 이어 쓴다"(US1-5)를 화면에서 확인하려면 다시 열 곳이 있어야 한다. 011 전체를 당겨오지 않고 최소만 둔다.
@@ -107,3 +107,14 @@
 | U-3 | 최소 "내 글" 목록을 004에서 먼저 만듦 | 011이 같은 경로를 넓힌다 |
 | U-4 | `jsdiff`·`localforage` 대신 자체 구현 | 자체 구현(R-10) |
 | U-5 | 수동 저장의 DB 반영 실패 시 503 `SAVE_DELAYED` + `version` | R-5 |
+
+---
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+
+- **I-1. 새 글 행은 JDBC로 만든다.** T305의 JPA 엔터티 대신 `PostEditStore.insertDraft`(`RETURNING id`)를 썼다. 조건부 반영 SQL과 한 저장소에 두는 편이 단순했다. 005가 엔터티를 원하면 V1 매핑으로 추가한다.
+- **I-2. 편집 화면 초기 상태는 `data-state` 속성.** `<script type="application/json">` 안에 `th:text`를 쓰면 HTML 엔터티가 풀리지 않아 `JSON.parse`가 깨진다. 속성 값은 브라우저가 엔터티를 풀므로 `data-state` 하나에 JSON을 넣었다(`</script>` 제목도 안전, `EditorPageIT`).
+- **I-3. 빈 글 판정의 `btrim`은 공백·탭·줄바꿈을 모두 지운다.** PostgreSQL `btrim(x)`는 기본으로 공백만 지워서 `btrim(x, E' \t\r\n')`로 바꿨다(`EmptyDraftCleanupIT`가 잡음).
+- **I-4. `[hidden]` 전역 규칙.** 충돌 배너처럼 `display:flex`를 준 클래스가 `hidden` 속성을 이겨 배너가 사라지지 않았다. `layout/base.html`에 `[hidden] { display: none !important; }`를 더했다(로컬 화면 확인에서 발견).
+- **I-5. 로컬 화면 확인(2026-10-07, 크롬 계열 브라우저 창).** 새 글 → 입력 1초 뒤 "● 이 기기에 저장됨 (동기화 대기)", 3초 뒤 "✓ 저장됨 HH:MM" / 두 탭 충돌 → 배너·상태 줄·비교 창(줄·단어 강조, −/+) / [편집 중인 내용으로 저장] 확인 문구 후 저장 / 출발 버전이 다른 로컬 데이터로 다시 열기 → 비교 창 즉시(제목 비교 포함) / [저장된 내용 불러오기] → 7일 백업·안내 / [새 임시글로 따로 저장] → 새 글로 이동, 내 글 목록에 두 글. 오프라인 표시·`beforeunload`·`pagehide` 전송은 브라우저 개발자 도구로 직접 확인이 필요하다(quickstart S2).
+- **I-6. 테스트 수.** 004 통합 테스트 37개 + 단위 6개, diff 자체 검사 9개(Node). 전체 Gradle 테스트 356개 통과.
