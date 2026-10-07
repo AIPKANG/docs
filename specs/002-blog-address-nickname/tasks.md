@@ -218,10 +218,10 @@ description: "002-blog-address-nickname 구현 작업 목록 (프로젝트 골�
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T084 [P] `handle` 변경 경로 점검: `src/main/java` 전체에서 `member.handle`을 UPDATE하는 JPQL·네이티브 쿼리·메서드가 없는지 확인하는 테스트 `src/test/java/com/team/blog/account/unit/NoHandleUpdatePathTest.java`(소스 검색 기반, SC-004)
-- [ ] T085 [P] 금칙어 비노출 점검: 모든 오류 응답·로그 출력에 금칙어가 없는지 `src/test/java/com/team/blog/account/integration/BannedWordLeakIT.java`(로그 캡처 + 주소·닉네임 API·예외 응답 본문 검사, SC-006)
-- [ ] T086 [P] 성능 확인: 사용 가능 여부 API 서버 응답 p95 100ms 이내(회원 1만 행 기준, SC-008)를 `src/test/java/com/team/blog/account/integration/AvailabilityLatencyIT.java`로 측정하고 `EXPLAIN`으로 `uq_member_handle`·`uq_member_nickname` 인덱스 사용 확인
-- [ ] T087 전체 테스트 `./gradlew test` 통과 확인, quickstart.md S1~S7 중 002 단독으로 가능한 항목(S1-1 서버 부분, S2-1~4 서비스 부분, S3, S5, S6, S7-1) 수행. 가입 화면 수동 항목(S1-2~4, S2-5, S7-2)은 001 T134·T163 완료 후 001 Polish(T175)에서 함께 확인
+- [X] T084 [P] `handle` 변경 경로 점검: `src/main/java` 전체에서 `member.handle`을 UPDATE하는 JPQL·네이티브 쿼리·메서드가 없는지 확인하는 테스트 `src/test/java/com/team/blog/account/unit/NoHandleUpdatePathTest.java`(소스 검색 기반, SC-004)
+- [X] T085 [P] 금칙어 비노출 점검: 모든 오류 응답·로그 출력에 금칙어가 없는지 `src/test/java/com/team/blog/account/integration/BannedWordLeakIT.java`(로그 캡처 + 주소·닉네임 API·예외 응답 본문 검사, SC-006)
+- [X] T086 [P] 성능 확인: 사용 가능 여부 API 서버 응답 p95 100ms 이내(회원 1만 행 기준, SC-008)를 `src/test/java/com/team/blog/account/integration/AvailabilityLatencyIT.java`로 측정하고 `EXPLAIN`으로 `uq_member_handle`·`uq_member_nickname` 인덱스 사용 확인
+- [X] T087 전체 테스트 `./gradlew test` 통과 확인, quickstart.md S1~S7 중 002 단독으로 가능한 항목(S1-1 서버 부분, S2-1~4 서비스 부분, S3, S5, S6, S7-1) 수행. 가입 화면 수동 항목(S1-2~4, S2-5, S7-2)은 001 T134·T163 완료 후 001 Polish(T175)에서 함께 확인
 
 ---
 

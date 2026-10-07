@@ -177,3 +177,22 @@
 | U-4 | 주소 미리 채우기용 `POST /api/handles/suggestion` | 08 원문에 없는 보조 API를 추가(R-4) | 팀 확인 권장 |
 | U-5 | GitHub `name`이 비었을 때 `login`으로 닉네임 미리 채우기 | `login` 사용(R-13) | 원문 미정, 합리적 기본값 |
 | U-6 | 블로그 주소 금칙어 검사 시 `_` 제거 변형 추가 | 본문 그대로 + `_` 제거 둘 다 검사(R-9) | 원문 미정, 보수적 선택 |
+
+---
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+
+tasks.md와 다르게 하거나 tasks.md에 없는 세부를 정한 곳. 모두 계약(contracts/)의 동작은 그대로다.
+
+| # | 내용 | 이유 |
+|---|---|---|
+| I-1 | `MemberUniqueViolationTranslator.SignupContext`에 `handle`(제출한 주소) 필드를 추가했다(`email(handle)`, `social(provider, providerUserId, handle)`). | `uq_member_handle` 위반 예외에는 어떤 값이 걸렸는지 믿을 만한 형태로 들어 있지 않아, 대안 주소의 기준을 호출자가 넘긴다. 001 T161이 같은 모양으로 호출한다. |
+| I-2 | `CurrentUser.role`은 `String`(`USER`/`ADMIN`)이다. | `shared.security`가 `account.domain.Role`에 기대지 않게 했다. 001이 필요하면 `Role.valueOf(role)`로 바꾼다. |
+| I-3 | `Handle`·`HandlePrefix`·`Nickname`과 형식 상수(`HandleRules.FORMAT`, `NicknameRules.FORMAT`/`LETTER`)를 Phase 2에서 먼저 만들었다(T045·T048·T064 일부). | T028 `Member(Handle, Nickname, Instant)` 생성자가 이 값 객체를 쓴다. |
+| I-4 | 금칙어 필터는 예외 단어를 "지운" 자리를 경계로 둔다(앞뒤 조각을 이어 붙여 새 부분 문자열을 만들지 않음). | `시발점` 같은 예외를 지운 뒤 앞뒤 글자가 이어져 생기는 오탐을 막는다. 예외 밖의 금칙어(`시발점병신`)는 그대로 차단된다. |
+| I-5 | `HandleService.prefill(email, provider, RandomGenerator)` 오버로드를 공개했다. | 08 §3 8단계(`user_483920`) 예시를 통합 테스트에서 그대로 재현하기 위함. 운영 경로는 `SecureRandom`을 쓰는 2인자 메서드다. |
+| I-6 | `compose.yaml`의 호스트 포트를 `${DB_PORT:-5432}`, `${REDIS_PORT:-6379}`, `${MAIL_PORT:-1025}`, `${MAILPIT_WEB_PORT:-8025}`로 바꿀 수 있게 했다(기본값은 tasks 그대로). Redis 이미지는 `redis:8`. | 같은 기계의 다른 프로젝트가 기본 포트를 쓰고 있어도 띄울 수 있게. |
+| I-7 | `build.gradle.kts`의 테스트 태스크는 `DOCKER_HOST`가 없고 Colima 소켓(`~/.colima/default/docker.sock`)이 있으면 그 소켓을 Testcontainers에 알려 준다. | `/var/run/docker.sock`이 없는 Colima 환경에서 Testcontainers가 Docker를 찾지 못했다. 다른 환경에는 영향 없음. |
+| I-8 | `GlobalExceptionHandler`가 `NoResourceFoundException`(경로 없음)도 `NotFoundException`과 같은 404 화면으로 그린다. | 없는 경로·없는 주소·탈퇴 주소의 404 본문을 똑같이 맞춘다(헌법 III). |
+| I-9 | `AvailabilityLatencyIT`의 p95는 MockMvc(서버 처리 시간) 기준이다. 요청 제한에 걸리지 않게 요청마다 원격 IP를 바꾼다. | SC-008은 서버 응답 시간 기준. |
+| I-10 | 가입 화면 마크업(001 T134·T163)이 붙기 전이라 화면 JS(`handle-field.js`, `availability.js`)와 quickstart 수동 항목(S1-2~4, S2-5, S7-2)은 브라우저로 확인하지 않았다. | 001 Polish(T175)에서 함께 확인한다(tasks T087). |
