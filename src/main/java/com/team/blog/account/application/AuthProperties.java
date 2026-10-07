@@ -16,6 +16,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param pendingSocialTtl 소셜 가입 대기 정보 유효 시간(FR-021)
  * @param password         비밀번호 정책 세부값(FR-012, FR-013)
  * @param mail             메일 발신 주소·링크 기준 주소
+ * @param passwordChange   003 비밀번호 변경 잠금(11 §6-2)
  */
 @ConfigurationProperties("blog.auth")
 public record AuthProperties(
@@ -27,7 +28,12 @@ public record AuthProperties(
         @DefaultValue("14d") Duration sessionTimeout,
         @DefaultValue("10m") Duration pendingSocialTtl,
         @DefaultValue Password password,
-        @DefaultValue Mail mail) {
+        @DefaultValue Mail mail,
+        @DefaultValue PasswordChange passwordChange) {
+
+    /** @param maxFailures 현재 비밀번호 연속 실패 몇 번째에 잠그는지 @param lockDuration 잠금 시간 */
+    public record PasswordChange(@DefaultValue("5") int maxFailures, @DefaultValue("15m") Duration lockDuration) {
+    }
 
     /** @param perMinute 1분 한도 @param perDay 하루 한도 */
     public record VerifyResend(@DefaultValue("1") int perMinute, @DefaultValue("10") int perDay) {

@@ -141,6 +141,22 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(InvalidProfileImageException.CODE));
     }
 
+    // ----- 003: 비밀번호 변경 -----
+
+    @ExceptionHandler({PasswordNotSupportedException.class, CurrentPasswordMismatchException.class,
+            PasswordSameAsCurrentException.class})
+    public ResponseEntity<ErrorResponse> passwordChangeRejected(RuntimeException e) {
+        return json(HttpStatus.BAD_REQUEST, error(e.getMessage()));
+    }
+
+    @ExceptionHandler(PasswordChangeLockedException.class)
+    public ResponseEntity<ErrorResponse> passwordChangeLocked(PasswordChangeLockedException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(e.getRetryAfterSeconds()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(error(PasswordChangeLockedException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

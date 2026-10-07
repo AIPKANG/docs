@@ -148,20 +148,20 @@ description: "003-profile 구현 작업 목록 (media 모듈 최소 골격 포�
 
 ### Tests for User Story 4 ⚠️ (먼저 작성, 실패 확인)
 
-- [ ] T255 [P] [US4] `src/test/java/com/team/blog/account/integration/PasswordChangeIT.java`(`Browser` A·B로 실제 로그인): (1) A에서 변경 204 → A 세션 쿠키 값이 바뀌고 A의 다음 요청 로그인 유지, B는 로그인 필요, 새 비밀번호로 로그인 성공·옛 비밀번호 실패, Mailpit에 "비밀번호가 변경됐어요" 메일(재설정 링크 `/password/forgot`) (2) 현재 비밀번호 틀림 → 400 `CURRENT_PASSWORD_MISMATCH`, 5회 → 6번째는 맞는 비밀번호여도 429 `PASSWORD_CHANGE_LOCKED` + `Retry-After`, 15분 뒤(Redis TTL) 해제 (3) 새 = 현재 → `PASSWORD_SAME_AS_CURRENT` (4) 정책 위반(`short1!`)·확인 불일치 → 400 `VALIDATION_FAILED`(`newPassword`, `newPasswordConfirm`) (5) 소셜 계정 → 400 `PASSWORD_NOT_SUPPORTED` (6) 비회원 401
-- [ ] T256 [P] [US4] `src/test/java/com/team/blog/account/integration/DefaultVisibilityIT.java`: `PRIVATE`로 변경 → 200, `AccountSettingsService.defaultVisibility` = `PRIVATE`, `GET /api/me/profile` 반영; `FRIENDS`·`ALL`·없음 → 400 `INVALID_VISIBILITY`; 비회원 401
-- [ ] T257 [P] [US4] `src/test/java/com/team/blog/account/integration/SettingsPageIT.java`: LOCAL 회원 화면에 [비밀번호 변경] 폼, 소셜 회원 화면에는 없음; 이메일·주소 읽기 전용 "변경할 수 없어요"; 기본 공개 범위 라디오 현재 값 선택; 탈퇴 진입 링크; 30일 제한 중 닉네임 비활성 + 다음 변경 가능일; 인증 전 회원은 [이미지 변경] 대신 안내
+- [X] T255 [P] [US4] `src/test/java/com/team/blog/account/integration/PasswordChangeIT.java`(`Browser` A·B로 실제 로그인): (1) A에서 변경 204 → A 세션 쿠키 값이 바뀌고 A의 다음 요청 로그인 유지, B는 로그인 필요, 새 비밀번호로 로그인 성공·옛 비밀번호 실패, Mailpit에 "비밀번호가 변경됐어요" 메일(재설정 링크 `/password/forgot`) (2) 현재 비밀번호 틀림 → 400 `CURRENT_PASSWORD_MISMATCH`, 5회 → 6번째는 맞는 비밀번호여도 429 `PASSWORD_CHANGE_LOCKED` + `Retry-After`, 15분 뒤(Redis TTL) 해제 (3) 새 = 현재 → `PASSWORD_SAME_AS_CURRENT` (4) 정책 위반(`short1!`)·확인 불일치 → 400 `VALIDATION_FAILED`(`newPassword`, `newPasswordConfirm`) (5) 소셜 계정 → 400 `PASSWORD_NOT_SUPPORTED` (6) 비회원 401
+- [X] T256 [P] [US4] `src/test/java/com/team/blog/account/integration/DefaultVisibilityIT.java`: `PRIVATE`로 변경 → 200, `AccountSettingsService.defaultVisibility` = `PRIVATE`, `GET /api/me/profile` 반영; `FRIENDS`·`ALL`·없음 → 400 `INVALID_VISIBILITY`; 비회원 401
+- [X] T257 [P] [US4] `src/test/java/com/team/blog/account/integration/SettingsPageIT.java`: LOCAL 회원 화면에 [비밀번호 변경] 폼, 소셜 회원 화면에는 없음; 이메일·주소 읽기 전용 "변경할 수 없어요"; 기본 공개 범위 라디오 현재 값 선택; 탈퇴 진입 링크; 30일 제한 중 닉네임 비활성 + 다음 변경 가능일; 인증 전 회원은 [이미지 변경] 대신 안내
 
 ### Implementation for User Story 4
 
-- [ ] T258 [P] [US4] `account/infra/LoginAttemptStore.java`에 키를 받는 `isLocked(String lockKey)`, `recordFailure(String failKey, String lockKey, int max, Duration lock)`, `clear(String failKey)`, `lockTtlSeconds(lockKey)` 추가(기존 이메일 메서드는 이 메서드에 위임), 비밀번호 변경 키 `auth:pw-change-fail:{memberId}`, `auth:pw-change-lock:{memberId}`
-- [ ] T259 [P] [US4] `account/application/SessionRevoker.java`에 `revokeAllExcept(long memberId, String keepSessionId)` 추가
-- [ ] T260 [P] [US4] `shared/event/PasswordChanged.java`(memberId, email, keepSessionId; `toString` 마스킹) + `shared/error/PasswordNotSupportedException`, `CurrentPasswordMismatchException`, `PasswordSameAsCurrentException`, `PasswordChangeLockedException(retryAfterSeconds)` + `GlobalExceptionHandler` 매핑(400·400·400·429+`Retry-After`)
-- [ ] T261 [US4] `account/application/PasswordChangeService.java`: research R-13 순서(LOCAL 아님 → 잠금 → BCrypt 비교 실패(+1, 5회째 잠금) → 같음 → `PasswordPolicy.validate(new, email)`·확인 → `ProfileValidationException`) → `changePasswordHash` → 실패 수 삭제 → `PasswordChanged` 발행; `blog.auth.password-change.*` 설정(`AuthProperties`에 추가)
-- [ ] T262 [US4] `account/application/PasswordChangedListener.java`(`@TransactionalEventListener(AFTER_COMMIT)`: `revokeAllExcept`, 메일 `mail/password-changed` 제목 "[블로그] 비밀번호가 변경됐어요", 링크 `{link-base-url}/password/forgot`; 서로 실패 격리, 마스킹 로그) + `templates/mail/password-changed.html`
-- [ ] T263 [US4] `account/web/AccountApiController.java`: `POST /api/me/password`(지금 세션 ID를 넘겨 서비스 호출 → 성공 뒤 `request.changeSessionId()` → 204), `PATCH /api/me/settings`
-- [ ] T264 [US4] `account/application/AccountSettingsService.java`: `defaultVisibility(memberId)`, `changeDefaultVisibility(CurrentUser, value)`(`PUBLIC`/`PRIVATE`만, 그 밖 `INVALID_VISIBILITY` — 친구 공개는 추가 구현자가 값 추가)
-- [ ] T265 [US4] 설정 화면에 [비밀번호 변경] 폼(LOCAL만, 현재·새·확인, 001 `password-rules.js` 규칙 표시 재사용)과 기본 공개 범위 라디오 + `settings.js`에 두 API 연결(오류 칸 표시, 변경 성공 안내)
+- [X] T258 [P] [US4] `account/infra/LoginAttemptStore.java`에 키를 받는 `isLocked(String lockKey)`, `recordFailure(String failKey, String lockKey, int max, Duration lock)`, `clear(String failKey)`, `lockTtlSeconds(lockKey)` 추가(기존 이메일 메서드는 이 메서드에 위임), 비밀번호 변경 키 `auth:pw-change-fail:{memberId}`, `auth:pw-change-lock:{memberId}`
+- [X] T259 [P] [US4] `account/application/SessionRevoker.java`에 `revokeAllExcept(long memberId, String keepSessionId)` 추가
+- [X] T260 [P] [US4] `shared/event/PasswordChanged.java`(memberId, email, keepSessionId; `toString` 마스킹) + `shared/error/PasswordNotSupportedException`, `CurrentPasswordMismatchException`, `PasswordSameAsCurrentException`, `PasswordChangeLockedException(retryAfterSeconds)` + `GlobalExceptionHandler` 매핑(400·400·400·429+`Retry-After`)
+- [X] T261 [US4] `account/application/PasswordChangeService.java`: research R-13 순서(LOCAL 아님 → 잠금 → BCrypt 비교 실패(+1, 5회째 잠금) → 같음 → `PasswordPolicy.validate(new, email)`·확인 → `ProfileValidationException`) → `changePasswordHash` → 실패 수 삭제 → `PasswordChanged` 발행; `blog.auth.password-change.*` 설정(`AuthProperties`에 추가)
+- [X] T262 [US4] `account/application/PasswordChangedListener.java`(`@TransactionalEventListener(AFTER_COMMIT)`: `revokeAllExcept`, 메일 `mail/password-changed` 제목 "[블로그] 비밀번호가 변경됐어요", 링크 `{link-base-url}/password/forgot`; 서로 실패 격리, 마스킹 로그) + `templates/mail/password-changed.html`
+- [X] T263 [US4] `account/web/AccountApiController.java`: `POST /api/me/password`(지금 세션 ID를 넘겨 서비스 호출 → 성공 뒤 `request.changeSessionId()` → 204), `PATCH /api/me/settings`
+- [X] T264 [US4] `account/application/AccountSettingsService.java`: `defaultVisibility(memberId)`, `changeDefaultVisibility(CurrentUser, value)`(`PUBLIC`/`PRIVATE`만, 그 밖 `INVALID_VISIBILITY` — 친구 공개는 추가 구현자가 값 추가)
+- [X] T265 [US4] 설정 화면에 [비밀번호 변경] 폼(LOCAL만, 현재·새·확인, 001 `password-rules.js` 규칙 표시 재사용)과 기본 공개 범위 라디오 + `settings.js`에 두 API 연결(오류 칸 표시, 변경 성공 안내)
 
 **Checkpoint**: US1·US2·US4 독립 동작.
 

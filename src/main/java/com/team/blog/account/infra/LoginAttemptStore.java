@@ -42,17 +42,46 @@ public class LoginAttemptStore {
     }
 
     public boolean isLocked(String email) {
-        return Boolean.TRUE.equals(redis.hasKey(lockKey(email)));
+        return isLockedKey(lockKey(email));
     }
 
     /** @return 이번 실패로 잠겼으면 true */
     public boolean recordFailure(String email, int maxFailures, Duration lockDuration) {
-        Long locked = redis.execute(RECORD_FAILURE, java.util.List.of(failKey(email), lockKey(email)),
+        return recordFailureKeys(failKey(email), lockKey(email), maxFailures, lockDuration);
+    }
+
+    public void clearFailures(String email) {
+        clearKey(failKey(email));
+    }
+
+    // ----- 003: 키를 직접 받는 형태(비밀번호 변경 잠금 auth:pw-change-fail/lock:{memberId}) -----
+
+    public static String passwordChangeFailKey(long memberId) {
+        return "auth:pw-change-fail:" + memberId;
+    }
+
+    public static String passwordChangeLockKey(long memberId) {
+        return "auth:pw-change-lock:" + memberId;
+    }
+
+    public boolean isLockedKey(String lockKey) {
+        return Boolean.TRUE.equals(redis.hasKey(lockKey));
+    }
+
+    /** 연속 실패 +1(TTL 연장), {@code maxFailures}번째에 잠금 키를 {@code lockDuration} 동안 만든다. */
+    public boolean recordFailureKeys(String failKey, String lockKey, int maxFailures, Duration lockDuration) {
+        Long locked = redis.execute(RECORD_FAILURE, java.util.List.of(failKey, lockKey),
                 String.valueOf(lockDuration.toMillis()), String.valueOf(maxFailures));
         return locked != null && locked == 1L;
     }
 
-    public void clearFailures(String email) {
-        redis.delete(failKey(email));
+    public void clearKey(String key) {
+        redis.delete(key);
+    }
+
+    /** 잠금 남은 시간(초, 최소 1). 잠금이 없으면 0. */
+    public long remainingSeconds(String lockKey) {
+        Long ttl = redis.getExpire(lockKey);
+        return ttl == null || ttl < 0 ? 0 : Math.max(1, ttl);
     }
 }
