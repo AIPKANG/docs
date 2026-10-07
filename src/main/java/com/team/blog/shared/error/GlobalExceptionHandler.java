@@ -55,6 +55,18 @@ public class GlobalExceptionHandler {
                 .body(error(RateLimitedException.CODE));
     }
 
+    // ----- 002 US1: 블로그 주소 -----
+
+    @ExceptionHandler(HandleViolationException.class)
+    public ResponseEntity<ErrorResponse> handleViolation(HandleViolationException e) {
+        return json(HttpStatus.BAD_REQUEST, error(e.getCode().name()).withSuggestion(e.getSuggestion()));
+    }
+
+    @ExceptionHandler(HandleTakenException.class)
+    public ResponseEntity<ErrorResponse> handleTaken(HandleTakenException e) {
+        return json(HttpStatus.CONFLICT, error(HandleTakenException.CODE, e.getSuggestion()).withSuggestion(e.getSuggestion()));
+    }
+
     // ----- 도우미 -----
 
     protected ErrorResponse error(String code, Object... args) {
