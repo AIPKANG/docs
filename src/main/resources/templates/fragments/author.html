@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  작성자 표시 조각 (research R-16). author = account.application.AuthorDisplay
+  - byline(author): "닉네임 @주소" (주소는 /@주소 링크) — 글 상세 작성자 영역·댓글·블로그 상단
+  - name(author):   닉네임만 — 글 카드
+  탈퇴(유예·익명 처리)는 "탈퇴한 사용자"만, 링크 없음. 출력은 th:text(이스케이프)만 쓴다.
+-->
+<th:block th:fragment="byline(author)"><span class="author-byline" th:if="${author.withdrawn()}" th:text="${author.shortLabel()}">탈퇴한 사용자</span><span class="author-byline" th:unless="${author.withdrawn()}"><span class="author-nickname" th:text="${author.shortLabel()}">닉네임</span> <a class="author-handle" th:href="${author.blogPath()}" th:text="${'@' + author.handle()}">@주소</a></span></th:block>
+
+<th:block th:fragment="name(author)"><span class="author-name" th:text="${author.shortLabel()}">닉네임</span></th:block>
+</body>
+</html>

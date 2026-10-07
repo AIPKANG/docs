@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${owner.nickname()}">블로그</title>
+</head>
+<body>
+<main>
+    <header class="blog-header">
+        <h1 th:replace="~{fragments/author :: byline(${author})}">닉네임 @주소</h1>
+    </header>
+    <!-- 글 목록(009)·프로필 상단(003)이 이 자리를 채운다 -->
+</main>
+</body>
+</html>

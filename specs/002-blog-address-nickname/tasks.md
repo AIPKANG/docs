@@ -199,18 +199,18 @@ description: "002-blog-address-nickname 구현 작업 목록 (프로젝트 골�
 
 ### Tests for User Story 4 ⚠️ (먼저 작성, 실패 확인)
 
-- [ ] T075 [P] [US4] 통합 테스트 `src/test/java/com/team/blog/account/integration/BlogAddressRoutingIT.java`: `/@Kim755030` → 301 `Location: /@kim755030`, `/@Kim755030/posts/12?x=1` → `/@kim755030/posts/12?x=1`(존재 확인 전에 실행); `/@nobody123`, `/@없는주소`(URL 인코딩) → 404 공통 화면(본문이 다른 404와 같음); 탈퇴 유예·익명 처리 회원 주소 → 404; 익명 처리된 회원의 주소로 `validateForSignup` → `HANDLE_DUPLICATE` + 대안(US4-3, FR-013), 닉네임은 사용 가능
-- [ ] T076 [P] [US4] 단위 테스트 `src/test/java/com/team/blog/account/unit/AuthorDisplayTest.java`: 정상 `fullLabel()` = `김민서 @kim755030`, `shortLabel()` = `김민서`, `blogPath()` = `/@kim755030`; `withdrawnAt` 있음 또는 `nickname = null` → 둘 다 "탈퇴한 사용자", 링크 없음
-- [ ] T077 [P] [US4] 통합 테스트 `src/test/java/com/team/blog/account/integration/AuthorFragmentIT.java`: `fragments/author :: byline`·`:: name` 렌더링 결과(정상·탈퇴), 닉네임·주소는 `th:text` 이스케이프; `MemberSummaryQuery.findByIds`가 회원 여러 명을 쿼리 1번으로 가져옴(Hibernate 통계로 확인, N+1 금지)
+- [X] T075 [P] [US4] 통합 테스트 `src/test/java/com/team/blog/account/integration/BlogAddressRoutingIT.java`: `/@Kim755030` → 301 `Location: /@kim755030`, `/@Kim755030/posts/12?x=1` → `/@kim755030/posts/12?x=1`(존재 확인 전에 실행); `/@nobody123`, `/@없는주소`(URL 인코딩) → 404 공통 화면(본문이 다른 404와 같음); 탈퇴 유예·익명 처리 회원 주소 → 404; 익명 처리된 회원의 주소로 `validateForSignup` → `HANDLE_DUPLICATE` + 대안(US4-3, FR-013), 닉네임은 사용 가능
+- [X] T076 [P] [US4] 단위 테스트 `src/test/java/com/team/blog/account/unit/AuthorDisplayTest.java`: 정상 `fullLabel()` = `김민서 @kim755030`, `shortLabel()` = `김민서`, `blogPath()` = `/@kim755030`; `withdrawnAt` 있음 또는 `nickname = null` → 둘 다 "탈퇴한 사용자", 링크 없음
+- [X] T077 [P] [US4] 통합 테스트 `src/test/java/com/team/blog/account/integration/AuthorFragmentIT.java`: `fragments/author :: byline`·`:: name` 렌더링 결과(정상·탈퇴), 닉네임·주소는 `th:text` 이스케이프; `MemberSummaryQuery.findByIds`가 회원 여러 명을 쿼리 1번으로 가져옴(Hibernate 통계로 확인, N+1 금지)
 
 ### Implementation for User Story 4
 
-- [ ] T078 [P] [US4] `src/main/java/com/team/blog/account/application/AuthorDisplay.java`(`of(handle, nickname, withdrawnAt)`, `fullLabel()`, `shortLabel()`, `blogPath()`) 와 `src/main/java/com/team/blog/account/application/BlogOwner.java`(record `memberId`, `handle`, `nickname`, `bio`, `profileImageUrl`)
-- [ ] T079 [US4] `src/main/java/com/team/blog/account/application/HandleService.java`에 `canonicalPath(String pathHandle)` 추가(대문자가 있으면 소문자 값, 없으면 empty — 존재 여부는 보지 않음)
-- [ ] T080 [US4] `src/main/java/com/team/blog/shared/web/HandlePathCanonicalizer.java`(`OncePerRequestFilter`, 가장 앞 순서로 등록): `/@{handle}`, `/@{handle}/**`의 handle 부분에 대문자가 있으면 그 부분만 소문자로 바꿔 301(나머지 경로·쿼리 유지)
-- [ ] T081 [US4] `src/main/java/com/team/blog/account/application/BlogOwnerResolver.java`(`resolve(String handle)` → `Optional<BlogOwner>`: 형식(`HandleRules` 상수)에 맞지 않으면 조회 없이 empty, `findActiveByHandle`로 `status <> 'WITHDRAWN'`만) 와 `src/main/java/com/team/blog/account/application/MemberSummaryQuery.java`(`findByIds(Collection<Long>)` → `Map<Long, AuthorDisplay>`, `IN` 한 번, 탈퇴·익명 회원 포함)
-- [ ] T082 [P] [US4] 표시 조각 `src/main/resources/templates/fragments/author.html`(`byline(author)` → `닉네임 @주소`(주소는 `/@주소` 링크), `name(author)` → 닉네임만; 탈퇴는 "탈퇴한 사용자"만, `th:text`만 사용)
-- [ ] T083 [US4] 블로그 진입 자리표시 `src/main/java/com/team/blog/discovery/web/BlogPageController.java` + `src/main/resources/templates/blog/home.html`: `GET /@{handle}` → `BlogOwnerResolver.resolve` 결과가 없으면 `NotFoundException`(404), 있으면 상단에 `byline` 조각만 그린다. 글 목록·프로필 상단 내용은 009·003이 이 컨트롤러·템플릿을 채운다(plan에 컨트롤러가 없어 추가한 최소 구현)
+- [X] T078 [P] [US4] `src/main/java/com/team/blog/account/application/AuthorDisplay.java`(`of(handle, nickname, withdrawnAt)`, `fullLabel()`, `shortLabel()`, `blogPath()`) 와 `src/main/java/com/team/blog/account/application/BlogOwner.java`(record `memberId`, `handle`, `nickname`, `bio`, `profileImageUrl`)
+- [X] T079 [US4] `src/main/java/com/team/blog/account/application/HandleService.java`에 `canonicalPath(String pathHandle)` 추가(대문자가 있으면 소문자 값, 없으면 empty — 존재 여부는 보지 않음)
+- [X] T080 [US4] `src/main/java/com/team/blog/shared/web/HandlePathCanonicalizer.java`(`OncePerRequestFilter`, 가장 앞 순서로 등록): `/@{handle}`, `/@{handle}/**`의 handle 부분에 대문자가 있으면 그 부분만 소문자로 바꿔 301(나머지 경로·쿼리 유지)
+- [X] T081 [US4] `src/main/java/com/team/blog/account/application/BlogOwnerResolver.java`(`resolve(String handle)` → `Optional<BlogOwner>`: 형식(`HandleRules` 상수)에 맞지 않으면 조회 없이 empty, `findActiveByHandle`로 `status <> 'WITHDRAWN'`만) 와 `src/main/java/com/team/blog/account/application/MemberSummaryQuery.java`(`findByIds(Collection<Long>)` → `Map<Long, AuthorDisplay>`, `IN` 한 번, 탈퇴·익명 회원 포함)
+- [X] T082 [P] [US4] 표시 조각 `src/main/resources/templates/fragments/author.html`(`byline(author)` → `닉네임 @주소`(주소는 `/@주소` 링크), `name(author)` → 닉네임만; 탈퇴는 "탈퇴한 사용자"만, `th:text`만 사용)
+- [X] T083 [US4] 블로그 진입 자리표시 `src/main/java/com/team/blog/discovery/web/BlogPageController.java` + `src/main/resources/templates/blog/home.html`: `GET /@{handle}` → `BlogOwnerResolver.resolve` 결과가 없으면 `NotFoundException`(404), 있으면 상단에 `byline` 조각만 그린다. 글 목록·프로필 상단 내용은 009·003이 이 컨트롤러·템플릿을 채운다(plan에 컨트롤러가 없어 추가한 최소 구현)
 
 **Checkpoint**: 모든 스토리(US1~US4)가 각자 테스트로 검증된다.
 
