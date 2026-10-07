@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
@@ -26,13 +28,22 @@ public class SecurityConfig {
 
     public static final String CSRF_HEADER = "X-CSRF-TOKEN";
 
+    /** SecurityContext는 세션(Spring Session → Redis)에 명시적으로 저장한다(001 T110). */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityContextRepository securityContextRepository)
+            throws Exception {
         HttpSessionCsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
         csrfTokenRepository.setHeaderName(CSRF_HEADER);
 
         http
                 .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository))
+                .securityContext(context -> context.securityContextRepository(securityContextRepository))
+                .sessionManagement(session -> session.sessionFixation(fixation -> fixation.changeSessionId()))
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
                         .contentTypeOptions(Customizer.withDefaults())

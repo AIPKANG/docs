@@ -93,6 +93,22 @@ public class Member {
         this.updatedAt = now;
     }
 
+    /** 탈퇴 유예(복구 가능): {@code status = 'WITHDRAWN' AND deleted_at IS NULL}. */
+    public boolean isWithdrawalPending() {
+        return status == MemberStatus.WITHDRAWN && deletedAt == null;
+    }
+
+    /**
+     * 기간이 끝난 정지를 자동 해제할 때 {@code status = 'SUSPENDED'}였으면 {@code ACTIVE}로 되돌린다(001 research R-9).
+     * 52 A-3으로 {@code SUSPENDED}가 없어지면 이 메서드는 아무것도 하지 않는다.
+     */
+    public void returnToActiveAfterSuspension(Instant now) {
+        if (status == MemberStatus.SUSPENDED) {
+            status = MemberStatus.ACTIVE;
+            updatedAt = Objects.requireNonNull(now);
+        }
+    }
+
     public Long getId() {
         return id;
     }
