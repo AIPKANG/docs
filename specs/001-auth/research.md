@@ -138,3 +138,28 @@
 | U-4 | 이메일 앞부분 포함 검사의 최소 길이 | 3자 (설정값) | 팀 확인 권장 |
 | U-5 | 재설정 링크 재요청 시 이전 링크 무효 | 무효로 함 | 원문 미정, 보수적 선택 |
 | U-6 | 빌드 도구 | Gradle (Wrapper 9.8.0, Kotlin DSL) | 사용자 확정 2026-10-07 |
+
+---
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+
+tasks.md와 다르게 하거나 tasks.md에 없는 세부를 정한 곳. 계약(contracts/)의 동작은 그대로다.
+
+| # | 내용 | 이유 |
+|---|---|---|
+| I-1 | 의존성 좌표는 Boot 4.1.1 BOM으로 확인했다: `spring-boot-starter-security-oauth2-client`, `spring-boot-starter-session-data-redis`, `spring-boot-starter-mail`(Security 7.1.1, Spring Session 4.1.1). 인덱스 저장소 설정 키는 Boot 4의 `spring.session.data.redis.repository-type=indexed`(T102의 `spring.session.redis.*`는 Boot 4에서 폐기 예정 키). | R-2 "구현 시작 시 BOM으로 확인". |
+| I-2 | 세션 쿠키 속성(`HttpOnly`·`Secure`·`SameSite=Lax`·`Path=/`·`Max-Age`=`blog.auth.session-timeout`)은 `application.yml`의 `server.servlet.session.cookie.*` 대신 `SessionConfig`의 `CookieSerializer` Bean으로 명시했다. | MockMvc(내장 서버 없음)에서는 Boot 자동 설정 직렬화기가 이 값을 받지 않아(HttpOnly·Secure 빠짐) 테스트와 운영이 달라졌다. 한곳에서 명시하면 환경과 무관하게 같다. |
+| I-3 | 정지 확인은 `DaoAuthenticationProvider`의 사후 검사(`LoginStatusPostAuthenticationChecks`, 비밀번호 일치 뒤)에서 하고, 탈퇴 유예(복구 전용 세션)는 성공 처리기에서 한다. 정지 예외는 Spring `AccountStatusException`을 상속한다. | T145는 성공 처리기에서 정지도 처리하도록 적었지만, 그러면 이미 저장된 로그인 세션을 되돌려야 한다. 사후 검사에서 실패시키면 세션이 생기지 않고, `ProviderManager`가 다른 공급자로 넘기지도 않는다. |
+| I-4 | 로그인 화면 표시 값: `/login?error`(실패), `?locked`(잠금·IP 초과 같은 문구), `?suspended`(정지 문구는 세션 1회용 속성), `?error=social`, `?social`(소셜 대기 정보 만료 "다시 소셜 로그인해 주세요"), `?reset`(재설정 완료). 값 없는 표시도 쿼리 문자열로 인식한다. | 화면 문구를 컨트롤러 한곳에 둔다. |
+| I-5 | 저장된 요청 복귀 주소에 Spring Security 기본 `?continue`를 붙이지 않는다(`HttpSessionRequestCache.setMatchingRequestParameterName(null)`). 모든 이동은 303. | 상대 경로 검사(R-12)를 단순하게. |
+| I-6 | 세션 쿠키 재발급 필터는 로그인 세션에만 작동한다. 로그인 뒤 첫 요청은 기준 시각만 남기고, 그 뒤 하루가 지나면 같은 세션 ID로 쿠키를 다시 내린다. | 로그인 응답과 같은 요청에서 쿠키가 두 번 쓰이는 것을 막는다. |
+| I-7 | 로그아웃 뒤 정리 플래시는 Spring `FlashMap`(새 익명 세션)으로 넘기고, 홈은 `<div hidden id="logout-cleanup" data-member-id>`로 표시한다. `auth-logout.js`는 `indexedDB.databases()`로 DB를 찾고(미지원이면 localforage 기본 이름), 모든 저장소에서 `draft:{memberId}:`·`draft-backup:{memberId}:`로 시작하는 키만 지운다. 없는 DB는 만들지 않는다. 홈(`GET /`)은 자리표시 `HomeController`를 새로 뒀다. | 04 편집기 저장 구조가 아직 없어 DB·저장소 이름을 특정하지 않는다. |
+| I-8 | 메일은 커밋 후 같은 요청 스레드에서 보낸다(`@TransactionalEventListener(AFTER_COMMIT)`, 비동기 아님). 리스너와 `SmtpMailSender`가 모두 예외를 삼키고 마스킹 로그만 남긴다. 메일 링크 앞부분은 새 설정 `blog.auth.mail.link-base-url`(운영 `APP_BASE_URL`). | 테스트가 결정적이고 테스트 사이에 메일이 섞이지 않는다. Gmail 응답이 느려 문제가 되면 리스너에 `@Async`만 더하면 된다. |
+| I-9 | 소셜 로그인 후 OAuth 액세스 토큰을 저장하지 않는다(`NoStoredAuthorizedClientRepository`). 소셜 인증 정보(`OAuth2AuthenticationToken`)도 세션에 남기지 않고, 우리 회원 principal(이름 = memberId)로만 로그인시킨다. 공급자가 인증한 이메일이 없으면 Google·GitHub 모두 마무리 화면에서 이메일을 받는다(T153은 GitHub만 적음). | 로그인 뒤 공급자 API를 부르지 않는다(FR-014 취지). |
+| I-10 | `SocialSignupService.complete`는 같은 제출이 조금 먼저 커밋돼 사전 검사에서 "이미 사용 중"(주소·닉네임)으로 걸린 경우에도, 그 소셜 계정이 생겼으면 그 계정을 돌려준다. | 동시 20회 테스트에서 늦게 시작한 요청이 제약 위반이 아니라 사전 검사로 걸리는 경우가 있었다(SC-001 "나머지는 이미 생긴 계정으로 로그인"). |
+| I-11 | FR-033 안내·재설정 메일의 소셜 안내에 쓰는 "같은 이메일의 다른 수단 계정" 조회는 상대 계정의 인증 여부를 보지 않고 탈퇴(유예·익명 처리) 회원만 뺀다. 안내 자체는 공급자가 인증한 이메일이 있을 때만 보인다. | 안내를 보는 사람은 그 이메일의 인증된 주인이다(R-7). |
+| I-12 | `AccountGuard.requireWritable`은 shared가 account 테이블을 직접 읽지 않도록 SPI `AccountStatusLookup`(구현 `JdbcAccountStatusLookup`, `member` PK + `auth_identity` 한 번 조회)을 쓴다. 익명 처리 회원은 로그인 필요로 본다. | 헌법 I(모듈 경계). |
+| I-13 | `application.yml` 기본 DB 주소가 `DB_PORT`를 따른다(`jdbc:postgresql://localhost:${DB_PORT:5432}/blog`). 프로필을 정하지 않으면 `dev`(Mailpit, `MAIL_PORT`)로 뜬다. 개발 프로필은 OAuth 앱이 없어도 뜨도록 자리표시 client-id를 둔다(비밀 아님). | 002 I-6처럼 기본 포트를 다른 프로젝트가 쓰는 기계에서, compose 포트만 바꾸고 앱이 다른 DB에 붙는 일을 막는다(실제로 겪음). |
+| I-14 | 운영 프로필은 `RequiredSecretsCheck`가 `MAIL_USERNAME`·`MAIL_PASSWORD`·OAuth id/secret·`APP_BASE_URL` 중 하나라도 비면 기동을 멈춘다(빠진 키 이름만 출력). | T177. Boot 바인딩은 풀리지 않은 자리표시를 그대로 두는 경우가 있어 명시적으로 검사한다. |
+| I-15 | 테스트 도우미: `Browser`(Spring Session `SESSION` 쿠키를 들고 다님), `WriteProbeController`(`/test/write`·`/api/test/write`), `SocialLoginProbeController`(`/test/social-login`, 실제 성공 처리기 호출), `MailpitClient`. 테스트 소스에만 있다. | 실제 공급자 없이 세션·Redis를 거치는 흐름을 그대로 시험한다. |
+| I-16 | T175 확인 결과(2026-10-07): compose(포트 55432/56379/51025/58025)와 jar(dev 프로필)로 quickstart S1·S2·S3·S5·S6을 curl로 확인했다(모두 기대대로, 쿠키 `Max-Age=1209600; Secure; HttpOnly; SameSite=Lax`). 내장 브라우저로 가입 화면 JS를 확인했다: 이메일 입력 후 주소 자동 채움(`Kim.Min-Seo+blog@Naver.com` → `kim_min_seo`), 대문자·`-` 입력 차단, 주소를 직접 고친 뒤 자동 채움 중단(002 S1-2·S1-3), 비밀번호 규칙 ✓/✗ 글자 표시, 닉네임 사용 가능 표시가 약 1.2초 안(0.5초 대기 포함, 002 S7-2), 로그아웃 시 IndexedDB `draft:3:*`·`draft-backup:3:*`만 삭제되고 `draft:33:*`·`draft:4:*`는 남음(SC-008). **확인하지 못한 것**: 한글 자판 입력(002 S1-4, IME는 자동화 불가), S4 실제 Google·GitHub 연동(T176, OAuth 앱 필요), 운영 Gmail 실제 발송(T177 일부, 앱 비밀번호 필요). | |

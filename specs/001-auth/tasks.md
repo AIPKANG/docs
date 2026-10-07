@@ -194,11 +194,11 @@ description: "001-auth 구현 작업 목록 (002 골격 위에 인증 추가)"
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T173 [P] 비밀값 누출 점검 `src/test/java/com/team/blog/account/integration/SecretLeakIT.java`: 가입·인증·재설정·로그인 흐름의 로그 캡처에 비밀번호 원문·토큰 원문·원문 이메일 키가 없고, Redis 키 전체에 원문 토큰·이메일이 없음(FR-014)
-- [ ] T174 [P] `src/test/java/com/team/blog/shared/security/SecurityHeadersIT.java`(002 T025)에 인증 화면(`/login`, `/signup`, `/signup/social`, `/password/forgot`) 응답 헤더와 세션 쿠키 속성 검사 추가
-- [ ] T175 quickstart.md S1~S6 수행(`docker compose up -d postgres redis mailpit`, `./gradlew bootRun`, Mailpit 웹 8025) + 002 quickstart의 가입 화면 수동 항목(S1-2~4 자동 채움 중단·소문자 표시·한글 자판, S2-5 확인 후 선점, S7-2 1초 안 표시)을 함께 확인
-- [ ] T176 [P] 실제 Google·GitHub 개발용 OAuth 앱(`http://localhost:8080/login/oauth2/code/{google|github}`)으로 수동 확인(quickstart S4) 결과를 PR 설명에 기록
-- [ ] T177 운영 프로필 점검: `SPRING_PROFILES_ACTIVE=prod`에서 `MAIL_USERNAME`·`MAIL_PASSWORD`·OAuth 비밀값이 없으면 기동 실패하는지, Gmail SMTP(587 STARTTLS)로 실제 메일 1통 발송 확인; 전체 `./gradlew test` 통과
+- [X] T173 [P] 비밀값 누출 점검 `src/test/java/com/team/blog/account/integration/SecretLeakIT.java`: 가입·인증·재설정·로그인 흐름의 로그 캡처에 비밀번호 원문·토큰 원문·원문 이메일 키가 없고, Redis 키 전체에 원문 토큰·이메일이 없음(FR-014)
+- [X] T174 [P] `src/test/java/com/team/blog/shared/security/SecurityHeadersIT.java`(002 T025)에 인증 화면(`/login`, `/signup`, `/signup/social`, `/password/forgot`) 응답 헤더와 세션 쿠키 속성 검사 추가
+- [X] T175 quickstart.md S1~S6 수행(`docker compose up -d postgres redis mailpit`, `./gradlew bootRun`, Mailpit 웹 8025) + 002 quickstart의 가입 화면 수동 항목(S1-2~4 자동 채움 중단·소문자 표시·한글 자판, S2-5 확인 후 선점, S7-2 1초 안 표시)을 함께 확인
+- [ ] T176 (미수행: 실제 OAuth 앱 등록·비밀값 필요 — research I-16) [P] 실제 Google·GitHub 개발용 OAuth 앱(`http://localhost:8080/login/oauth2/code/{google|github}`)으로 수동 확인(quickstart S4) 결과를 PR 설명에 기록
+- [ ] T177 (부분: 비밀값 없으면 기동 실패는 확인·RequiredSecretsCheck, 전체 테스트 통과. Gmail 실제 발송은 앱 비밀번호가 없어 미수행 — research I-14·I-16) 운영 프로필 점검: `SPRING_PROFILES_ACTIVE=prod`에서 `MAIL_USERNAME`·`MAIL_PASSWORD`·OAuth 비밀값이 없으면 기동 실패하는지, Gmail SMTP(587 STARTTLS)로 실제 메일 1통 발송 확인; 전체 `./gradlew test` 통과
 
 ---
 

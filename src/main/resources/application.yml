@@ -5,7 +5,7 @@ spring:
     # 프로필을 정하지 않고 실행하면 개발 프로필(Mailpit). 운영은 SPRING_PROFILES_ACTIVE=prod
     default: dev
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/blog}
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/blog}
     username: ${DB_USERNAME:blog}
     password: ${DB_PASSWORD:blog}
   jpa:
