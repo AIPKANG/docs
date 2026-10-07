@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${verified} ? '인증이 완료됐어요' : '링크가 만료됐어요'">이메일 인증</title>
+</head>
+<body>
+<main>
+    <th:block th:if="${verified}">
+        <h1>인증이 완료됐어요</h1>
+        <p>이제 글을 쓰고 댓글을 남길 수 있어요.</p>
+        <p><a href="/">처음으로</a></p>
+    </th:block>
+    <th:block th:unless="${verified}">
+        <h1>링크가 만료됐어요</h1>
+        <p>이미 사용했거나 유효 시간이 지난 링크예요.</p>
+        <form method="post" th:action="@{/auth/verify/resend}" th:if="${loggedIn}">
+            <button type="submit">인증 메일 다시 보내기</button>
+        </form>
+        <p th:unless="${loggedIn}"><a href="/login?redirect=/signup/verify-sent">[인증 메일 다시 보내기]</a> (로그인 후)</p>
+    </th:block>
+</main>
+</body>
+</html>

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -48,7 +49,14 @@ public class SecurityConfig {
                         .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
                         .contentTypeOptions(Customizer.withDefaults())
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+                .authorizeHttpRequests(authorize -> authorize
+                        // 001 US1: 가입 후 인증 안내·재발송은 로그인 필요(비회원은 로그인 화면으로)
+                        .requestMatchers("/signup/verify-sent", "/auth/verify/resend").authenticated()
+                        // 가입·인증 링크·주소/닉네임 확인 API·정적 자원과 그 밖의 경로는 공개.
+                        // 업무 권한은 URL이 아니라 Service(AccountGuard)에서 검사한다(헌법 III)
+                        .anyRequest().permitAll());
         return http.build();
     }
 }

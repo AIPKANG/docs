@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>인증 메일을 보냈어요</title>
+</head>
+<body>
+<main>
+    <h1>인증 메일을 보냈어요</h1>
+    <p class="notice" th:if="${notice != null}" th:text="${notice}" role="status">알림</p>
+    <p>메일의 링크를 눌러 인증을 마쳐 주세요. 링크는 24시간 동안 한 번만 쓸 수 있어요.</p>
+    <p>인증 전에도 로그인은 되지만 글쓰기·댓글·사진 올리기는 인증 후에 할 수 있어요.</p>
+    <form method="post" th:action="@{/auth/verify/resend}">
+        <button type="submit">인증 메일 다시 보내기</button>
+    </form>
+    <p><a href="/">처음으로</a></p>
+</main>
+</body>
+</html>

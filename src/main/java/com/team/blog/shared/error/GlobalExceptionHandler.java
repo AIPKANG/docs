@@ -48,6 +48,26 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    // ----- 001 US1: 계정 상태(42 §3·§4) -----
+
+    @ExceptionHandler(AccountStatusException.class)
+    public Object accountStatus(AccountStatusException e, HttpServletRequest request) {
+        String code = e.getReason().name();
+        if (isApi(request)) {
+            return json(HttpStatus.FORBIDDEN, error(code));
+        }
+        return switch (e.getReason()) {
+            case EMAIL_NOT_VERIFIED -> {
+                ModelAndView view = new ModelAndView("auth/forbidden-unverified");
+                view.addObject("message", message(code));
+                view.setStatus(HttpStatus.FORBIDDEN);
+                yield view;
+            }
+            case ACCOUNT_WITHDRAWN -> seeOther("/account/restore");
+            case ACCOUNT_SUSPENDED -> seeOther("/login?suspended");
+        };
+    }
+
     @ExceptionHandler(RateLimitedException.class)
     public ResponseEntity<ErrorResponse> rateLimited(RateLimitedException e) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
@@ -88,6 +108,10 @@ public class GlobalExceptionHandler {
     }
 
     // ----- 도우미 -----
+
+    protected static ResponseEntity<Void> seeOther(String location) {
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, location).build();
+    }
 
     protected ErrorResponse error(String code, Object... args) {
         return ErrorResponse.of(code, message(code, args));

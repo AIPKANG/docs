@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>이메일 인증 후 이용할 수 있어요</title>
+</head>
+<body>
+<main>
+    <h1>이메일 인증 후 이용할 수 있어요</h1>
+    <p>가입할 때 받은 메일의 링크를 눌러 인증해 주세요.</p>
+    <form method="post" th:action="@{/auth/verify/resend}">
+        <button type="submit">인증 메일 다시 보내기</button>
+    </form>
+</main>
+</body>
+</html>

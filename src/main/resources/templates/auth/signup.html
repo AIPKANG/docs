@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>이메일로 가입하기</title>
+</head>
+<body>
+<main>
+    <h1>이메일로 가입하기</h1>
+    <p><a href="/login">이미 계정이 있어요 — 로그인</a></p>
+
+    <form method="post" th:action="@{/signup}" novalidate class="auth-form">
+        <p class="form-error" th:if="${errors['agreements'] != null}" th:text="${errors['agreements']}" role="alert"></p>
+
+        <div class="field">
+            <label for="email">이메일</label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required
+                   th:value="${form.email}">
+            <p class="field-error" id="email-error" th:if="${errors['email'] != null}" role="alert">
+                <span th:text="${errors['email']}">오류</span>
+                <span th:if="${emailDuplicate}"><a href="/login">[로그인]</a> <a href="/password/forgot">[비밀번호 찾기]</a></span>
+            </p>
+        </div>
+
+        <div class="field">
+            <label for="handle">블로그 주소</label>
+            <div class="handle-input">
+                <span aria-hidden="true">devlog.com/@</span>
+                <input id="handle" name="handle" type="text" required maxlength="36"
+                       data-handle-field data-email-source="#email"
+                       data-availability="handle" data-availability-target="#handle-status"
+                       inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false" lang="en"
+                       th:value="${form.handle}" aria-describedby="handle-help handle-status">
+            </div>
+            <p id="handle-help" class="help">이메일 앞부분으로 미리 채웠어요. 이메일을 드러내고 싶지 않으면 바꿔 주세요.</p>
+            <p class="warning">⚠ 블로그 주소는 가입 후 바꿀 수 없어요.</p>
+            <p id="handle-status" class="availability" aria-live="polite"></p>
+            <p class="field-error" th:if="${errors['handle'] != null}" role="alert">
+                <span th:text="${errors['handle']}">오류</span>
+                <button type="button" class="handle-suggestion" th:if="${handleSuggestion != null}"
+                        th:attr="data-fill-handle=${handleSuggestion}"
+                        th:text="${handleSuggestion} + '는 어떠세요?'">대안</button>
+            </p>
+        </div>
+
+        <div class="field">
+            <label for="password">비밀번호 <span class="help">(8~16자, 최대 16자)</span></label>
+            <input id="password" name="password" type="password" autocomplete="new-password" required
+                   data-password-rules="#password-rules" data-email-source="#email">
+            <ul id="password-rules" class="password-rules" aria-live="polite">
+                <li data-rule="length">8~16자 (최대 16자)</li>
+                <li data-rule="letter">영문 1자 이상</li>
+                <li data-rule="digit">숫자 1자 이상</li>
+                <li data-rule="special">특수문자 1자 이상</li>
+                <li data-rule="allowed">영문·숫자·특수문자만 (공백·한글 불가)</li>
+                <li data-rule="email">이메일 앞부분을 넣지 않기</li>
+            </ul>
+            <ul class="field-error" th:if="${!passwordErrors.isEmpty()}" role="alert">
+                <li th:each="msg : ${passwordErrors}" th:text="${msg}">오류</li>
+            </ul>
+        </div>
+
+        <div class="field">
+            <label for="passwordConfirm">비밀번호 확인</label>
+            <input id="passwordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" required>
+            <p class="field-error" th:if="${errors['passwordConfirm'] != null}" th:text="${errors['passwordConfirm']}" role="alert"></p>
+        </div>
+
+        <div class="field">
+            <label for="nickname">닉네임</label>
+            <input id="nickname" name="nickname" type="text" maxlength="10" required autocomplete="nickname"
+                   data-availability="nickname" data-availability-target="#nickname-status"
+                   th:value="${form.nickname}" aria-describedby="nickname-status">
+            <p id="nickname-status" class="availability" aria-live="polite"></p>
+            <p class="field-error" th:if="${errors['nickname'] != null}" th:text="${errors['nickname']}" role="alert"></p>
+        </div>
+
+        <fieldset class="field">
+            <legend>약관 동의 (필수)</legend>
+            <label><input type="checkbox" name="agreeTerms" value="true" th:checked="${form.agreeTerms}"> 이용약관에 동의해요 (필수)</label><br>
+            <label><input type="checkbox" name="agreePrivacy" value="true" th:checked="${form.agreePrivacy}"> 개인정보 수집·이용에 동의해요 (필수)</label>
+        </fieldset>
+
+        <button type="submit">가입하기</button>
+    </form>
+
+    <script src="/js/account/availability.js" defer></script>
+    <script src="/js/account/handle-field.js" defer></script>
+    <script src="/js/auth/password-rules.js" defer></script>
+    <script src="/js/auth/signup-form.js" defer></script>
+</main>
+</body>
+</html>

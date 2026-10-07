@@ -2,8 +2,10 @@ package com.team.blog.support;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Locale;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * 001 가입 흐름 없이 {@code member} 행을 만든다.
@@ -13,9 +15,56 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class MemberFixtures {
 
     private final JdbcTemplate jdbc;
+    private final PasswordEncoder passwordEncoder;
 
-    public MemberFixtures(JdbcTemplate jdbc) {
+    public MemberFixtures(JdbcTemplate jdbc, PasswordEncoder passwordEncoder) {
         this.jdbc = jdbc;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    // ----- 001-auth: 로그인 수단·정지 -----
+
+    /** 이메일 가입 회원(정상 상태) + LOCAL 로그인 수단. {@code verified}면 인증 완료. */
+    public long localMember(String handle, String nickname, String email, String rawPassword, boolean verified) {
+        long id = active(handle, nickname);
+        addLocalIdentity(id, email, rawPassword, verified ? Instant.now() : null);
+        return id;
+    }
+
+    public void addLocalIdentity(long memberId, String email, String rawPassword, Instant verifiedAt) {
+        String normalized = email.strip().toLowerCase(Locale.ROOT);
+        jdbc.update("""
+                INSERT INTO auth_identity (member_id, provider, provider_user_id, email, password_hash, email_verified_at)
+                VALUES (?, 'LOCAL', ?, ?, ?, ?)
+                """, memberId, normalized, normalized, passwordEncoder.encode(rawPassword),
+                verifiedAt == null ? null : Timestamp.from(verifiedAt));
+    }
+
+    public void addSocialIdentity(long memberId, String provider, String providerUserId, String email, Instant verifiedAt) {
+        jdbc.update("""
+                INSERT INTO auth_identity (member_id, provider, provider_user_id, email, email_verified_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, memberId, provider, providerUserId, email, verifiedAt == null ? null : Timestamp.from(verifiedAt));
+    }
+
+    /** 정지 이력 한 행. {@code endsAt}이 null이면 영구. 정지한 관리자 회원을 함께 만든다. */
+    public long suspend(long memberId, String reason, Instant startedAt, Instant endsAt) {
+        Long adminId = jdbc.query("SELECT id FROM member WHERE handle = 'fixture_admin'",
+                        (rs, i) -> rs.getLong(1)).stream().findFirst()
+                .orElseGet(() -> active("fixture_admin", "운영테스터"));
+        return insertSuspension(memberId, reason, startedAt, endsAt, adminId);
+    }
+
+    public void setStatus(long memberId, String status) {
+        jdbc.update("UPDATE member SET status = ? WHERE id = ?", status, memberId);
+    }
+
+    private long insertSuspension(long memberId, String reason, Instant startedAt, Instant endsAt, Long adminId) {
+        return jdbc.queryForObject("""
+                INSERT INTO member_suspension (member_id, reason, started_at, ends_at, suspended_by)
+                VALUES (?, ?, ?, ?, ?) RETURNING id
+                """, Long.class, memberId, reason, Timestamp.from(startedAt),
+                endsAt == null ? null : Timestamp.from(endsAt), adminId);
     }
 
     /** 정상 회원. */
