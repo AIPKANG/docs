@@ -86,6 +86,19 @@ public class MemberUniqueViolationTranslator {
         throw e;
     }
 
+    /**
+     * 닉네임 변경 경합 번역(트랜잭션 밖에서 호출).
+     *
+     * @throws NicknameViolationException {@code uq_member_nickname} 위반({@code NICKNAME_DUPLICATE}, concurrent)
+     * @throws DataIntegrityViolationException 그 밖의 위반은 원래 예외를 그대로 던진다
+     */
+    public void translate(DataIntegrityViolationException e) {
+        if (UQ_MEMBER_NICKNAME.equals(constraintName(e))) {
+            throw new NicknameViolationException(NicknameViolation.NICKNAME_DUPLICATE, true);
+        }
+        throw e;
+    }
+
     /** 위반 제약 이름(소문자). Hibernate {@link ConstraintViolationException}에서 읽고, 없으면 메시지에서 찾는다. */
     static String constraintName(Throwable e) {
         for (Throwable t = e; t != null; t = t.getCause()) {

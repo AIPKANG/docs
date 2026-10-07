@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import com.team.blog.shared.web.KoreanDateFormatter;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -76,6 +77,14 @@ public class GlobalExceptionHandler {
             return json(HttpStatus.CONFLICT, ErrorResponse.of(code, message(code + "_CONCURRENT")));
         }
         return json(HttpStatus.BAD_REQUEST, error(code));
+    }
+
+    // ----- 002 US3: 닉네임 변경 30일 -----
+
+    @ExceptionHandler(NicknameChangeTooSoonException.class)
+    public ResponseEntity<ErrorResponse> nicknameChangeTooSoon(NicknameChangeTooSoonException e) {
+        String date = KoreanDateFormatter.monthDay(e.getNextAllowedAt());
+        return json(HttpStatus.CONFLICT, error(NicknameChangeTooSoonException.CODE, date).withNextAllowedAt(e.getNextAllowedAt()));
     }
 
     // ----- 도우미 -----

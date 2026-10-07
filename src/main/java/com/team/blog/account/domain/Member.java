@@ -84,6 +84,15 @@ public class Member {
         this.updatedAt = now;
     }
 
+    /**
+     * 닉네임 변경(규칙·30일 제한 검사는 {@code NicknameChangeService}). {@code handle}은 여전히 바꾸는 메서드가 없다.
+     */
+    public void changeNickname(Nickname newNickname, Instant now) {
+        this.nickname = Objects.requireNonNull(newNickname).value();
+        this.nicknameChangedAt = Objects.requireNonNull(now);
+        this.updatedAt = now;
+    }
+
     public Long getId() {
         return id;
     }
