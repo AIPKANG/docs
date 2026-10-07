@@ -6,10 +6,15 @@
 </head>
 <body>
 <main>
-    <header class="blog-header">
-        <h1 th:replace="~{fragments/author :: byline(${author})}">닉네임 @주소</h1>
+    <header class="blog-header profile-header">
+        <th:block th:replace="~{fragments/avatar :: avatar(${owner.avatar()}, 96)}"></th:block>
+        <div class="profile-text">
+            <h1 th:replace="~{fragments/author :: byline(${author})}">닉네임 @주소</h1>
+            <!-- 소개는 글자로만(이스케이프), 줄바꿈만 살리고 자동 링크 없음(003 FR-009·FR-010) -->
+            <p class="profile-bio" th:if="${owner.bio() != null}" th:text="${owner.bio()}">소개</p>
+        </div>
     </header>
-    <!-- 글 목록(009)·프로필 상단(003)이 이 자리를 채운다 -->
+    <!-- 글 목록(009)이 이 자리를 채운다 -->
 </main>
 </body>
 </html>

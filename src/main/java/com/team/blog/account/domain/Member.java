@@ -93,6 +93,31 @@ public class Member {
         this.updatedAt = now;
     }
 
+    /** 소개 변경(003, 규칙 검사는 {@code BioPolicy}). 빈 값은 NULL로 저장한다. */
+    public void changeBio(String normalizedBio, Instant now) {
+        this.bio = normalizedBio == null || normalizedBio.isEmpty() ? null : normalizedBio;
+        this.updatedAt = Objects.requireNonNull(now);
+    }
+
+    /**
+     * 프로필 이미지 연결·해제(003). {@code profile_image_url}은 목록에서 image를 JOIN하지 않으려고 둔 복사본이라
+     * 반드시 {@code profile_image_id}와 함께 바꾼다(11 §4-4). 둘 다 null이면 기본 아이콘.
+     */
+    public void changeProfileImage(Long imageId, String imageUrl, Instant now) {
+        if ((imageId == null) != (imageUrl == null)) {
+            throw new IllegalArgumentException("profile image id and url must change together");
+        }
+        this.profileImageId = imageId;
+        this.profileImageUrl = imageUrl;
+        this.updatedAt = Objects.requireNonNull(now);
+    }
+
+    /** 새 글 기본 공개 범위(003, 값 검사는 {@code AccountSettingsService}). */
+    public void changeDefaultVisibility(String value, Instant now) {
+        this.defaultVisibility = Objects.requireNonNull(value);
+        this.updatedAt = Objects.requireNonNull(now);
+    }
+
     /** 탈퇴 유예(복구 가능): {@code status = 'WITHDRAWN' AND deleted_at IS NULL}. */
     public boolean isWithdrawalPending() {
         return status == MemberStatus.WITHDRAWN && deletedAt == null;

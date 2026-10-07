@@ -27,6 +27,24 @@
         .warning { color: #9a6700; }
         .notice { background: #ddf4ff; padding: 8px 12px; }
         .password-rules { padding-left: 1.2em; font-size: 0.9em; }
+        /* 003 프로필: 아이콘 8색은 흰 글자와 대비 4.5:1 이상(라이트·다크 같음) */
+        .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex: none;
+                  object-fit: cover; color: #fff; font-weight: 600; line-height: 1; overflow: hidden; vertical-align: middle; }
+        .avatar-c0 { background: #0B5CAD; } .avatar-c1 { background: #1A7F37; } .avatar-c2 { background: #8250DF; }
+        .avatar-c3 { background: #BF3989; } .avatar-c4 { background: #9A6700; } .avatar-c5 { background: #CF222E; }
+        .avatar-c6 { background: #0E7490; } .avatar-c7 { background: #57606A; }
+        .profile-header { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .profile-text { flex: 1 1 200px; min-width: 0; }
+        .profile-bio { white-space: pre-line; margin: 4px 0 0; }
+        .settings section { border-top: 1px solid #d0d7de; padding: 8px 0 16px; }
+        .settings .field { margin: 12px 0; }
+        .settings input[type=text], .settings input[type=password], .settings textarea { width: 100%; max-width: 480px; padding: 8px; font: inherit; }
+        .settings textarea { min-height: 6.5em; resize: vertical; }
+        .settings .readonly { color: #57606a; }
+        .profile-image-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .cropper { max-width: 100%; }
+        .cropper canvas { max-width: 100%; height: auto; touch-action: none; border-radius: 4px; background: #eaeef2; cursor: grab; }
+        .status-ok { color: #1a7f37; }
     </style>
 </head>
 <body>
@@ -34,6 +52,7 @@
     <a href="/">블로그</a>
     <nav>
         <th:block th:if="${currentMemberId != null}">
+            <a href="/settings">설정</a>
             <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit">로그아웃</button>

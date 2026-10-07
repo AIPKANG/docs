@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  프로필 아이콘 조각 (003 research R-10). avatar = account.application.ProfileAvatar, size = 픽셀
+  - 이미지가 있으면 <img alt="">(옆에 닉네임이 있으므로 빈 대체글, 23 §4)
+  - 없으면 닉네임 첫 글자 + 주소로 정한 8색 배경의 동그란 아이콘(CSS, 파일 없음)
+-->
+<th:block th:fragment="avatar(avatar, size)"><img th:if="${avatar.hasImage()}" class="avatar" th:src="${avatar.imageUrl()}" alt=""
+     th:width="${size}" th:height="${size}" th:style="'width:' + ${size} + 'px;height:' + ${size} + 'px'"><span th:unless="${avatar.hasImage()}"
+     th:class="'avatar avatar-default ' + ${avatar.colorClass()}" aria-hidden="true"
+     th:style="'width:' + ${size} + 'px;height:' + ${size} + 'px;font-size:' + ${size / 2} + 'px'"
+     th:text="${avatar.initial()}">김</span></th:block>
+</body>
+</html>

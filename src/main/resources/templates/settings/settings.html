@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>설정</title>
+</head>
+<body>
+<main class="settings">
+    <h1>설정</h1>
+    <noscript><p class="notice">이 화면은 JavaScript가 필요해요.</p></noscript>
+
+    <!-- 프로필 (11 §2) -->
+    <section aria-labelledby="profile-heading">
+        <h2 id="profile-heading">프로필</h2>
+        <form id="profile-form" novalidate
+              th:attr="data-image-id=${profile.profileImageId()},data-nickname=${profile.nickname()}">
+            <div class="field profile-image-row">
+                <span id="profile-avatar" th:attr="data-handle=${profile.handle()}">
+                    <th:block th:replace="~{fragments/avatar :: avatar(${avatar}, 96)}"></th:block>
+                </span>
+                <div>
+                    <th:block th:if="${profile.emailVerified()}">
+                        <input type="file" id="profile-image-file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+                        <button type="button" id="profile-image-pick">이미지 변경</button>
+                    </th:block>
+                    <p class="help" th:unless="${profile.emailVerified()}" id="profile-image-unverified">이메일 인증 후 사진을 올릴 수 있어요</p>
+                    <button type="button" id="profile-image-reset">기본 이미지로</button>
+                    <p class="field-error" data-error-for="profileImageId" role="alert"></p>
+                </div>
+            </div>
+
+            <div id="cropper" class="cropper field" hidden>
+                <p class="help">끌어서 위치를 맞추고, 아래 막대로 확대·축소하세요.</p>
+                <canvas id="cropper-canvas" width="320" height="320" aria-label="자르기 미리보기"></canvas>
+                <div>
+                    <label for="cropper-zoom">확대</label>
+                    <input type="range" id="cropper-zoom" min="1" max="4" step="0.01" value="1">
+                </div>
+                <button type="button" id="cropper-apply">이 영역 사용</button>
+                <button type="button" id="cropper-cancel">취소</button>
+                <p class="help" id="cropper-status" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+                <label for="nickname">닉네임</label>
+                <input id="nickname" name="nickname" type="text" maxlength="10" autocomplete="off"
+                       th:value="${profile.nickname()}" th:disabled="${nicknameNextAllowed != null}"
+                       aria-describedby="nickname-help">
+                <p id="nickname-help" class="help" th:if="${nicknameNextAllowed != null}"
+                   th:text="'다음 변경 가능일: ' + ${nicknameNextAllowed}">다음 변경 가능일</p>
+                <p class="field-error" data-error-for="nickname" role="alert"></p>
+            </div>
+
+            <div class="field">
+                <label for="bio">소개</label>
+                <textarea id="bio" name="bio" rows="4" th:text="${profile.bio()}" aria-describedby="bio-count"></textarea>
+                <p class="help"><span id="bio-count">0</span> / 200</p>
+                <p class="field-error" data-error-for="bio" role="alert"></p>
+            </div>
+
+            <div class="field">
+                <span>블로그 주소</span>
+                <span class="readonly" th:text="'@' + ${profile.handle()}">@주소</span>
+                <span class="help">(변경할 수 없어요)</span>
+            </div>
+
+            <button type="submit">저장</button>
+            <p class="form-status" id="profile-status" aria-live="polite"></p>
+        </form>
+    </section>
+
+    <!-- 계정 (11 §6) -->
+    <section aria-labelledby="account-heading">
+        <h2 id="account-heading">계정</h2>
+        <div class="field">
+            <span>이메일</span> <span class="readonly" th:text="${profile.email()}">email</span>
+            <span class="help">(변경할 수 없어요)</span>
+        </div>
+        <div class="field">
+            <span>로그인 수단</span>
+            <span class="readonly" id="login-provider"
+                  th:text="${profile.provider() == 'GOOGLE' ? 'Google' : (profile.provider() == 'GITHUB' ? 'GitHub' : '이메일')}">이메일</span>
+        </div>
+
+        <form id="password-form" novalidate th:if="${profile.passwordChangeSupported()}">
+            <h3>비밀번호 변경</h3>
+            <div class="field">
+                <label for="current-password">현재 비밀번호</label>
+                <input id="current-password" name="currentPassword" type="password" autocomplete="current-password" maxlength="64">
+                <p class="field-error" data-error-for="currentPassword" role="alert"></p>
+            </div>
+            <div class="field">
+                <label for="new-password">새 비밀번호</label>
+                <input id="new-password" name="newPassword" type="password" autocomplete="new-password" maxlength="64"
+                       data-password-rules="#password-rules" aria-describedby="password-rules">
+                <ul id="password-rules" class="password-rules help">
+                    <li data-rule="length">8~16자 (최대 16자)</li>
+                    <li data-rule="letter">영문 1자 이상</li>
+                    <li data-rule="digit">숫자 1자 이상</li>
+                    <li data-rule="special">특수문자 1자 이상</li>
+                </ul>
+                <p class="field-error" data-error-for="newPassword" role="alert"></p>
+            </div>
+            <div class="field">
+                <label for="new-password-confirm">새 비밀번호 확인</label>
+                <input id="new-password-confirm" name="newPasswordConfirm" type="password" autocomplete="new-password" maxlength="64">
+                <p class="field-error" data-error-for="newPasswordConfirm" role="alert"></p>
+            </div>
+            <button type="submit">비밀번호 변경</button>
+            <p class="form-status" id="password-status" aria-live="polite"></p>
+        </form>
+
+        <form id="visibility-form" novalidate>
+            <fieldset class="field">
+                <legend>새 글 기본 공개 범위</legend>
+                <label><input type="radio" name="defaultVisibility" value="PUBLIC"
+                              th:checked="${profile.defaultVisibility() == 'PUBLIC'}"> 전체 공개</label>
+                <label><input type="radio" name="defaultVisibility" value="PRIVATE"
+                              th:checked="${profile.defaultVisibility() == 'PRIVATE'}"> 나만 보기</label>
+            </fieldset>
+            <p class="field-error" data-error-for="defaultVisibility" role="alert"></p>
+            <p class="form-status" id="visibility-status" aria-live="polite"></p>
+        </form>
+    </section>
+
+    <!-- 회원 탈퇴 진입점(FR-029, 처리는 023) -->
+    <section aria-labelledby="withdraw-heading">
+        <h2 id="withdraw-heading">회원 탈퇴</h2>
+        <p class="help">탈퇴하면 30일 동안 복구할 수 있고, 그 뒤 익명 처리돼요.</p>
+        <a id="withdraw-link" href="/settings/withdraw">회원 탈퇴</a>
+    </section>
+
+    <script src="/js/auth/password-rules.js" defer></script>
+    <script src="/js/profile/image-upload.js" defer></script>
+    <script src="/js/profile/image-cropper.js" defer></script>
+    <script src="/js/profile/settings.js" defer></script>
+</main>
+</body>
+</html>
