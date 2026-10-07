@@ -1,6 +1,9 @@
 spring:
   application:
     name: blog
+  profiles:
+    # 프로필을 정하지 않고 실행하면 개발 프로필(Mailpit). 운영은 SPRING_PROFILES_ACTIVE=prod
+    default: dev
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/blog}
     username: ${DB_USERNAME:blog}
@@ -24,11 +27,62 @@ spring:
     basename: messages
     encoding: UTF-8
     fallback-to-system-locale: false
+  # 001-auth: 로그인 세션 = Spring Session Redis 인덱스 저장소(principal 이름 = memberId, research R-3)
+  session:
+    timeout: ${blog.auth.session-timeout}
+    data:
+      redis:
+        repository-type: indexed
+  # 001-auth: 소셜 로그인. 비밀값은 환경 변수로만(헌법 IV)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope: openid,email,profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:}
+            client-secret: ${GITHUB_CLIENT_SECRET:}
+            scope: read:user,user:email
 
 server:
   forward-headers-strategy: native
+  servlet:
+    session:
+      # 세션 쿠키(FR-028, research R-3). Spring Session의 쿠키 직렬화기가 이 값을 쓴다.
+      cookie:
+        http-only: true
+        secure: true
+        same-site: lax
+        max-age: ${blog.auth.session-timeout}
 
 blog:
+  # 001-auth 정책 수치(헌법 II). AuthProperties 참고
+  auth:
+    verify-token-ttl: 24h
+    reset-token-ttl: 30m
+    verify-resend:
+      per-minute: 1
+      per-day: 10
+    reset-request:
+      email-per-minute: 1
+      email-per-day: 10
+      ip-per-hour: 20
+    login:
+      max-failures: 5
+      lock-duration: 15m
+      ip-per-minute: 20
+    session-timeout: 14d
+    pending-social-ttl: 10m
+    password:
+      local-part-min-length: 3
+      bcrypt-strength: 10
+      common-passwords-location: classpath:security/common-passwords.txt
+    mail:
+      from: no-reply@localhost
+      link-base-url: http://localhost:8080
   account:
     handle:
       prefill-max-body-length: 30

@@ -14,7 +14,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * 통합 테스트 공용 기반. 실제 PostgreSQL 18·Redis 컨테이너(정적 싱글턴)를 쓴다 — H2 금지(헌법 VI).
- * 테스트마다 DB·Redis를 비우고 시계를 되돌린다. 001-auth가 Mailpit 컨테이너를 이 클래스에 추가한다(T106).
+ * 테스트마다 DB·Redis·Mailpit을 비우고 시계를 되돌린다. 메일은 실제 SMTP로 Mailpit 컨테이너에 보낸다(001 T106).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -27,9 +27,14 @@ public abstract class IntegrationTestBase {
     @SuppressWarnings("resource")
     protected static final GenericContainer<?> REDIS = new GenericContainer<>("redis:8").withExposedPorts(6379);
 
+    @SuppressWarnings("resource")
+    protected static final GenericContainer<?> MAILPIT = new GenericContainer<>("axllent/mailpit")
+            .withExposedPorts(1025, 8025);
+
     static {
         POSTGRES.start();
         REDIS.start();
+        MAILPIT.start();
     }
 
     @DynamicPropertySource
@@ -39,7 +44,16 @@ public abstract class IntegrationTestBase {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("spring.data.redis.host", REDIS::getHost);
         registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
+        registry.add("spring.mail.host", MAILPIT::getHost);
+        registry.add("spring.mail.port", () -> MAILPIT.getMappedPort(1025));
     }
+
+    /** Mailpit HTTP API 주소. */
+    protected static String mailpitApiBase() {
+        return "http://" + MAILPIT.getHost() + ":" + MAILPIT.getMappedPort(8025);
+    }
+
+    protected final MailpitClient mailpit = new MailpitClient(mailpitApiBase());
 
     @Autowired
     protected MockMvc mockMvc;
@@ -56,6 +70,7 @@ public abstract class IntegrationTestBase {
     @AfterEach
     void cleanUpAfterEach() {
         databaseCleaner.clean();
+        mailpit.deleteAll();
         clock.reset();
     }
 }

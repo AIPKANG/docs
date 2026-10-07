@@ -3,11 +3,27 @@ blog:
     banned-words:
       location: classpath:policy/test-banned-words.txt
       exceptions-location: classpath:policy/test-banned-words-exceptions.txt
+  # 001-auth 테스트 값(수치는 운영 기본값과 같게 두고, 시간 경과는 MutableClock·Redis TTL로 시험한다)
+  auth:
+    mail:
+      from: no-reply@test.local
+      link-base-url: http://localhost
 spring:
   jpa:
     properties:
       hibernate:
         generate_statistics: true
+  # 001-auth: 테스트용 OAuth2 더미 등록값(실제 공급자에 연결하지 않는다)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-google-client
+            client-secret: test-google-secret
+          github:
+            client-id: test-github-client
+            client-secret: test-github-secret
 logging:
   level:
     org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: warn

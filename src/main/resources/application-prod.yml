@@ -1,0 +1,26 @@
+# 운영 프로필: 메일은 Gmail SMTP(587 STARTTLS, 앱 비밀번호 — research R-13).
+# 필요한 환경 변수: MAIL_USERNAME, MAIL_PASSWORD(Google 앱 비밀번호), GOOGLE_CLIENT_ID/SECRET, GITHUB_CLIENT_ID/SECRET, APP_BASE_URL
+# 하나라도 없으면 기동하지 않는다(RequiredSecretsCheck).
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+blog:
+  auth:
+    mail:
+      # 보내는 주소는 Gmail 계정 주소로 고정
+      from: ${MAIL_USERNAME:}
+      link-base-url: ${APP_BASE_URL:}
