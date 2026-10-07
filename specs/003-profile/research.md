@@ -176,3 +176,29 @@
 | U-6 | 인증 전 소셜 가입(이메일 직접 입력)의 소셜 사진 | 복사하지 않음(업로드 권한 없음) (R-11) | 원문 미정, 42 §10을 따름 |
 | U-7 | 연결이 끊긴(삭제 대기) 내 이미지를 다시 연결 | 거부(`INVALID_PROFILE_IMAGE`, "삭제된 이미지"로 봄) (R-9) | 원문 미정, 보수적 선택 |
 | U-8 | 008 범위로 미룬 저장소 항목 | 앱 전용 키, 23 §2-3 검증 자동화, `LocalImageStorage`, 용량·하루 장수 (R-5) | 008 |
+
+---
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+
+tasks.md와 다르게 하거나 tasks.md에 없는 세부를 정한 곳. 계약(contracts/)의 동작은 그대로다.
+
+| # | 내용 | 이유 |
+|---|---|---|
+| I-1 | 사진 업로드 기반(008)이 없어 `media` 모듈에 프로필에 필요한 최소만 만들었다: `ImageStorage`(04 §4-1 시그니처) + `S3ImageStorage`(AWS SDK v2 2.55.12, path-style, SigV4, 체크섬 `WHEN_REQUIRED`), `ImageUploadService`(presign·complete, `purpose=PROFILE`만), `ProfileImageService`, `ImageCleanupService`/`ImageCleanupJob`, SPI `ImageReferenceLookup`. 008은 `purpose=POST`·썸네일·용량·`LocalImageStorage`·앱 전용 키를 같은 클래스·테이블에 **추가**한다(`IMAGE_PURPOSE_NOT_SUPPORTED`를 풀면 됨). | 사용자 지시, research R-5·R-6 |
+| I-2 | 저장소 로컬·테스트 이미지는 `pgsty/silo:RELEASE.2026-09-16T00-00-00Z`(04 §6-1 고정 태그). compose 서비스 `storage`, 호스트 포트 `${STORAGE_PORT:-9000}`, 루트 계정 기본값 `blogminio`/`blogminio-dev-secret`은 로컬 전용(운영 비밀 아님). 테스트는 Testcontainers `GenericContainer`(`server /data`, `/minio/health/live` 대기)를 `IntegrationTestBase`의 정적 컨테이너로 더했다. 개발·테스트는 시작할 때 버킷과 "익명은 `images/*` `GetObject`만" 정책을 만든다(`blog.storage.create-bucket`). | R-5 |
+| I-3 | `S3ImageStorageIT`에서 23 §2-3 검증 중 일부(정상 PUT 200, 서명과 다른 `Content-Type` 403, 익명 목록 403, `images/*` 밖 익명 읽기 403, 공개 주소 익명 읽기 200)를 자동화했다. 서명 위조·경로 변경·만료 검증과 CORS 거부 검증은 008 범위로 남겼다. | U-8 |
+| I-4 | `media`가 1분 20장 제한에 001·002의 `account.infra.RedisRateLimiter`를 그대로 쓴다(Redis 키 `img:upload:{memberId}`). 이 클래스는 account 데이터가 아닌 범용 카운터라 헌법 I의 "다른 모듈 저장소·테이블 직접 사용"에 해당하지 않는다고 보고 옮기지 않았다. `shared`로 옮기는 것은 후속 정리 후보. | 기존 클래스 재사용 지시 |
+| I-5 | 업로드 완료 여부는 스키마 변경 없이 `image.width IS NOT NULL`로 판단한다. `image.created_at`·`detached_at`은 앱 `Clock`으로 넣어 테스트에서 24시간·7일을 재현한다. 저장 키의 연·월은 UTC 기준. | 헌법 II |
+| I-6 | complete 거부 이유 `detail`은 `MISSING`·`SIZE`·`CONTENT_MISMATCH`·`DIMENSION`·`METADATA`(presign은 `TYPE`·`SIZE`). 거부하면 저장소 파일을 지우고(실패하면 `img:orphan-keys`) 행도 지운다. 이미 완료된 사진의 complete는 같은 응답(멱등). 남의 사진·없는 사진 complete는 404. | R-7 |
+| I-7 | 프로필 저장 요청 본문은 Jackson 3(`tools.jackson.databind.JsonNode`) 트리로 읽어 "보내지 않음"과 `null`을 구분하고, 타입이 틀린 칸은 다른 칸 검사와 함께 `INVALID_VALUE` 항목으로 돌려준다. JSON이 아니면 400(프레임워크 기본). | R-2 |
+| I-8 | 칸별 오류는 `shared.error.FieldError` + `ProfileValidationException`(→ `VALIDATION_FAILED`, `errors[]`)으로 모았다. `ErrorResponse`에 `errors`·`detail`을 null이면 생략되는 필드로 더해 001·002 응답 모양은 그대로다. 비밀번호 정책 위반·확인 불일치도 같은 모양(`newPassword`: 001 `password.*` 코드 중 첫 번째, `newPasswordConfirm`: `PASSWORD_MISMATCH`). | R-4 |
+| I-9 | CSP는 `SecurityConfig` 상수 대신 `ContentSecurityPolicy` Bean이 조립한다(저장소 공개·API 출처, 소셜 사진 호스트 2개, `blob:`). `SecurityHeadersIT`는 Bean 값과 비교하고 조립 결과를 따로 검사한다. | R-12 |
+| I-10 | `AuthorDisplay`에 `profileImageUrl`을 더하면서 002의 3인자 생성자·`of(handle, nickname, withdrawnAt)`를 유지했다. 탈퇴 회원 아이콘은 사진·첫 글자 없이 회색(`?`). `MemberSummaryQuery`·`BlogOwner`가 사진 주소를 채운다. 목록·글 상세·댓글 화면(009·010·014)은 아직 없어 블로그 상단과 표시 값으로 즉시 반영을 확인했다(SC-007). | R-10 |
+| I-11 | 001 `SocialSignupIT.completionPagePrefillsNicknameAndFixedPrefixHandle`의 "프로필 사진 사용" 기대를 바꿨다. 001 테스트 도우미의 사진 주소(`https://example.com/p.png`)는 003 FR-020에서 허용 호스트가 아니라 화면에 넘기지 않는다. 허용 호스트 사진 칸은 `SocialPictureIT`가 확인한다. | FR-020 |
+| I-12 | `SocialSignupController`(001)는 완료 후 "사진 사용 + 거른 주소 + 공급자 인증 이메일"일 때만 `/settings/social-picture`로 보낸다(U-6). 그 화면이 세션 값을 한 번 꺼내 지운다. 사진 미리보기 `<img>`는 `referrerpolicy="no-referrer"`. | R-11 |
+| I-13 | `LoginAttemptStore`(001)에 키를 직접 받는 메서드(`isLockedKey`, `recordFailureKeys`, `clearKey`, `remainingSeconds`)를 더하고 기존 이메일 메서드가 위임하게 했다. 비밀번호 변경 잠금 키 `auth:pw-change-fail:{memberId}`·`auth:pw-change-lock:{memberId}`, 값은 `blog.auth.password-change.*`(`AuthProperties.passwordChange`). 정책 위반·같은 비밀번호는 잠금 횟수에 넣지 않는다(현재 비밀번호 불일치만). | R-13 |
+| I-14 | 비밀번호 변경 후 다른 세션 삭제는 `SessionRevoker.revokeAllExcept(memberId, 바꾸기 전 세션 ID)`를 커밋 후 리스너에서 부르고, 컨트롤러가 그 뒤 `request.changeSessionId()`를 한다. `PasswordChangeIT`가 실제 로그인한 두 브라우저로 "A 쿠키 값 바뀜·로그인 유지, B 로그인 필요"를 확인한다. | R-13 |
+| I-15 | 정리 작업은 `@EnableScheduling`(`shared.config.SchedulingConfig`) + `blog.image.cleanup.enabled`(테스트 false). 저장소 삭제 실패 재시도는 `@MockitoSpyBean ImageStorage`로 흉내 냈다. | R-9 |
+| I-16 | T274 확인(2026-10-07): compose(포트 55432/56379/51025/58025/59000, 프로젝트 이름 `blog003`) + jar(dev)로 띄워 시작 시 버킷 생성 확인, 가입·인증은 curl, 나머지는 내장 브라우저에서 화면 JS로 확인했다 — 소개 저장("저장했어요", 글자 수 23), 사진 선택(800×500 JPEG) → 자르기(확대 1.5) → **브라우저에서 MinIO로 사전 서명 PUT 성공(CORS 통과)** → 256×256 WebP 미리보기 → [저장] 후 `profileImageUrl` 반영, [기본 이미지로] → 기본 아이콘 `avatar-c3`(서버 해시와 같음)·첫 글자 표시 → 저장 후 NULL, 공개 범위 라디오 → `PRIVATE`, 비밀번호 폼(틀린 현재 비밀번호 문구 → 성공 후 로그인 유지), 소셜 사진 처리 함수(가운데 정사각형 → WebP → 업로드), 375px에서 가로 스크롤 없음(자르기 영역 포함), 블로그 상단 소개 이스케이프. **확인하지 못한 것**: 실제 Google·GitHub 사진 서버에서 브라우저로 받기(CORS·5초 제한, OAuth 앱 필요), 운영 NHN MinIO. | |
+| I-17 | 테스트 수: 시작 241개 → 완료 313개(+72, `./gradlew clean build` 통과). | T275 |

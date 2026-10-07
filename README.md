@@ -23,3 +23,15 @@
 5. `/speckit-implement` 구현
 
 우선순위는 Tier A(공통 필수) → Tier B(공통 권장) → Tier C(2차 후보) 순입니다.
+
+## 로컬 실행
+
+`compose.yaml`은 PostgreSQL·Redis·Mailpit과 사진 저장소 `storage`(MinIO 커뮤니티 포크 `pgsty/silo`, 버전 고정)를 띄웁니다.
+기본 포트(5432·6379·1025·8025·9000)가 겹치면 `DB_PORT`·`REDIS_PORT`·`MAIL_PORT`·`MAILPIT_WEB_PORT`·`STORAGE_PORT`로 바꾸고 앱에도 같은 값을 줍니다.
+운영 저장소(NHN MinIO)는 `STORAGE_ENDPOINT`·`STORAGE_PUBLIC_BASE_URL`·`STORAGE_ACCESS_KEY`·`STORAGE_SECRET_KEY` 환경 변수로만 넣습니다.
+
+```bash
+docker compose up -d
+./gradlew bootRun          # 개발 프로필: Mailpit, 저장소 버킷 자동 생성
+./gradlew clean build      # 통합 테스트는 Testcontainers로 같은 컨테이너를 띄웁니다
+```

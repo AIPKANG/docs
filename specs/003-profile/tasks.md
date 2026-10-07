@@ -191,11 +191,11 @@ description: "003-profile 구현 작업 목록 (media 모듈 최소 골격 포�
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T272 [P] `SecretLeakIT`(001)에 저장소 비밀값(`blog.storage.secret-key`)이 로그·오류 응답에 나오지 않는지 항목 추가, presign 응답에 루트 키가 없는지 확인(서명 매개변수만)
-- [ ] T273 [P] `README.md`의 실행 안내에 `storage` 서비스·`STORAGE_PORT`·`STORAGE_*` 환경 변수 한 줄씩 추가(docs/는 고치지 않음)
-- [ ] T274 quickstart 확인: compose(바꾼 포트) + jar(dev)로 S1·S2·S4를 curl로, 설정 화면 JS(자르기·업로드·저장, 비밀번호 폼)를 내장 브라우저로 확인. 확인 못 한 항목(실제 Google·GitHub 사진, CORS 실제 소셜 호스트)은 research 구현 메모에 기록
-- [ ] T275 `./gradlew clean build` 전체 통과 확인(기존 241개 + 003 테스트), 테스트 수를 research 구현 메모에 기록
-- [ ] T276 `specs/003-profile/research.md`에 "구현 메모 (/speckit-implement)" 표(I-1~)로 tasks와 달라진 점·추가 결정 기록
+- [X] T272 [P] `SecretLeakIT`(001)에 저장소 비밀값(`blog.storage.secret-key`)이 로그·오류 응답에 나오지 않는지 항목 추가, presign 응답에 루트 키가 없는지 확인(서명 매개변수만)
+- [X] T273 [P] `README.md`의 실행 안내에 `storage` 서비스·`STORAGE_PORT`·`STORAGE_*` 환경 변수 한 줄씩 추가(docs/는 고치지 않음)
+- [X] T274 quickstart 확인: compose(바꾼 포트) + jar(dev)로 S1·S2·S4를 curl로, 설정 화면 JS(자르기·업로드·저장, 비밀번호 폼)를 내장 브라우저로 확인. 확인 못 한 항목(실제 Google·GitHub 사진, CORS 실제 소셜 호스트)은 research 구현 메모에 기록
+- [X] T275 `./gradlew clean build` 전체 통과 확인(기존 241개 + 003 테스트), 테스트 수를 research 구현 메모에 기록
+- [X] T276 `specs/003-profile/research.md`에 "구현 메모 (/speckit-implement)" 표(I-1~)로 tasks와 달라진 점·추가 결정 기록
 
 ---
 
