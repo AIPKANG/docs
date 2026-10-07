@@ -157,6 +157,28 @@ public class GlobalExceptionHandler {
                 .body(error(PasswordChangeLockedException.CODE));
     }
 
+    // ----- 004: 임시저장·자동 저장 -----
+
+    @ExceptionHandler(EditConflictException.class)
+    public ResponseEntity<ErrorResponse> editConflict(EditConflictException e) {
+        return json(HttpStatus.CONFLICT, error(EditConflictException.CODE).withServer(e.getServer()));
+    }
+
+    @ExceptionHandler(PostContentException.class)
+    public ResponseEntity<ErrorResponse> postContent(PostContentException e) {
+        return json(HttpStatus.BAD_REQUEST, error(e.getCode()));
+    }
+
+    @ExceptionHandler(PayloadTooLargeException.class)
+    public ResponseEntity<ErrorResponse> payloadTooLarge() {
+        return json(HttpStatus.CONTENT_TOO_LARGE, error(PayloadTooLargeException.CODE));
+    }
+
+    @ExceptionHandler(SaveDelayedException.class)
+    public ResponseEntity<ErrorResponse> saveDelayed(SaveDelayedException e) {
+        return json(HttpStatus.SERVICE_UNAVAILABLE, error(SaveDelayedException.CODE).withVersion(e.getVersion()));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

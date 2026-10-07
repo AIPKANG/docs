@@ -177,3 +177,28 @@ blog:
       allowed-hosts:
         GOOGLE: lh3.googleusercontent.com
         GITHUB: avatars.githubusercontent.com
+  # 004-draft-autosave: 3단계 저장(04 §2-1)·작업본·빈 임시글 정리. PostProperties 참고
+  post:
+    title-max-length: 100
+    content-max-length: 100000
+    autosave:
+      buffer-ttl: 24h
+      flush-enabled: true
+      flush-interval: 1m
+      flush-batch-size: 500
+      flush-lock-ttl: 50s
+      rate-limit-window: 5s
+      max-body-bytes: 1048576
+      redis-retry-after: 30s
+    editor:
+      local-save-delay: 1s
+      server-save-delay: 3s
+      server-save-max-interval: 30s
+      retry-max: 60s
+      backup-ttl: 7d
+    empty-draft-cleanup:
+      enabled: true
+      cron: "0 40 4 * * *"
+      min-age: 24h
+      batch-size: 500
+      lock-ttl: 10m

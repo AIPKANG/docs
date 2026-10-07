@@ -22,7 +22,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import({TestClockConfig.class, DatabaseCleaner.class, MemberFixtures.class})
+@Import({TestClockConfig.class, DatabaseCleaner.class, MemberFixtures.class, PostFixtures.class})
 public abstract class IntegrationTestBase {
 
     protected static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18");
@@ -94,6 +94,9 @@ public abstract class IntegrationTestBase {
 
     @Autowired
     protected MemberFixtures members;
+
+    @Autowired
+    protected PostFixtures posts;
 
     @AfterEach
     void cleanUpAfterEach() {

@@ -45,6 +45,35 @@
         .cropper { max-width: 100%; }
         .cropper canvas { max-width: 100%; height: auto; touch-action: none; border-radius: 4px; background: #eaeef2; cursor: grab; }
         .status-ok { color: #1a7f37; }
+        /* 004 편집 화면·비교 창 */
+        .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .editor input[type=text] { width: 100%; padding: 8px; font: inherit; font-size: 1.4em; border: 0; border-bottom: 1px solid #d0d7de; }
+        .editor textarea { width: 100%; min-height: 60vh; padding: 8px; font: 1em/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
+        .editor-bar { display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; position: sticky; bottom: 0; background: #fff; padding: 8px 0; }
+        .editor-actions { display: flex; gap: 8px; }
+        .save-status { margin: 0; color: #57606a; }
+        .banner-warning { background: #fff8c5; border: 1px solid #d4a72c; padding: 8px 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        dialog#compare-dialog { width: min(1100px, 96vw); max-height: 90vh; padding: 12px; }
+        .compare-head, .compare-nav, .compare-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+        .compare-head h2 { font-size: 1.1em; margin: 0; }
+        .compare-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .compare-label { margin: 4px 0; font-weight: 600; }
+        .compare-body { max-height: 55vh; overflow: auto; border: 1px solid #d0d7de; font: 0.9em/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+        .diff-row { display: grid; grid-template-columns: 1fr 1fr; }
+        .diff-cell { padding: 0 6px; white-space: pre-wrap; min-height: 1.5em; border-right: 1px solid #eaeef2; }
+        .diff-del { background: #ffebe9; } .diff-add { background: #dafbe1; }
+        .diff-del mark { background: #ffaba8; } .diff-add mark { background: #6fdd8b; }
+        .diff-sign { user-select: none; color: #57606a; }
+        .diff-current { outline: 2px solid #0969da; }
+        .diff-fold { display: block; width: 100%; text-align: left; background: #f6f8fa; border: 0; padding: 2px 6px; color: #57606a; }
+        .diff-title { padding: 4px 6px; border-bottom: 1px solid #d0d7de; }
+        .overwrite-confirm { border-top: 1px solid #d0d7de; margin-top: 8px; padding-top: 8px; }
+        @media (max-width: 719px) { .compare-columns { display: none; } .diff-row { grid-template-columns: 1fr; } .diff-cell.diff-same-right { display: none; } }
+        .manage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .post-rows { list-style: none; padding: 0; }
+        .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
+        .badge { font-size: 0.8em; border: 1px solid #d0d7de; border-radius: 999px; padding: 0 8px; color: #57606a; }
+        .badge-editing { border-color: #d4a72c; color: #7d4e00; }
     </style>
 </head>
 <body>
@@ -52,6 +81,11 @@
     <a href="/">블로그</a>
     <nav>
         <th:block th:if="${currentMemberId != null}">
+            <form method="post" action="/write">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit">새 글</button>
+            </form>
+            <a href="/manage/posts">내 글</a>
             <a href="/settings">설정</a>
             <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

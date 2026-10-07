@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>내 글</title>
+</head>
+<body>
+<main>
+    <div class="manage-head">
+        <h1>내 글</h1>
+        <form method="post" action="/write">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">새 글</button>
+        </form>
+    </div>
+    <p th:if="${posts.isEmpty()}" class="help">아직 쓴 글이 없어요.</p>
+    <ul class="post-rows" th:unless="${posts.isEmpty()}">
+        <li th:each="row : ${posts}" class="post-row">
+            <a th:href="@{/write/{id}(id=${row.id()})}"
+               th:text="${#strings.isEmpty(#strings.trim(row.title())) ? '(제목 없음)' : row.title()}">제목</a>
+            <span class="badge" th:if="${row.status().name() == 'DRAFT'}">임시저장</span>
+            <span class="badge" th:if="${row.status().name() == 'PUBLISHED'}">발행</span>
+            <span class="badge badge-editing" th:if="${row.editing()}">수정 중</span>
+            <time class="help" th:attr="datetime=${row.updatedAt()}"
+                  th:text="${#temporals.format(row.updatedAt(), 'yyyy-MM-dd HH:mm', 'Asia/Seoul')}">시각</time>
+        </li>
+    </ul>
+</main>
+</body>
+</html>

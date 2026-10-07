@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>글쓰기</title>
+</head>
+<body>
+<main class="editor" id="editor" th:attr="data-state=${state}">
+    <noscript><p class="notice">자동 저장에는 JavaScript가 필요해요.</p></noscript>
+
+    <p class="notice" th:if="${published}">발행한 글을 고치는 중이에요. 저장한 내용은 다시 발행하기 전까지 독자에게 보이지 않아요.</p>
+
+    <!-- 충돌 배너(04 §2-7): 편집은 막지 않는다 -->
+    <div id="conflict-banner" class="banner-warning" role="alert" hidden>
+        <span id="conflict-banner-text"></span>
+        <button type="button" id="conflict-compare">비교하기</button>
+    </div>
+    <p id="editor-notice" class="notice" role="status" hidden></p>
+
+    <div class="field">
+        <label for="post-title" class="visually-hidden">제목</label>
+        <input type="text" id="post-title" placeholder="제목" autocomplete="off"
+               th:value="${post.title()}" th:attr="maxlength=${titleMaxLength}">
+    </div>
+    <div class="field">
+        <label for="post-content" class="visually-hidden">본문 (Markdown)</label>
+        <textarea id="post-content" placeholder="Markdown으로 써 보세요" th:text="${post.contentMd()}"></textarea>
+    </div>
+
+    <div class="editor-bar">
+        <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+        <div class="editor-actions">
+            <button type="button" id="discard-working-copy" th:if="${published}">변경 취소</button>
+            <button type="button" id="manual-save">저장</button>
+        </div>
+    </div>
+
+    <!-- 비교 창(04 §2-7, FR-020·FR-021) -->
+    <dialog id="compare-dialog" aria-labelledby="compare-heading">
+        <div class="compare-head">
+            <h2 id="compare-heading">저장된 내용과 지금 편집 중인 내용이 달라요</h2>
+            <button type="button" id="compare-close" aria-label="닫기">X</button>
+        </div>
+        <div class="compare-nav">
+            <button type="button" id="compare-prev">이전 차이</button>
+            <button type="button" id="compare-next">다음 차이</button>
+            <span id="compare-count" class="help"></span>
+        </div>
+        <div class="compare-columns">
+            <p class="compare-label" id="compare-left-label"></p>
+            <p class="compare-label">지금 편집 중인 내용 · 이 탭</p>
+        </div>
+        <div id="compare-body" class="compare-body"></div>
+        <div class="compare-actions">
+            <button type="button" id="choose-mine">편집 중인 내용으로 저장</button>
+            <button type="button" id="choose-server">저장된 내용 불러오기</button>
+            <button type="button" id="choose-new">새 임시글로 따로 저장</button>
+        </div>
+        <div id="overwrite-confirm" class="overwrite-confirm" hidden>
+            <p id="overwrite-confirm-text"></p>
+            <button type="button" id="overwrite-yes">저장</button>
+            <button type="button" id="overwrite-no">취소</button>
+        </div>
+    </dialog>
+
+    <script src="/js/editor/draft-store.js" defer></script>
+    <script src="/js/editor/diff.js" defer></script>
+    <script src="/js/editor/autosave.js" defer></script>
+    <script src="/js/editor/editor.js" defer></script>
+</main>
+</body>
+</html>
