@@ -67,6 +67,17 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.CONFLICT, error(HandleTakenException.CODE, e.getSuggestion()).withSuggestion(e.getSuggestion()));
     }
 
+    // ----- 002 US2: 닉네임 -----
+
+    @ExceptionHandler(NicknameViolationException.class)
+    public ResponseEntity<ErrorResponse> nicknameViolation(NicknameViolationException e) {
+        String code = e.getCode().name();
+        if (e.isConcurrent()) {
+            return json(HttpStatus.CONFLICT, ErrorResponse.of(code, message(code + "_CONCURRENT")));
+        }
+        return json(HttpStatus.BAD_REQUEST, error(code));
+    }
+
     // ----- 도우미 -----
 
     protected ErrorResponse error(String code, Object... args) {

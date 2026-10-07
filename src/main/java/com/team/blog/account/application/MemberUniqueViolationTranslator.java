@@ -1,9 +1,11 @@
 package com.team.blog.account.application;
 
 import com.team.blog.account.domain.Handle;
+import com.team.blog.account.domain.NicknameViolation;
 import com.team.blog.account.domain.Provider;
 import com.team.blog.account.infra.MemberRepository;
 import com.team.blog.shared.error.HandleTakenException;
+import com.team.blog.shared.error.NicknameViolationException;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,6 +65,7 @@ public class MemberUniqueViolationTranslator {
      *
      * @return 소셜 가입이고 같은 소셜 계정이 이미 생겼으면 {@link ExistingSocialAccount}(그 회원으로 로그인)
      * @throws HandleTakenException {@code uq_member_handle} 위반(대안 주소 포함)
+     * @throws NicknameViolationException {@code uq_member_nickname} 위반({@code NICKNAME_DUPLICATE}, concurrent)
      * @throws DataIntegrityViolationException 그 밖의 위반은 원래 예외를 그대로 던진다
      */
     public ExistingSocialAccount translate(DataIntegrityViolationException e, SignupContext context) {
@@ -76,6 +79,9 @@ public class MemberUniqueViolationTranslator {
         String constraint = constraintName(e);
         if (UQ_MEMBER_HANDLE.equals(constraint) && context.handle() != null) {
             throw new HandleTakenException(handleService.suggestAlternative(context.handle()));
+        }
+        if (UQ_MEMBER_NICKNAME.equals(constraint)) {
+            throw new NicknameViolationException(NicknameViolation.NICKNAME_DUPLICATE, true);
         }
         throw e;
     }
