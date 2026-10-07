@@ -40,4 +40,10 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // Colima처럼 /var/run/docker.sock이 없는 로컬 Docker: DOCKER_HOST가 없으면 Colima 소켓을 Testcontainers에 알려 준다.
+    val colimaSocket = file("${System.getProperty("user.home")}/.colima/default/docker.sock")
+    if (System.getenv("DOCKER_HOST") == null && colimaSocket.exists()) {
+        environment("DOCKER_HOST", "unix://${colimaSocket.absolutePath}")
+        environment("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "/var/run/docker.sock")
+    }
 }

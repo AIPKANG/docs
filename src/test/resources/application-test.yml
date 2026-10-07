@@ -1,0 +1,5 @@
+blog:
+  text:
+    banned-words:
+      location: classpath:policy/test-banned-words.txt
+      exceptions-location: classpath:policy/test-banned-words-exceptions.txt

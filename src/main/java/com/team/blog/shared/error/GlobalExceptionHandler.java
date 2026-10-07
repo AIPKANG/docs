@@ -1,0 +1,87 @@
+package com.team.blog.shared.error;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+/**
+ * 전역 예외 매핑. 요청이 {@code /api/**}이거나 {@code Accept: application/json}이면 {@link ErrorResponse} JSON,
+ * 아니면 SSR 화면으로 응답한다. 각 스토리가 자기 예외 매핑을 이 클래스에 추가한다.
+ */
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
+    public Object notFound(HttpServletRequest request) {
+        if (isApi(request)) {
+            return json(HttpStatus.NOT_FOUND, error(NotFoundException.CODE));
+        }
+        ModelAndView view = new ModelAndView("error/404");
+        view.setStatus(HttpStatus.NOT_FOUND);
+        return view;
+    }
+
+    @ExceptionHandler(LoginRequiredException.class)
+    public Object loginRequired(HttpServletRequest request) {
+        if (isApi(request)) {
+            return json(HttpStatus.UNAUTHORIZED, error(LoginRequiredException.CODE));
+        }
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                .header(HttpHeaders.LOCATION, "/login?redirect=" + URLEncoder.encode(currentRelativePath(request), StandardCharsets.UTF_8))
+                .build();
+    }
+
+    @ExceptionHandler(RateLimitedException.class)
+    public ResponseEntity<ErrorResponse> rateLimited(RateLimitedException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(e.getRetryAfterSeconds()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(error(RateLimitedException.CODE));
+    }
+
+    // ----- 도우미 -----
+
+    protected ErrorResponse error(String code, Object... args) {
+        return ErrorResponse.of(code, message(code, args));
+    }
+
+    protected String message(String code, Object... args) {
+        return messageSource.getMessage("error." + code, args, code, Locale.KOREAN);
+    }
+
+    protected static ResponseEntity<ErrorResponse> json(HttpStatus status, ErrorResponse body) {
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(body);
+    }
+
+    static boolean isApi(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String path = uri.substring(request.getContextPath().length());
+        if (path.startsWith("/api/")) {
+            return true;
+        }
+        String accept = request.getHeader(HttpHeaders.ACCEPT);
+        return accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    private static String currentRelativePath(HttpServletRequest request) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        String query = request.getQueryString();
+        return query == null ? path : path + "?" + query;
+    }
+}
