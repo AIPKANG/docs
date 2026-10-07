@@ -9,6 +9,6 @@ public record BlogOwner(long memberId, String handle, String nickname, String bi
     }
 
     public AuthorDisplay toAuthorDisplay() {
-        return AuthorDisplay.of(handle, nickname, null);
+        return AuthorDisplay.of(handle, nickname, null, profileImageUrl);
     }
 }

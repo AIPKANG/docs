@@ -32,6 +32,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.id = :id")
     Optional<Member> findByIdForUpdate(@Param("id") long id);
 
+    /** 003: 이 사진들 중 회원 프로필이 참조 중인 것(정리 작업 방어, media SPI). */
+    @Query("select m.profileImageId from Member m where m.profileImageId in :imageIds")
+    List<Long> findProfileImageIdsIn(@Param("imageIds") Collection<Long> imageIds);
+
     /** 탈퇴(유예·익명 처리 모두)가 아닌 회원만. */
     @Query("select m from Member m where m.handle = :handle"
             + " and m.status <> com.team.blog.account.domain.MemberStatus.WITHDRAWN")

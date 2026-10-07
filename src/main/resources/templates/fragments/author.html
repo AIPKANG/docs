@@ -9,6 +9,9 @@
 -->
 <th:block th:fragment="byline(author)"><span class="author-byline" th:if="${author.withdrawn()}" th:text="${author.shortLabel()}">탈퇴한 사용자</span><span class="author-byline" th:unless="${author.withdrawn()}"><span class="author-nickname" th:text="${author.shortLabel()}">닉네임</span> <a class="author-handle" th:href="${author.blogPath()}" th:text="${'@' + author.handle()}">@주소</a></span></th:block>
 
+<!-- 003: 작성자 프로필 아이콘(이미지 또는 기본 아이콘). 탈퇴면 회색 ? 아이콘 -->
+<th:block th:fragment="avatar(author, size)"><th:block th:replace="~{fragments/avatar :: avatar(${author.avatar()}, ${size})}"></th:block></th:block>
+
 <th:block th:fragment="name(author)"><span class="author-name" th:text="${author.shortLabel()}">닉네임</span></th:block>
 </body>
 </html>

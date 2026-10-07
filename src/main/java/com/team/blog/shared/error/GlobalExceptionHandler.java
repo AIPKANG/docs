@@ -124,6 +124,23 @@ public class GlobalExceptionHandler {
         return messageSource.getMessage(error.messageKey(), args, error.code(), Locale.KOREAN);
     }
 
+    // ----- 003: 사진 업로드 -----
+
+    @ExceptionHandler(ImageInvalidException.class)
+    public ResponseEntity<ErrorResponse> imageInvalid(ImageInvalidException e) {
+        return json(HttpStatus.BAD_REQUEST, error(ImageInvalidException.CODE).withDetail(e.getDetail().name()));
+    }
+
+    @ExceptionHandler(ImagePurposeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> imagePurposeNotSupported() {
+        return json(HttpStatus.BAD_REQUEST, error(ImagePurposeNotSupportedException.CODE));
+    }
+
+    @ExceptionHandler(InvalidProfileImageException.class)
+    public ResponseEntity<ErrorResponse> invalidProfileImage() {
+        return json(HttpStatus.BAD_REQUEST, error(InvalidProfileImageException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

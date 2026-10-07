@@ -5,7 +5,9 @@ import com.team.blog.account.domain.Member;
 import com.team.blog.account.domain.NicknameRules;
 import com.team.blog.account.infra.AuthIdentityRepository;
 import com.team.blog.account.infra.MemberRepository;
+import com.team.blog.media.application.ProfileImageService;
 import com.team.blog.shared.error.FieldError;
+import com.team.blog.shared.error.InvalidProfileImageException;
 import com.team.blog.shared.error.LoginRequiredException;
 import com.team.blog.shared.error.NicknameChangeTooSoonException;
 import com.team.blog.shared.error.NicknameViolationException;
@@ -41,6 +43,7 @@ public class ProfileService {
     private final NicknamePolicy nicknamePolicy;
     private final NicknameChangeService nicknameChangeService;
     private final BioPolicy bioPolicy;
+    private final ProfileImageService profileImageService;
     private final MemberUniqueViolationTranslator translator;
     private final TransactionTemplate transactionTemplate;
     private final Clock clock;
@@ -48,7 +51,7 @@ public class ProfileService {
     public ProfileService(AccountGuard accountGuard, MemberRepository memberRepository,
                           AuthIdentityRepository authIdentityRepository, NicknamePolicy nicknamePolicy,
                           NicknameChangeService nicknameChangeService, BioPolicy bioPolicy,
-                          MemberUniqueViolationTranslator translator, TransactionTemplate transactionTemplate,
+                          ProfileImageService profileImageService, MemberUniqueViolationTranslator translator, TransactionTemplate transactionTemplate,
                           Clock clock) {
         this.accountGuard = accountGuard;
         this.memberRepository = memberRepository;
@@ -56,6 +59,7 @@ public class ProfileService {
         this.nicknamePolicy = nicknamePolicy;
         this.nicknameChangeService = nicknameChangeService;
         this.bioPolicy = bioPolicy;
+        this.profileImageService = profileImageService;
         this.translator = translator;
         this.transactionTemplate = transactionTemplate;
         this.clock = clock;
@@ -80,12 +84,15 @@ public class ProfileService {
         command.invalidFields().forEach(field -> errors.add(FieldError.of(field, "INVALID_VALUE")));
         boolean nicknameChange = precheckNickname(current, command, errors);
         String bio = precheckBio(command, errors);
+        boolean imageChange = precheckImage(current, command, errors);
         if (!errors.isEmpty()) {
             throw new ProfileValidationException(errors);
         }
 
         try {
-            transactionTemplate.executeWithoutResult(status -> write(memberId, command, nicknameChange, bio));
+            transactionTemplate.executeWithoutResult(status -> write(memberId, command, nicknameChange, bio, imageChange));
+        } catch (InvalidProfileImageException e) {
+            throw new ProfileValidationException(FieldError.of("profileImageId", InvalidProfileImageException.CODE));
         } catch (NicknameChangeTooSoonException e) {
             throw new ProfileValidationException(FieldError.nicknameTooSoon(e.getNextAllowedAt()));
         } catch (NicknameViolationException e) {
@@ -136,9 +143,30 @@ public class ProfileService {
         return check.normalized();
     }
 
+    /**
+     * 프로필 이미지: 지금 것과 같으면 변경 아님, {@code null}이면 기본 이미지로(검사 없음),
+     * 그 밖은 본인·프로필 용도·업로드 완료·삭제 대기 아님(FR-014).
+     *
+     * @return 실제 변경이 있는지
+     */
+    private boolean precheckImage(Member current, ProfileUpdateCommand command, List<FieldError> errors) {
+        if (!command.profileImageId().present() || command.invalidFields().contains("profileImageId")) {
+            return false;
+        }
+        Long requested = command.profileImageId().value();
+        if (java.util.Objects.equals(requested, current.getProfileImageId())) {
+            return false;
+        }
+        if (requested != null && !profileImageService.isValidCandidate(current.getId(), requested)) {
+            errors.add(FieldError.of("profileImageId", InvalidProfileImageException.CODE));
+        }
+        return true;
+    }
+
     // ----- 쓰기(한 트랜잭션) -----
 
-    private void write(long memberId, ProfileUpdateCommand command, boolean nicknameChange, String bio) {
+    private void write(long memberId, ProfileUpdateCommand command, boolean nicknameChange, String bio,
+                       boolean imageChange) {
         Instant now = clock.instant();
         Member member = memberRepository.findByIdForUpdate(memberId).orElseThrow(LoginRequiredException::new);
         if (nicknameChange) {
@@ -146,6 +174,18 @@ public class ProfileService {
         }
         if (command.bio().present()) {
             member.changeBio(bio, now);
+        }
+        Long requested = command.profileImageId().value();
+        if (imageChange && !java.util.Objects.equals(requested, member.getProfileImageId())) {
+            // 연결·이전 이미지 해제·회원 행 변경은 한 트랜잭션(FR-016)
+            if (member.getProfileImageId() != null) {
+                profileImageService.detach(member.getProfileImageId());
+            }
+            if (requested == null) {
+                member.changeProfileImage(null, null, now);
+            } else {
+                member.changeProfileImage(requested, profileImageService.attach(memberId, requested), now);
+            }
         }
         memberRepository.saveAndFlush(member);
     }

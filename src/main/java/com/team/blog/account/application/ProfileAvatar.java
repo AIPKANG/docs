@@ -28,9 +28,9 @@ public record ProfileAvatar(String handle, String nickname, String imageUrl) {
         return new String(Character.toChars(Character.toUpperCase(first)));
     }
 
-    /** 0~7. {@link String#hashCode()}는 Java 명세로 정해진 값이라 실행마다 같다. */
+    /** 0~7. {@link String#hashCode()}는 Java 명세로 정해진 값이라 실행마다 같다. 주소가 없으면(탈퇴) 회색(7). */
     public int colorIndex() {
-        return handle == null ? 0 : Math.floorMod(handle.hashCode(), PALETTE.size());
+        return handle == null ? PALETTE.size() - 1 : Math.floorMod(handle.hashCode(), PALETTE.size());
     }
 
     public String colorClass() {

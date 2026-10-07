@@ -29,7 +29,8 @@ public class MemberSummaryQuery {
         }
         Map<Long, AuthorDisplay> result = new HashMap<>();
         for (Member member : memberRepository.findAllById(Set.copyOf(ids))) {
-            result.put(member.getId(), AuthorDisplay.of(member.getHandle(), member.getNickname(), member.getWithdrawnAt()));
+            result.put(member.getId(), AuthorDisplay.of(member.getHandle(), member.getNickname(), member.getWithdrawnAt(),
+                    member.getProfileImageUrl()));
         }
         return result;
     }
