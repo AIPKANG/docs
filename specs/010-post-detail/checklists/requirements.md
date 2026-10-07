@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,6 +31,6 @@
 
 ## Notes
 
-- 남은 [NEEDS CLARIFICATION] 1개 (FR-021): 관리자 조회를 조회 기록 제외 대상에 넣을지. 원문 40 R-8은 31 W-3에 추가를 "요청" 상태로 남겼고 31에는 반영되지 않았다. 조회수 명세 담당(김민서)과 맞춘 뒤 `/speckit-clarify`에서 해소한다.
+- (해결됨: 2026-10-07 clarify에서 추천안으로 확정, spec.md Clarifications 참고) 남은 [NEEDS CLARIFICATION] 1개 (FR-021): 관리자 조회를 조회 기록 제외 대상에 넣을지. 원문 40 R-8은 31 W-3에 추가를 "요청" 상태로 남겼고 31에는 반영되지 않았다. 조회수 명세 담당(김민서)과 맞춘 뒤 `/speckit-clarify`에서 해소한다.
 - 301/302/404 상태 코드와 캐시 지시는 존재 은닉·주소 동작이라는 관찰 가능한 계약이라 명세에 남겼다. 스크립트 파일 경로·API 경로·메타 태그 원문은 source-notes.md로 옮겼다.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

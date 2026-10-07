@@ -8,6 +8,12 @@
 
 **Input**: docs/ 원문 문서에서 변환: docs/40-post-detail.md (연관: docs/01-common-requirements.md §2-1, docs/05-publish.md, docs/06-visibility.md §3-1·§7, docs/09-nickname.md §9, docs/10-post-list.md, docs/12-content-sanitize.md, docs/23-image.md §5, docs/31-view-count.md, docs/42-permission-matrix.md §3·§5-1·§11)
 
+## Clarifications
+
+### Session 2026-10-07
+
+- Q: 관리자 조회를 조회 기록에서 빼는가? → A: 뺀다 (016 FR-019와 같음).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 공개 글 읽기 (Priority: P1)
@@ -153,7 +159,7 @@
 
 **조회 기록**
 
-- **FR-021**: 상세 조회 자체는 조회 수를 MUST NOT 바꿔야 한다. 독자가 보는 공개·발행 글 상세에는 글이 화면에 1초 이상 보이면 한 번 기록 요청을 보내는 기능을 넣고, 작성자 본인에게는 넣지 않는다. 제외·중복 판정은 조회수 명세에서 한 곳에서 한다. 관리자의 조회를 제외할지는 [NEEDS CLARIFICATION: 관리자(신고 처리로 연 조회)를 조회 기록 제외 대상에 넣을지 — 40 R-8에서 조회수 문서(31 W-3)에 추가를 요청했으나 31에는 아직 반영되지 않음]. (C-VIEW-1)
+- **FR-021**: 상세 조회 자체는 조회 수를 MUST NOT 바꿔야 한다. 독자가 보는 공개·발행 글 상세에는 글이 화면에 1초 이상 보이면 한 번 기록 요청을 보내는 기능을 넣고, 작성자 본인에게는 넣지 않는다. 제외·중복 판정은 조회수 명세에서 한 곳에서 한다. 관리자(신고 처리로 연 조회)의 조회도 기록하지 않는다 (clarify 2026-10-07, 사용자 확정). (C-VIEW-1)
 - **FR-022**: 조회 기록의 실패가 상세 응답에 영향을 MUST NOT 주어야 하며, 화면의 조회 수는 저장된 값을 그대로 보여준다(이번 방문의 +1을 기다리지 않음).
 - **FR-023**: 조회 기록·GIF 재생을 포함해 상세 페이지는 인라인 스크립트 없이 MUST 동작해야 한다(글 번호 등 필요한 값은 화면 요소의 데이터로 넘긴다). (C-POST-1)
 

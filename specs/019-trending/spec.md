@@ -8,6 +8,12 @@
 
 **Input**: docs/ 원문 문서에서 변환: docs/32-trending.md (참고: docs/01-common-requirements.md Tier C, docs/31-view-count.md, docs/43-report-hide.md)
 
+## Clarifications
+
+### Session 2026-10-07
+
+- Q: 숨긴 댓글을 트렌딩 점수에서 빼는가? → A: 뺀다.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 홈에서 트렌딩 글 보기 (Priority: P1)
@@ -108,7 +114,7 @@
 - **FR-014**: 탭 아래에 "최근 7일 동안 반응이 많은 글 · 10분마다 갱신" 안내를 보여줘야 한다(MUST).
 - **FR-015**: 뒤로 가기 시 불러온 카드·넘기기 위치·스크롤을 30분 동안 복원해야 한다(MUST, 순위 보관 시간과 같음).
 - **FR-016**: 한 페이지를 보여줄 때 글 수에 비례해 조회가 늘지 않아야 한다(MUST, N+1 금지).
-- **FR-017**: 관리자가 숨긴 댓글을 댓글 작성자 수에서 뺄지 정해야 한다(MUST): [NEEDS CLARIFICATION: 43이 숨긴 댓글도 "작성자 외 댓글 작성자 수"에서 빼 달라고 32에 요청했으나 32에는 아직 반영되지 않음 — 숨긴 댓글을 점수에서 제외할 것인가?]
+- **FR-017**: 관리자가 숨긴 댓글은 트렌딩 점수의 "작성자 외 댓글 작성자 수"에서 빼야 한다(MUST). (clarify 2026-10-07, 사용자 확정)
 
 ### Key Entities *(include if feature involves data)*
 

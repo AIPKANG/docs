@@ -8,6 +8,12 @@
 
 **Input**: docs/ 원문 문서에서 변환: docs/24-follow-feed.md (참고: docs/01-common-requirements.md Tier C, docs/20-domain-events.md §3-4, docs/42-permission-matrix.md §10-1, docs/44-withdraw.md)
 
+## Clarifications
+
+### Session 2026-10-07
+
+- Q: 팔로우 요청도 공통 IP 요청 제한에 넣는가? → A: 넣는다. 공통 기준을 그대로 쓴다.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 회원 팔로우·언팔로우 (Priority: P1)
@@ -118,7 +124,7 @@
 - **FR-017**: 피드·팔로워·팔로잉 목록을 보여줄 때 조회 횟수가 항목 수에 비례하지 않아야 한다(MUST, N+1 금지). 피드는 글 1만 건 기준 공통 응답 목표(300ms)를 만족해야 한다.
 - **FR-018**: 탈퇴 유예 중에는 팔로우 관계를 지우지 않고 목록·수·피드에서만 빼야 하며(MUST), 30일 뒤 익명 처리 정리에서 그 회원의 팔로우 관계를 양방향 모두 삭제한다.
 - **FR-019**: 언팔로우는 상대에게 알리지 않아야 한다(MUST). 새 팔로워 알림과 새 글 알림 규칙은 인앱 알림 명세(017)를 따른다.
-- **FR-020**: 팔로우 요청에 횟수 제한을 둘지는 공통 요청 횟수 제한 기준을 따라야 한다(MUST): [NEEDS CLARIFICATION: 팔로우에는 기능별 제한이 없으므로 공통 IP 요청 제한 기준에 포함되는지 화요일 안건 2에서 확인 예정 — 포함할 것인가, 포함한다면 기준은?]
+- **FR-020**: 팔로우·언팔로우 요청은 공통 IP 요청 횟수 제한 기준에 포함되어야 하며, 기준값은 공통 설정을 그대로 쓴다(MUST). (clarify 2026-10-07, 사용자 확정)
 
 ### Key Entities *(include if feature involves data)*
 

@@ -8,6 +8,12 @@
 
 **Input**: docs/ 원문 문서에서 변환: docs/33-search.md (참고: docs/01-common-requirements.md Tier C, docs/22-tag.md §2, docs/31-view-count.md §2-1, docs/43-report-hide.md)
 
+## Clarifications
+
+### Session 2026-10-07
+
+- Q: `#spring` 입력은 어떻게 처리하는가? → A: 태그가 있으면 태그 페이지, 없으면 `#`을 뺀 일반 검색.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 공개 글 검색 (Priority: P1)
@@ -155,7 +161,7 @@
 
 - **FR-018**: 같은 방문자(조회수와 같은 방문자 구분)는 1분에 30번까지 검색할 수 있고, 넘으면 429로 거절해야 한다(MUST). 검색 결과 페이지는 검색 엔진 색인 금지 표시를 달아야 한다.
 - **FR-019**: 검색어를 회원 정보와 함께 저장하지 않아야 하며(MUST), 운영 기록에는 검색어 길이와 걸린 시간만 남긴다.
-- **FR-020**: 검색창에 `#`으로 시작하는 입력(예: `#spring`)을 받으면 정해진 방식으로 처리해야 한다(MUST): [NEEDS CLARIFICATION: 33은 "`#spring` 입력 시 태그 페이지로 보낼지는 태그 담당이 결정"으로 남겨 둠 — 태그 페이지로 보낼 것인가, `#`을 지우고 일반 검색할 것인가?]
+- **FR-020**: 검색창 입력이 `#`으로 시작하면(예: `#spring`) 태그 정규화 규칙으로 바꾼 태그가 있을 때 그 태그의 글 목록 페이지로 보내고, 없으면 `#`을 뺀 나머지로 일반 검색해야 한다(MUST). (clarify 2026-10-07, 사용자 확정)
 
 **성능**
 
