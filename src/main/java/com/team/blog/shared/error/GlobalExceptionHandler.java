@@ -34,6 +34,8 @@ public class GlobalExceptionHandler {
             return json(HttpStatus.NOT_FOUND, error(NotFoundException.CODE));
         }
         ModelAndView view = new ModelAndView("error/404");
+        // 006: 없는 글과 볼 수 없는 글의 링크 미리보기·검색 비수집을 똑같이(06 §3-1)
+        view.addObject("notFoundPage", true);
         view.setStatus(HttpStatus.NOT_FOUND);
         return view;
     }

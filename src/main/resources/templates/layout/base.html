@@ -6,6 +6,11 @@
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <title th:replace="${title}">블로그</title>
+    <th:block th:if="${notFoundPage != null and notFoundPage}">
+        <meta property="og:title" content="볼 수 없는 글이에요">
+        <meta property="og:description" content="친구 공개·비공개 글이거나 삭제된 글입니다.">
+        <meta name="robots" content="noindex">
+    </th:block>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         html { -webkit-text-size-adjust: 100%; }

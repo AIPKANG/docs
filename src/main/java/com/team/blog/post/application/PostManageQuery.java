@@ -36,6 +36,6 @@ public class PostManageQuery {
 
     private MyPostRow withBufferCheck(MyPostRow row) {
         boolean editing = store.findActive(row.id()).map(draftService::isEditing).orElse(false);
-        return editing ? new MyPostRow(row.id(), row.title(), row.status(), true, row.updatedAt()) : row;
+        return editing ? new MyPostRow(row.id(), row.title(), row.status(), true, row.updatedAt(), row.visibility()) : row;
     }
 }

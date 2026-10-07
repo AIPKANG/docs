@@ -29,3 +29,9 @@
 |---|---|---|
 | U-1 | 친구 공개 규격(US4·FR-024~029) | 구현 안 함(선택). `FRIENDS`는 400 |
 | U-2 | 댓글·좋아요 숨김(FR-012·017) | 014·015가 `PostAccessPolicy`로 판정 |
+
+## 구현 메모 (/speckit-implement, 2026-10-07)
+- **I-1.** 볼 수 없는 글·없는 글의 404 응답은 세션마다 다른 CSRF 토큰 값만 다르고 나머지는 같다(테스트는 토큰 값을 지우고 비교).
+- **I-2.** 캐시 지시는 Spring Security 기본 헤더(`no-cache, no-store, max-age=0, must-revalidate`)로 모든 응답에 붙는다. 009에서 공개 목록을 CDN에 캐시하려면 그 경로만 따로 연다.
+- **I-3.** 친구 공개(US4)는 구현하지 않았다(U-1). 규칙 Bean `VisibilityRule`과 V1 `friendship` 테이블로 개인 확장에서 추가한다. 이때 `ck_post_visibility`를 바꾸는 마이그레이션이 필요하다(06 §6-1).
+- **I-4.** 전체 Gradle 테스트 472개 통과.

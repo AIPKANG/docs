@@ -1,27 +1,70 @@
 package com.team.blog.post.application;
 
+import com.team.blog.post.application.visibility.PostFacts;
+import com.team.blog.post.application.visibility.VisibilityRule;
 import com.team.blog.post.domain.PostStatus;
 import com.team.blog.shared.security.CurrentUser;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
- * 글 읽기 판정을 한곳에(헌법 III, 42 §5-1). 발행 + 전체 공개는 누구나, 발행 + 비공개와 임시글은 작성자만.
- * 휴지통·없는 글은 조회 단계에서 이미 빠진다. 공개 범위 확장(006·친구 공개)·관리자 숨김(022)은 여기에 규칙을 더한다.
- * 목록(009)은 같은 규칙의 SQL 조건({@link #PUBLIC_LISTING_CONDITION})만 쓴다.
+ * 글 읽기 판정을 한곳에(헌법 III, 42 §3·§5-1, 006 R-1).
+ * 휴지통(조회에서 제외) → 작성자가 탈퇴 유예·익명이면 아무도 못 봄 → 작성자 본인은 봄 → 임시글은 작성자만 → 공개 범위 규칙.
+ * 관리자 예외는 없다. 관리자 숨김(022)은 여기에 단계를 더한다. 목록은 {@link #publicListingCondition}만 쓴다.
  */
 @Component
 public class PostAccessPolicy {
 
-    /** 누구에게나 보이는 글의 조건(목록용, 별칭 {@code p}). */
-    public static final String PUBLIC_LISTING_CONDITION =
-            "p.status = 'PUBLISHED' AND p.visibility = 'PUBLIC' AND p.deleted_at IS NULL";
+    private final Map<String, VisibilityRule> rules;
 
-    public boolean canRead(Optional<CurrentUser> viewer, long authorId, PostStatus status, String visibility) {
-        boolean author = viewer.map(v -> v.memberId() == authorId).orElse(false);
+    public PostAccessPolicy(List<VisibilityRule> rules) {
+        Map<String, VisibilityRule> byValue = new LinkedHashMap<>();
+        rules.forEach(rule -> byValue.put(rule.visibility(), rule));
+        this.rules = Map.copyOf(byValue);
+    }
+
+    public boolean canRead(Optional<CurrentUser> viewer, PostFacts post) {
+        if (post.authorWithdrawn()) {
+            return false;
+        }
+        boolean author = viewer.map(v -> v.memberId() == post.authorId()).orElse(false);
         if (author) {
             return true;
         }
-        return status == PostStatus.PUBLISHED && "PUBLIC".equals(visibility);
+        if (post.status() != PostStatus.PUBLISHED) {
+            return false;
+        }
+        VisibilityRule rule = rules.get(post.visibility());
+        return rule != null && rule.canRead(viewer, post);
+    }
+
+    /** 지원하는 공개 범위 값(검사용). */
+    public Set<String> supportedVisibilities() {
+        return rules.keySet();
+    }
+
+    /**
+     * 작성자가 아닌 사람에게 보이는 공용 목록 조건(006 R-2). 작성자 본인의 블로그 목록도 이 조건을 쓴다(비공개 글 안 보임).
+     *
+     * @param postAlias   {@code post} 별칭
+     * @param memberAlias 작성자 {@code member} 별칭(조인 필요)
+     */
+    public String publicListingCondition(String postAlias, String memberAlias) {
+        String visibility = rules.values().stream()
+                .map(rule -> rule.listCondition(postAlias))
+                .filter(Objects::nonNull)
+                .map(c -> "(" + c + ")")
+                .collect(Collectors.joining(" OR "));
+        if (visibility.isEmpty()) {
+            visibility = "FALSE";
+        }
+        return postAlias + ".status = 'PUBLISHED' AND " + postAlias + ".deleted_at IS NULL AND "
+                + memberAlias + ".withdrawn_at IS NULL AND (" + visibility + ")";
     }
 }

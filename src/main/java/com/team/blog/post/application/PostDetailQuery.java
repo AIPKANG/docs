@@ -2,6 +2,7 @@ package com.team.blog.post.application;
 
 import com.team.blog.account.application.BlogOwner;
 import com.team.blog.account.application.BlogOwnerResolver;
+import com.team.blog.post.application.visibility.PostFacts;
 import com.team.blog.post.domain.PostStatus;
 import com.team.blog.shared.error.NotFoundException;
 import com.team.blog.shared.security.CurrentUser;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 글 상세 조회({@code /@{handle}/posts/{id}}, 005 R-8). 주소의 블로그 주인과 글 작성자가 다르거나 볼 수 없으면 404 — 없는 글과
- * 구별하지 않는다. 독자에게는 마지막 발행본만(작업본·버퍼는 보이지 않음, FR-002).
+ * 구별하지 않는다. 블로그 주인은 활성 회원만 찾으므로(탈퇴 유예·익명이면 404) {@code authorWithdrawn}은 여기서 늘 거짓이다. 독자에게는 마지막 발행본만(작업본·버퍼는 보이지 않음, FR-002).
  */
 @Service
 public class PostDetailQuery {
@@ -50,7 +51,7 @@ public class PostDetailQuery {
                         rs.getString("visibility"), rs.getString("title"), rs.getString("content_html"),
                         instant(rs.getTimestamp("published_at")), instant(rs.getTimestamp("edited_at"))),
                 postId, owner.memberId()).stream().findFirst().orElseThrow(NotFoundException::new);
-        if (!accessPolicy.canRead(viewer, row.authorId(), row.status(), row.visibility())) {
+        if (!accessPolicy.canRead(viewer, new PostFacts(row.id(), row.authorId(), row.status(), row.visibility(), false))) {
             throw new NotFoundException();
         }
         boolean isAuthor = viewer.map(v -> v.memberId() == row.authorId()).orElse(false);

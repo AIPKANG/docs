@@ -21,10 +21,16 @@
             <span class="badge" th:if="${row.status().name() == 'DRAFT'}">임시저장</span>
             <span class="badge" th:if="${row.status().name() == 'PUBLISHED'}">발행</span>
             <span class="badge badge-editing" th:if="${row.editing()}">수정 중</span>
+            <span class="badge" data-visibility-badge th:text="${row.visibility() == 'PRIVATE' ? '🔒 나만 보기' : '🌐 전체 공개'}">🌐 전체 공개</span>
+            <button type="button" class="visibility-toggle" th:if="${row.status().name() == 'PUBLISHED'}"
+                    th:attr="data-post-id=${row.id()},data-visibility=${row.visibility()}"
+                    th:text="${row.visibility() == 'PRIVATE' ? '전체 공개로' : '나만 보기로'}">나만 보기로</button>
             <time class="help" th:attr="datetime=${row.updatedAt()}"
                   th:text="${#temporals.format(row.updatedAt(), 'yyyy-MM-dd HH:mm', 'Asia/Seoul')}">시각</time>
         </li>
     </ul>
+    <p id="manage-notice" class="notice" role="status" hidden></p>
+    <script src="/js/post/manage.js" defer></script>
 </main>
 </body>
 </html>

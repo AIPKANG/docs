@@ -165,7 +165,7 @@ public class PostEditStore {
     /** 내 글(휴지통 밖), 최근 수정 순. {@code editing}은 DB 작업본 기준 — 버퍼 기준 보정은 호출자가 한다. */
     public List<MyPostRow> listByAuthor(long authorId, int limit) {
         return jdbc.query("""
-                SELECT p.id, p.title, p.status, p.updated_at, p.edit_version, d.edit_version AS d_version
+                SELECT p.id, p.title, p.status, p.visibility, p.updated_at, p.edit_version, d.edit_version AS d_version
                 FROM post p LEFT JOIN post_draft d ON d.post_id = p.id
                 WHERE p.author_id = ? AND p.deleted_at IS NULL
                 ORDER BY p.updated_at DESC, p.id DESC LIMIT ?
@@ -173,7 +173,8 @@ public class PostEditStore {
             PostStatus st = PostStatus.valueOf(rs.getString("status"));
             long dVersion = rs.getLong("d_version");
             boolean editing = st == PostStatus.PUBLISHED && !rs.wasNull() && dVersion > rs.getLong("edit_version");
-            return new MyPostRow(rs.getLong("id"), rs.getString("title"), st, editing, instant(rs, "updated_at"));
+            return new MyPostRow(rs.getLong("id"), rs.getString("title"), st, editing, instant(rs, "updated_at"),
+                    rs.getString("visibility"));
         }, authorId, limit);
     }
 
