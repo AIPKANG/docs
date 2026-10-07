@@ -8,3 +8,10 @@ out/
 target/
 .env
 .env.*
+*.class
+*.log
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+Thumbs.db
+*.tmp
+*.swp

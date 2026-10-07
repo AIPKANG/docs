@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: blog
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/blog}
+    username: ${DB_USERNAME:blog}
+    password: ${DB_PASSWORD:blog}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+server:
+  forward-headers-strategy: native
+
+blog:
+  account:
+    handle:
+      prefill-max-body-length: 30
+      suggestion-batch-size: 20
+      # FR-004 (08 §5) 34개. 서비스 이름 확정 시 추가(research U-1)
+      reserved:
+        - admin
+        - administrator
+        - root
+        - system
+        - official
+        - support
+        - help
+        - about
+        - terms
+        - privacy
+        - api
+        - login
+        - logout
+        - signup
+        - settings
+        - me
+        - write
+        - search
+        - tag
+        - tags
+        - notifications
+        - manage
+        - static
+        - assets
+        - images
+        - mail
+        - www
+        - blog
+        - user
+        - users
+        - "null"
+        - undefined
+        - devlog
+        - teamblog
+    nickname:
+      change-cooldown: 30d
+      # FR-017 (09 §5) 15개
+      reserved:
+        - 관리자
+        - 운영자
+        - 운영진
+        - 운영팀
+        - 고객센터
+        - 공식
+        - 매니저
+        - 스태프
+        - admin
+        - administrator
+        - official
+        - staff
+        - manager
+        - system
+        - root
+    availability:
+      per-ip-per-minute: 30
+  text:
+    banned-words:
+      location: classpath:policy/banned-words.txt
+      exceptions-location: classpath:policy/banned-words-exceptions.txt
