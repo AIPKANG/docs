@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -35,3 +35,4 @@
 - 검증 1회차(2026-10-07): 기술 용어(저장소 제품명, 엔드포인트, 프레임워크) 제거 후 통과. 기술 결정은 `source-notes.md`로 옮김.
 - 상태 코드(401/403/404/409 등)와 오류 이유 코드는 공통 완료 기준·권한 매트릭스(42 §4)가 관찰 가능한 결과로 정한 값이라 명세에 남겼다.
 - 미해결: [NEEDS CLARIFICATION] 1개 (Assumptions) — 07 §10 F-1 "소셜 첫 로그인 시 같은 이메일의 다른 수단 계정 안내"가 원문에서 미결 제안. 공통 범위 여부를 팀 회의에서 정한 뒤 `/speckit-clarify`로 반영. 결정 전에도 나머지 요구사항으로 plan 진행 가능 (L-1 별도 계정 원칙은 확정).
+- 2026-10-07 clarify: F-1 마커를 해소했다 (Clarifications Session 2026-10-07, FR-033, 사용자 확정 2026-10-07). 남은 [NEEDS CLARIFICATION] 0개.
