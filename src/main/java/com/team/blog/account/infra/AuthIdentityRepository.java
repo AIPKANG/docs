@@ -20,11 +20,11 @@ public interface AuthIdentityRepository extends JpaRepository<AuthIdentity, Long
     }
 
     /**
-     * 같은 이메일의 다른 수단 계정(FR-033 안내·재설정 메일의 소셜 안내용). 인증된 이메일만, 탈퇴(유예·익명 처리) 회원 제외.
-     * {@code ix_auth_identity_email} 사용.
+     * 같은 이메일의 다른 수단 계정(FR-033 안내·재설정 메일의 소셜 안내용). 탈퇴(유예·익명 처리) 회원 제외.
+     * {@code ix_auth_identity_email} 사용. 안내는 그 이메일의 인증된 주인에게만 보이므로 가입 여부가 남에게 드러나지 않는다.
      */
     @Query("select a from AuthIdentity a, Member m where m.id = a.memberId and a.email = :email"
-            + " and a.provider <> :provider and a.emailVerifiedAt is not null"
+            + " and a.provider <> :provider"
             + " and m.status <> com.team.blog.account.domain.MemberStatus.WITHDRAWN")
     List<AuthIdentity> findByEmailAndProviderNot(@Param("email") String normalizedEmail,
                                                  @Param("provider") Provider provider);

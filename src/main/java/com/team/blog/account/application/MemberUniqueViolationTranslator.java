@@ -3,7 +3,8 @@ package com.team.blog.account.application;
 import com.team.blog.account.domain.Handle;
 import com.team.blog.account.domain.NicknameViolation;
 import com.team.blog.account.domain.Provider;
-import com.team.blog.account.infra.MemberRepository;
+import com.team.blog.account.domain.AuthIdentity;
+import com.team.blog.account.infra.AuthIdentityRepository;
 import com.team.blog.shared.error.HandleTakenException;
 import com.team.blog.shared.error.NicknameViolationException;
 import java.util.Locale;
@@ -53,11 +54,11 @@ public class MemberUniqueViolationTranslator {
     }
 
     private final HandleService handleService;
-    private final MemberRepository memberRepository;
+    private final AuthIdentityRepository authIdentityRepository;
 
-    public MemberUniqueViolationTranslator(HandleService handleService, MemberRepository memberRepository) {
+    public MemberUniqueViolationTranslator(HandleService handleService, AuthIdentityRepository authIdentityRepository) {
         this.handleService = handleService;
-        this.memberRepository = memberRepository;
+        this.authIdentityRepository = authIdentityRepository;
     }
 
     /**
@@ -70,10 +71,11 @@ public class MemberUniqueViolationTranslator {
      */
     public ExistingSocialAccount translate(DataIntegrityViolationException e, SignupContext context) {
         if (context.isSocial()) {
-            Optional<Long> existing = memberRepository.findMemberIdByAuthIdentity(
-                    context.provider().name(), context.providerUserId());
+            // 001 T161: 같은 소셜 계정이 이미 생겼는지 로그인 수단 저장소로 확인(새 읽기 트랜잭션)
+            Optional<AuthIdentity> existing = authIdentityRepository.findByProviderAndProviderUserId(
+                    context.provider(), context.providerUserId());
             if (existing.isPresent()) {
-                return new ExistingSocialAccount(existing.get());
+                return new ExistingSocialAccount(existing.get().getMemberId());
             }
         }
         String constraint = constraintName(e);

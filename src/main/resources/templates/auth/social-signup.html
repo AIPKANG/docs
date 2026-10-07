@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>가입 마무리</title>
+</head>
+<body>
+<main>
+    <h1 th:text="${providerName} + ' 계정으로 가입 마무리'">가입 마무리</h1>
+
+    <section class="notice" th:if="${!sameEmailProviders.isEmpty()}" role="status">
+        <p>이 이메일로 가입한 계정이 이미 있어요.
+            <span class="help" th:text="'(' + ${#strings.listJoin(sameEmailProviders, ', ')} + ')'">(이메일)</span></p>
+        <form method="post" th:action="@{/signup/social/cancel}" style="display:inline">
+            <button type="submit">기존 계정으로 로그인</button>
+        </form>
+        <a href="#social-signup-form">새 계정 만들기</a>
+    </section>
+
+    <form id="social-signup-form" method="post" th:action="@{/signup/social}" novalidate class="auth-form">
+        <p class="form-error" th:if="${errors['agreements'] != null}" th:text="${errors['agreements']}" role="alert"></p>
+
+        <div class="field" th:if="${needsEmail}">
+            <label for="email">이메일</label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required th:value="${form.email}">
+            <p class="help">인증된 이메일을 받지 못했어요. 이메일을 입력하면 인증 메일을 보내 드려요.</p>
+            <p class="field-error" th:if="${errors['email'] != null}" th:text="${errors['email']}" role="alert"></p>
+        </div>
+
+        <div class="field">
+            <label for="handle">블로그 주소</label>
+            <div class="handle-input">
+                <span aria-hidden="true">devlog.com/@</span><strong th:text="${handlePrefix}">go-</strong>
+                <input id="handle" name="handle" type="text" required maxlength="36"
+                       data-handle-field th:attr="data-prefix-locked=${handlePrefix}"
+                       data-availability="handle" data-availability-target="#handle-status"
+                       inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false" lang="en"
+                       th:value="${form.handle}" aria-describedby="handle-help handle-status">
+            </div>
+            <p id="handle-help" class="help"><span th:text="${handlePrefix}">go-</span>는 가입 방법을 나타내는 고정 글자예요.</p>
+            <p class="warning">⚠ 블로그 주소는 가입 후 바꿀 수 없어요.</p>
+            <p id="handle-status" class="availability" aria-live="polite"></p>
+            <p class="field-error" th:if="${errors['handle'] != null}" role="alert">
+                <span th:text="${errors['handle']}">오류</span>
+                <button type="button" class="handle-suggestion" th:if="${handleSuggestion != null}"
+                        th:attr="data-fill-handle=${handleSuggestion}"
+                        th:text="${handleSuggestion} + '는 어떠세요?'">대안</button>
+            </p>
+        </div>
+
+        <div class="field">
+            <label for="nickname">닉네임</label>
+            <input id="nickname" name="nickname" type="text" maxlength="10" required
+                   data-availability="nickname" data-availability-target="#nickname-status"
+                   th:value="${form.nickname}" aria-describedby="nickname-status">
+            <p class="help" th:if="${nicknameHint != null}" th:text="${nicknameHint}">닉네임을 입력해 주세요</p>
+            <p id="nickname-status" class="availability" aria-live="polite"></p>
+            <p class="field-error" th:if="${errors['nickname'] != null}" th:text="${errors['nickname']}" role="alert"></p>
+        </div>
+
+        <div class="field" th:if="${pictureUrl != null}">
+            <label><input type="checkbox" name="useSocialPicture" value="true" th:checked="${form.useSocialPicture}"> 프로필 사진 사용</label>
+        </div>
+
+        <fieldset class="field">
+            <legend>약관 동의 (필수)</legend>
+            <label><input type="checkbox" name="agreeTerms" value="true" th:checked="${form.agreeTerms}"> 이용약관에 동의해요 (필수)</label><br>
+            <label><input type="checkbox" name="agreePrivacy" value="true" th:checked="${form.agreePrivacy}"> 개인정보 수집·이용에 동의해요 (필수)</label>
+        </fieldset>
+
+        <button type="submit">가입 마치기</button>
+    </form>
+
+    <script src="/js/account/availability.js" defer></script>
+    <script src="/js/account/handle-field.js" defer></script>
+    <script src="/js/auth/signup-form.js" defer></script>
+</main>
+</body>
+</html>

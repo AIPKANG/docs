@@ -32,15 +32,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.id = :id")
     Optional<Member> findByIdForUpdate(@Param("id") long id);
 
-    /**
-     * 소셜 가입 경합 번역용(research R-7): 그 소셜 계정의 회원 번호. 같은 account 모듈 테이블 {@code auth_identity}.
-     * 001-auth(T161)가 {@code AuthIdentityRepository}로 바꾼다.
-     */
-    @Query(value = "SELECT member_id FROM auth_identity WHERE provider = :provider AND provider_user_id = :providerUserId",
-            nativeQuery = true)
-    Optional<Long> findMemberIdByAuthIdentity(@Param("provider") String provider,
-                                              @Param("providerUserId") String providerUserId);
-
     /** 탈퇴(유예·익명 처리 모두)가 아닌 회원만. */
     @Query("select m from Member m where m.handle = :handle"
             + " and m.status <> com.team.blog.account.domain.MemberStatus.WITHDRAWN")

@@ -3,6 +3,8 @@ package com.team.blog.shared.security;
 import com.team.blog.account.application.AccountStatusChecker;
 import com.team.blog.account.application.LoginAttemptService;
 import com.team.blog.account.application.LoginRecorder;
+import com.team.blog.account.infra.GitHubOAuth2UserService;
+import com.team.blog.account.infra.GoogleOidcUserService;
 import com.team.blog.shared.web.ClientIpResolver;
 import java.time.Clock;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,7 @@ import org.springframework.session.web.http.CookieSerializer;
  *   <li>보안 헤더: CSP(12 §8), {@code nosniff}, {@code Referrer-Policy}(헌법 IV).</li>
  *   <li>세션: Spring Session Redis, 로그인 시 세션 ID 새로 발급, SecurityContext는 세션에 명시 저장(001 T110).</li>
  *   <li>폼 로그인({@code POST /login}, 이메일·비밀번호)·로그아웃({@code POST /logout}) — 001 US2.</li>
+ *   <li>소셜 로그인(Google OIDC·GitHub OAuth2) — 001 US3.</li>
  *   <li>인가: 몇 개의 로그인 필요 화면 외에는 공개. 업무 권한은 URL이 아니라 Service에서 검사한다(헌법 III).</li>
  * </ul>
  */
@@ -77,7 +80,11 @@ public class SecurityConfig {
                                                    LoginRecorder loginRecorder,
                                                    ClientIpResolver clientIpResolver,
                                                    CookieSerializer cookieSerializer,
-                                                   Clock clock) throws Exception {
+                                                   Clock clock,
+                                                   GoogleOidcUserService googleOidcUserService,
+                                                   GitHubOAuth2UserService gitHubOAuth2UserService,
+                                                   SocialLoginSuccessHandler socialLoginSuccessHandler,
+                                                   SocialLoginFailureHandler socialLoginFailureHandler) throws Exception {
         HttpSessionCsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
         csrfTokenRepository.setHeaderName(CSRF_HEADER);
 
@@ -98,6 +105,15 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .successHandler(new FormLoginSuccessHandler(loginAttemptService, accountStatusChecker, loginRecorder))
                         .failureHandler(new FormLoginFailureHandler(loginAttemptService)))
+                // 001 US3: Google(OIDC)·GitHub. state 검증은 프레임워크 기본(FR-020)
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .authorizedClientRepository(new NoStoredAuthorizedClientRepository())
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(googleOidcUserService)
+                                .userService(gitHubOAuth2UserService))
+                        .successHandler(socialLoginSuccessHandler)
+                        .failureHandler(socialLoginFailureHandler))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
