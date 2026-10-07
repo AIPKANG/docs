@@ -24,6 +24,21 @@ services:
       - "${MAIL_PORT:-1025}:1025"
       - "${MAILPIT_WEB_PORT:-8025}:8025"
 
+  # 003-profile: 사진 저장소. MinIO 커뮤니티 포크(04 §6-1, 버전 고정). S3 API 포트만 열고 관리 콘솔은 열지 않는다.
+  # 루트 계정 기본값은 로컬 개발 전용이다(운영은 NHN MinIO, 환경 변수로만).
+  storage:
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ROOT_USER:-blogminio}
+      MINIO_ROOT_PASSWORD: ${STORAGE_ROOT_PASSWORD:-blogminio-dev-secret}
+      MINIO_API_CORS_ALLOW_ORIGIN: ${APP_BASE_URL:-http://localhost:8080}
+    ports:
+      - "${STORAGE_PORT:-9000}:9000"
+    volumes:
+      - storage-data:/data
+
 volumes:
   postgres-data:
   redis-data:
+  storage-data:

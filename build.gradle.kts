@@ -30,6 +30,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-session-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    // 003-profile: 프로필 이미지 저장소(MinIO·S3 호환, SigV4 Presigned URL) — AWS SDK for Java v2
+    implementation(platform("software.amazon.awssdk:bom:2.55.12"))
+    implementation("software.amazon.awssdk:s3")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

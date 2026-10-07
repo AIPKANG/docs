@@ -20,3 +20,8 @@ blog:
     mail:
       from: no-reply@localhost
       link-base-url: ${APP_BASE_URL:http://localhost:8080}
+  # 003-profile: compose.yaml의 storage(MinIO 포크) 루트 계정 기본값(로컬 전용). 시작할 때 버킷을 만든다
+  storage:
+    access-key: ${STORAGE_ACCESS_KEY:${STORAGE_ROOT_USER:blogminio}}
+    secret-key: ${STORAGE_SECRET_KEY:${STORAGE_ROOT_PASSWORD:blogminio-dev-secret}}
+    create-bucket: true

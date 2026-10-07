@@ -75,6 +75,10 @@ blog:
     mail:
       from: no-reply@localhost
       link-base-url: http://localhost:8080
+    # 003-profile: 비밀번호 변경 시 현재 비밀번호 연속 실패 잠금(11 §6-2)
+    password-change:
+      max-failures: 5
+      lock-duration: 15m
   account:
     handle:
       prefill-max-body-length: 30
@@ -140,3 +144,36 @@ blog:
     banned-words:
       location: classpath:policy/banned-words.txt
       exceptions-location: classpath:policy/banned-words-exceptions.txt
+  # 003-profile: 사진 저장소(MinIO·S3 호환, research R-5). 키는 환경 변수로만(헌법 IV)
+  storage:
+    endpoint: http://localhost:${STORAGE_PORT:9000}
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL:${blog.storage.endpoint}}
+    bucket: blog-images
+    region: us-east-1
+    access-key: ${STORAGE_ACCESS_KEY:}
+    secret-key: ${STORAGE_SECRET_KEY:}
+    presign-ttl: 5m
+    # 시작할 때 버킷·익명 읽기 정책을 만든다(개발·테스트만 true)
+    create-bucket: false
+  # 003-profile: 프로필 이미지 업로드·정리(04 §4, 11 §4). 008이 글 사진 값을 더한다
+  image:
+    upload-per-minute: 20
+    profile:
+      size: 256
+      max-bytes: 1048576
+    temp-ttl: 24h
+    detached-ttl: 7d
+    cleanup:
+      enabled: true
+      cron: "0 30 4 * * *"
+      batch-size: 500
+  # 003-profile: 소개·소셜 사진(11 §3·§4-2)
+  profile:
+    bio:
+      max-length: 200
+      max-lines: 4
+    social-picture:
+      size: 256
+      allowed-hosts:
+        GOOGLE: lh3.googleusercontent.com
+        GITHUB: avatars.githubusercontent.com

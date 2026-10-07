@@ -1,5 +1,6 @@
 # 운영 프로필: 메일은 Gmail SMTP(587 STARTTLS, 앱 비밀번호 — research R-13).
-# 필요한 환경 변수: MAIL_USERNAME, MAIL_PASSWORD(Google 앱 비밀번호), GOOGLE_CLIENT_ID/SECRET, GITHUB_CLIENT_ID/SECRET, APP_BASE_URL
+# 필요한 환경 변수: MAIL_USERNAME, MAIL_PASSWORD(Google 앱 비밀번호), GOOGLE_CLIENT_ID/SECRET, GITHUB_CLIENT_ID/SECRET, APP_BASE_URL,
+# STORAGE_ENDPOINT, STORAGE_PUBLIC_BASE_URL, STORAGE_ACCESS_KEY, STORAGE_SECRET_KEY(NHN MinIO 앱 전용 키)
 # 하나라도 없으면 기동하지 않는다(RequiredSecretsCheck).
 spring:
   mail:
@@ -24,3 +25,10 @@ blog:
       # 보내는 주소는 Gmail 계정 주소로 고정
       from: ${MAIL_USERNAME:}
       link-base-url: ${APP_BASE_URL:}
+  # 003-profile: 운영 저장소는 NHN MinIO. 버킷·정책은 미리 만들어 둔다(create-bucket=false)
+  storage:
+    endpoint: ${STORAGE_ENDPOINT:}
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL:}
+    access-key: ${STORAGE_ACCESS_KEY:}
+    secret-key: ${STORAGE_SECRET_KEY:}
+    create-bucket: false

@@ -31,7 +31,8 @@ import org.springframework.session.web.http.CookieSerializer;
  * 보안 설정(Spring Security 7 람다 DSL).
  * <ul>
  *   <li>CSRF: 세션 저장 토큰, JS는 {@code X-CSRF-TOKEN} 헤더로 보낸다(layout/base.html 메타 태그).</li>
- *   <li>보안 헤더: CSP(12 §8), {@code nosniff}, {@code Referrer-Policy}(헌법 IV).</li>
+ *   <li>보안 헤더: CSP(12 §8, 003에서 저장소·소셜 사진 출처 추가 — {@link ContentSecurityPolicy}), {@code nosniff},
+ *       {@code Referrer-Policy}(헌법 IV).</li>
  *   <li>세션: Spring Session Redis, 로그인 시 세션 ID 새로 발급, SecurityContext는 세션에 명시 저장(001 T110).</li>
  *   <li>폼 로그인({@code POST /login}, 이메일·비밀번호)·로그아웃({@code POST /logout}) — 001 US2.</li>
  *   <li>소셜 로그인(Google OIDC·GitHub OAuth2) — 001 US3.</li>
@@ -40,10 +41,6 @@ import org.springframework.session.web.http.CookieSerializer;
  */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
-
-    /** CDN 허용은 008에서 추가한다. */
-    public static final String CONTENT_SECURITY_POLICY = "default-src 'self'; script-src 'self'; img-src 'self' data:; "
-            + "style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
 
     public static final String CSRF_HEADER = "X-CSRF-TOKEN";
 
@@ -84,7 +81,8 @@ public class SecurityConfig {
                                                    GoogleOidcUserService googleOidcUserService,
                                                    GitHubOAuth2UserService gitHubOAuth2UserService,
                                                    SocialLoginSuccessHandler socialLoginSuccessHandler,
-                                                   SocialLoginFailureHandler socialLoginFailureHandler) throws Exception {
+                                                   SocialLoginFailureHandler socialLoginFailureHandler,
+                                                   ContentSecurityPolicy contentSecurityPolicy) throws Exception {
         HttpSessionCsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
         csrfTokenRepository.setHeaderName(CSRF_HEADER);
 
@@ -93,7 +91,7 @@ public class SecurityConfig {
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .sessionManagement(session -> session.sessionFixation(fixation -> fixation.changeSessionId()))
                 .headers(headers -> headers
-                        .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(contentSecurityPolicy.value()))
                         .contentTypeOptions(Customizer.withDefaults())
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .requestCache(cache -> cache.requestCache(requestCache()))

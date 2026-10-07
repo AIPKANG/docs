@@ -107,6 +107,23 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.CONFLICT, error(NicknameChangeTooSoonException.CODE, date).withNextAllowedAt(e.getNextAllowedAt()));
     }
 
+    // ----- 003: 프로필·계정 설정 칸별 오류 -----
+
+    @ExceptionHandler(ProfileValidationException.class)
+    public ResponseEntity<ErrorResponse> profileValidation(ProfileValidationException e) {
+        java.util.List<ErrorResponse.Item> items = e.getErrors().stream()
+                .map(error -> new ErrorResponse.Item(error.field(), error.code(), fieldMessage(error), error.nextAllowedAt()))
+                .toList();
+        HttpStatus status = e.isConflictOnly() ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
+        return json(status, error(ProfileValidationException.CODE).withErrors(items));
+    }
+
+    private String fieldMessage(FieldError error) {
+        Object[] args = error.nextAllowedAt() == null ? new Object[0]
+                : new Object[] {KoreanDateFormatter.monthDay(error.nextAllowedAt())};
+        return messageSource.getMessage(error.messageKey(), args, error.code(), Locale.KOREAN);
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {
