@@ -59,13 +59,15 @@
 
 | 영역 | 확정 사항 |
 |---|---|
-| 언어·프레임워크 | Java 21, Spring Boot (버전은 팀 확정) |
+| 언어·프레임워크 | Java 21, Spring Boot 4.1.x (2026-10-07 최신 GA, 패치는 최신으로) |
+| 빌드 | Gradle (Wrapper로 버전 고정, Kotlin DSL) |
 | 데이터 | PostgreSQL(`pg_trgm`), Spring Data JPA, Flyway |
 | 캐시·버퍼·세션 | Redis (AOF `everysec`, `noeviction`), Spring Session 14일 |
 | 파일 저장소 | MinIO(S3 API) + Presigned URL(SigV4). 운영은 NHN 제공 MinIO, 로컬은 커뮤니티 포크 이미지 |
 | 인증 | 이메일 가입(인증 필수) + Google + GitHub. 로그인 수단이 다르면 별도 계정 |
 | Markdown·정화 | commonmark-java 0.30.0 + GFM, OWASP Java HTML Sanitizer 20260924.2 |
 | 테스트 | JUnit 5, Testcontainers, Spring Security Test |
+| 메일 | 개발은 Mailpit, 운영은 Gmail SMTP(앱 비밀번호, 환경 변수) |
 | 실행 | Docker Compose, 비밀값은 환경 변수 |
 
 비기능 최소선: 목록·상세 서버 응답 300ms 이내(글 1만 건), 목록 쿼리 수가 글 수에 비례하지 않음(N+1 금지),
@@ -87,4 +89,4 @@
 - 버전 규칙: 원칙 삭제·재정의는 MAJOR, 원칙·절 추가는 MINOR, 문구 정리는 PATCH.
 - 원칙을 어기는 복잡도는 `plan.md`의 Complexity Tracking에 이유를 적어야 한다.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-07
+**Version**: 1.1.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-07

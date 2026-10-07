@@ -11,7 +11,7 @@
 - provider 값 `LOCAL`/`GOOGLE`/`GITHUB` (네이버는 provider 값만 추가하면 확장) — 07 §2, L-5
 - OAuth: state 검증, Google `sub`·`email_verified`, GitHub `user:email` 스코프로 인증된 primary 이메일 — 07 §5
 - 소셜 인증 정보는 가입 마무리 전 세션에 10분 보관 — 07 §5
-- 메일: 개발은 Mailpit, 운영 방식 미정 — 07 L-9
+- 메일: 개발은 Mailpit, 운영은 Gmail SMTP + 앱 비밀번호 (2026-10-07 확정, research R-13) — 07 L-9
 - 로그아웃 시 IndexedDB `draft:{memberId}:*`, `draft-backup:{memberId}:*` 삭제 — 07 §7, 04 §2-2
 - 응답 코드·이유 코드(`LOGIN_REQUIRED`, `EMAIL_NOT_VERIFIED`, `ACCOUNT_WITHDRAWN`, `ACCOUNT_SUSPENDED`), 판정 순서 — 42 §3, §4
 - 로그인 후 리다이렉트는 상대 경로만 (나민서 D-14) — 07 §6

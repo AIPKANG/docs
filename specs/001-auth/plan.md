@@ -12,7 +12,7 @@ Tier A 공통 필수 C-AUTH-1을 구현한다. 이메일 가입(인증 필수)·
 
 ## Technical Context
 
-**Language/Version**: Java 21, Spring Boot 4.1.1 (02 §2 근거, 팀 확정 대기 — research R-2)
+**Language/Version**: Java 21, Spring Boot 4.1.1 (2026-10-07 최신 GA, 사용자 확정 — research R-2), Gradle 9.8.0 Wrapper
 
 **Primary Dependencies**: Spring Web MVC, Thymeleaf, Spring Security 7(폼 로그인·OAuth2 Client·CSRF), Spring Session Data Redis(인덱스 저장소), Spring Data JPA, Flyway, Spring Mail(JavaMailSender), Bean Validation
 

@@ -14,7 +14,7 @@
 
 ## R-2. Spring Boot 버전
 
-- **Decision**: **Spring Boot 4.1.1** (Java 21). **팀 확정 대기** — 헌법·01 Q8은 "버전은 팀 확정"으로 남겨 두었고, 문서 중 구체 버전은 02 §2의 "김민서 문서는 Spring Boot 4.1.1 기준" 하나뿐이다.
+- **Decision**: **Spring Boot 4.1.1** (Java 21). **사용자 확정 2026-10-07: 최신 안정 버전 사용.** 2026-10-07 기준 Maven Central·start.spring.io의 최신 GA가 4.1.1이다(4.2.0은 마일스톤 단계라 제외). 구현 시작 시점에 4.1.x 패치가 더 나왔으면 그 최신 패치를 쓴다.
 - **Rationale**: 문서에 근거가 있는 유일한 버전이다. Boot 4 계열이면 Spring Security 7, Spring Framework 7, Spring Session 4 계열을 쓴다.
 - **유의점(설계 수준)**: Boot 4는 스타터·자동 설정 모듈이 재편되었다(예: OAuth2 Client·Session Redis·Flyway 스타터 이름). 실제 의존성 좌표는 구현 시작 시 4.1.1 BOM으로 확인한다. Spring Security 7의 설정은 람다 DSL만 쓴다.
 - **Alternatives considered**: Spring Boot 3.5.x — 자료가 많지만 문서 근거가 없다. 팀이 3.x로 정하면 설계는 그대로이고 의존성 좌표만 바뀐다.
@@ -96,7 +96,7 @@
 
 ## R-13. 메일 발송 (L-9)
 
-- **Decision**: `MailSender` 포트 + Spring `JavaMailSender` 어댑터. 개발·테스트는 Mailpit(SMTP 1025, 웹 API 8025), 운영 SMTP는 환경 확인 후 결정(설정만 바꿈). 메일은 **커밋 후** 보낸다(`@TransactionalEventListener(AFTER_COMMIT)`로 `VerificationMailRequested`·`PasswordResetMailRequested` 처리). 발송 실패는 로그(토큰·주소 마스킹)만 남기고 가입·요청 결과를 바꾸지 않는다. 사용자는 재발송으로 회복한다. 메일 본문은 Thymeleaf 텍스트·HTML 템플릿.
+- **Decision**: `MailSender` 포트 + Spring `JavaMailSender` 어댑터. 개발·테스트는 Mailpit(SMTP 1025, 웹 API 8025), 운영은 **Gmail SMTP**(사용자 확정 2026-10-07): `smtp.gmail.com:587` STARTTLS, 보내는 Google 계정에 2단계 인증을 켜고 만든 **앱 비밀번호**를 환경 변수(`MAIL_USERNAME`, `MAIL_PASSWORD`)로 주입한다. 보내는 주소(From)는 그 계정 주소로 고정한다. 개인 Gmail은 하루 발송 한도(약 500통)가 있으므로 인증·재설정 메일 재발송 제한(1분 1번·하루 10번)과 함께 운영 규모가 커지면 발송 전용 서비스로 바꾼다(어댑터 설정만 교체). 메일은 **커밋 후** 보낸다(`@TransactionalEventListener(AFTER_COMMIT)`로 `VerificationMailRequested`·`PasswordResetMailRequested` 처리). 발송 실패는 로그(토큰·주소 마스킹)만 남기고 가입·요청 결과를 바꾸지 않는다. 사용자는 재발송으로 회복한다. 메일 본문은 Thymeleaf 텍스트·HTML 템플릿.
 - **Rationale**: 헌법 V "트랜잭션 안에서 외부 호출을 하지 않는다", 부가 처리 실패가 핵심을 막지 않는다.
 - **Alternatives considered**: RabbitMQ 유실 없는 발송 — 02 §2에서 개인 확장으로 둠.
 
@@ -116,7 +116,7 @@
 
 ## R-16. 빌드·구조
 
-- **Decision**: 단일 Gradle 프로젝트(저장소 루트), 패키지는 02 §3의 `com.team.blog` 모듈 구조. 빌드 도구는 문서에 명시가 없어 Gradle을 기본으로 하되 팀 확인 대상으로 남긴다.
+- **Decision**: 단일 Gradle 프로젝트(저장소 루트), 패키지는 02 §3의 `com.team.blog` 모듈 구조. 빌드 도구는 **Gradle**(사용자 확정 2026-10-07), Gradle Wrapper로 버전을 고정한다(2026-10-07 기준 최신 9.8.0). 빌드 스크립트는 Kotlin DSL(`build.gradle.kts`)을 쓴다.
 - **Rationale**: 헌법 I(하나의 배포 단위, 모듈러 모놀리스).
 - **Alternatives considered**: Maven — 동작상 차이 없음. 팀이 정하면 따른다.
 
@@ -132,9 +132,9 @@
 
 | # | 항목 | 현재 선택 | 확인 주체 |
 |---|---|---|---|
-| U-1 | Spring Boot 버전 | 4.1.1 (02 §2 근거) | 팀 확정 대기 |
+| U-1 | Spring Boot 버전 | 4.1.1 (최신 GA) | 사용자 확정 2026-10-07 |
 | U-2 | 52 A-3 `SUSPENDED` 삭제 여부 | 판정은 `member_suspension` 기준이라 어느 쪽이든 동작 | 팀 회의 |
-| U-3 | 운영 메일 발송 방식 | 설정만 바꾸는 SMTP 어댑터 | 환경 확인 (L-9) |
+| U-3 | 운영 메일 발송 방식 | Gmail SMTP + 앱 비밀번호 | 사용자 확정 2026-10-07 |
 | U-4 | 이메일 앞부분 포함 검사의 최소 길이 | 3자 (설정값) | 팀 확인 권장 |
 | U-5 | 재설정 링크 재요청 시 이전 링크 무효 | 무효로 함 | 원문 미정, 보수적 선택 |
-| U-6 | 빌드 도구 | Gradle | 팀 확인 |
+| U-6 | 빌드 도구 | Gradle (Wrapper 9.8.0, Kotlin DSL) | 사용자 확정 2026-10-07 |

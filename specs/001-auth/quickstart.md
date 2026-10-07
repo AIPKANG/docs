@@ -14,7 +14,7 @@
 |---|---|
 | 런타임 | Java 21, Docker (Compose) |
 | 컨테이너 | PostgreSQL 18(V1 기준선을 Flyway로 적용), Redis(AOF `everysec`, `noeviction`), Mailpit(SMTP 1025, 웹 8025) |
-| 환경 변수 | `GOOGLE_CLIENT_ID`/`SECRET`, `GITHUB_CLIENT_ID`/`SECRET`, DB·Redis·SMTP 접속값. 비밀값은 환경 변수로만(헌법 IV) |
+| 환경 변수 | `GOOGLE_CLIENT_ID`/`SECRET`, `GITHUB_CLIENT_ID`/`SECRET`, DB·Redis·SMTP 접속값(운영은 Gmail: `MAIL_USERNAME`, `MAIL_PASSWORD`=앱 비밀번호). 비밀값은 환경 변수로만(헌법 IV) |
 | OAuth 콜백 | Google·GitHub 개발용 앱에 `http://localhost:8080/login/oauth2/code/{google\|github}` 등록 |
 | 쿠키 | 로컬 HTTP에서 `Secure` 쿠키가 동작하도록 `localhost` 사용(브라우저가 localhost는 보안 컨텍스트로 취급) |
 
