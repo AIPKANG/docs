@@ -93,6 +93,10 @@ class ThemeIT extends IntegrationTestBase {
     void fontsServedFromOwnOriginAndCardsSkipEmptyThumb() throws Exception {
         mockMvc.perform(get("/fonts/pretendard/pretendard.css")).andExpect(status().isOk());
         mockMvc.perform(get("/fonts/gaegu/gaegu.css")).andExpect(status().isOk());
+        // 새로고침마다 글꼴을 다시 받지 않게 오래 보관
+        String cache = mockMvc.perform(get("/fonts/gaegu/files/gaegu-0-400-normal.woff2")).andExpect(status().isOk())
+                .andReturn().getResponse().getHeader("Cache-Control");
+        assertThat(cache).contains("max-age=31536000").contains("immutable").doesNotContain("no-store");
         long author = members.localMember("cardauthor", "cardauthor", "cardauthor@example.com", "Blog#2026ok", true);
         posts.published(author, "사진 없는 글", "본문", 1, java.time.Instant.parse("2026-10-01T00:00:00Z"));
         String home = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString();
