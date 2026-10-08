@@ -190,6 +190,12 @@
         .notif-unread .notif-message { font-weight: 700; }
         .notif-dot { color: #0969da; margin-right: 4px; }
         .notif-time { display: block; color: #6e7781; font-size: .85em; }
+        /* 020 검색 */
+        .header-search { margin: 0; }
+        .header-search input { width: 9em; }
+        .search-form { display: flex; gap: 8px; margin: 8px 0; }
+        .search-form input[type=search] { flex: 1; min-width: 0; }
+        .card-excerpt mark { background: #fff8c5; color: inherit; }
         /* 018 팔로우 */
         .follow-form { display: inline; margin: 0; }
         .follow-list { list-style: none; padding: 0; }
@@ -201,6 +207,11 @@
 <body>
 <header class="site-header">
     <a href="/">블로그</a>
+    <!-- 020 검색창: "#태그"는 태그 글 목록으로 -->
+    <form method="get" action="/search" role="search" class="header-search">
+        <label for="header-q" class="visually-hidden">검색</label>
+        <input id="header-q" type="search" name="q" maxlength="50" placeholder="검색">
+    </form>
     <nav>
         <th:block th:if="${currentMemberId != null}">
             <form method="post" action="/write">

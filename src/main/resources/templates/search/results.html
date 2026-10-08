@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${q.isEmpty() ? '검색' : q + ' - 검색'}">검색</title>
+</head>
+<body>
+<main class="list-page">
+    <h1 th:text="${owner != null ? owner.nickname() + '님의 블로그에서 검색' : '검색'}">검색</h1>
+    <form method="get" th:action="${searchBase}" role="search" class="search-form">
+        <label for="search-q" class="visually-hidden">검색어</label>
+        <input id="search-q" type="search" name="q" maxlength="50" th:value="${q}" placeholder="검색어를 입력하세요">
+        <input type="hidden" name="sort" th:value="${sort}">
+        <input type="hidden" name="tab" th:if="${owner == null}" th:value="${tab}">
+        <button type="submit">검색</button>
+    </form>
+    <nav class="manage-tabs" aria-label="검색 탭" th:if="${owner == null}">
+        <a th:href="${'/search?q=' + encodedQ + '&tab=posts'}" th:attr="aria-current=${tab == 'posts' ? 'page' : null}">글</a>
+        <a th:href="${'/search?q=' + encodedQ + '&tab=people'}" th:attr="aria-current=${tab == 'people' ? 'page' : null}">사람</a>
+    </nav>
+    <nav class="manage-filter" aria-label="정렬" th:if="${tab == 'posts' and !emptyQuery}">
+        <a th:href="${searchBase + '?q=' + encodedQ + (owner == null ? '&tab=posts' : '') + '&sort=relevance'}"
+           th:attr="aria-current=${sort == 'relevance' ? 'page' : null}">관련도순</a>
+        <a th:href="${searchBase + '?q=' + encodedQ + (owner == null ? '&tab=posts' : '') + '&sort=latest'}"
+           th:attr="aria-current=${sort == 'latest' ? 'page' : null}">최신순</a>
+    </nav>
+    <p th:if="${emptyQuery}" class="notice">두 글자 이상 입력해 주세요</p>
+    <th:block th:if="${!emptyQuery and tab == 'posts'}">
+        <p th:if="${twoCharNotice}" class="help">두 글자 단어는 제목·태그에서만 찾았어요</p>
+        <p th:if="${results.isEmpty() and !continued}" class="empty-state" th:text="${'''' + q + '''에 대한 글이 없어요'}">'검색어'에 대한 글이 없어요</p>
+        <p th:if="${continued}"><a th:href="${searchBase + '?q=' + encodedQ + '&sort=' + sort}">처음부터 보기</a></p>
+        <div class="card-grid" id="card-grid">
+            <article th:each="card : ${results}" class="post-card" th:attr="data-post-id=${card.id()}">
+                <div class="card-thumb">
+                    <img th:if="${card.thumbnailUrl() != null}" th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
+                    <!-- 미리보기: 서버가 전체를 이스케이프한 뒤 검색어에만 <mark>를 붙인 값(FR-015) -->
+                    <p class="card-excerpt" th:utext="${card.snippetHtml()}">미리보기</p>
+                    <p class="card-meta"><time th:attr="datetime=${card.firstPublicAt()}" th:text="${dates.get(card.id())}">2026.10.02</time>
+                        · <span th:text="${'💬 ' + card.commentCount()}">💬 3</span></p>
+                    <p class="card-foot">
+                        <a class="card-author" th:href="${'/@' + card.author().handle()}">
+                            <th:block th:replace="~{fragments/avatar :: avatar(${card.author().avatar()}, 24)}"></th:block>
+                            <span th:text="${card.author().nickname()}">닉네임</span></a>
+                        <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
+                    </p>
+                </div>
+            </article>
+        </div>
+        <div th:replace="~{fragments/post-card :: moreWith(${nextCursor}, ${listApi}, true, ${!results.isEmpty()}, ${moreLinkBase}, null)}"></div>
+        <script src="/js/post/list-more.js" defer></script>
+    </th:block>
+    <th:block th:if="${!emptyQuery and tab == 'people'}">
+        <p th:if="${people.isEmpty()}" class="empty-state" th:text="${'''' + q + '''에 대한 사람이 없어요'}">없음</p>
+        <ul class="follow-list">
+            <li th:each="m : ${people}" class="follow-row">
+                <th:block th:replace="~{fragments/avatar :: avatar(${m.avatar()}, 40)}"></th:block>
+                <div class="follow-text">
+                    <p><span th:text="${m.nickname()}">닉네임</span> <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a></p>
+                    <p class="help" th:if="${m.bio() != null}" th:text="${m.bio()}">소개</p>
+                </div>
+            </li>
+        </ul>
+    </th:block>
+</main>
+</body>
+</html>

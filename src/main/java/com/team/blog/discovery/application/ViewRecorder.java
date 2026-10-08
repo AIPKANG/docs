@@ -4,20 +4,14 @@ import com.team.blog.account.infra.RedisRateLimiter;
 import com.team.blog.post.application.PostReadAccess;
 import com.team.blog.shared.error.RateLimitedException;
 import com.team.blog.shared.security.CurrentUser;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -58,13 +52,11 @@ public class ViewRecorder {
     private final RedisRateLimiter rateLimiter;
     private final ViewProperties properties;
     private final Clock clock;
-    private final AtomicReference<DailySecret> secret = new AtomicReference<>();
-
-    private record DailySecret(LocalDate day, byte[] value) {
-    }
+    private final VisitorKeys visitorKeys;
 
     public ViewRecorder(PostReadAccess postReadAccess, StringRedisTemplate redis, RedisRateLimiter rateLimiter,
-                        ViewProperties properties, Clock clock) {
+                        ViewProperties properties, Clock clock, VisitorKeys visitorKeys) {
+        this.visitorKeys = visitorKeys;
         this.postReadAccess = postReadAccess;
         this.redis = redis;
         this.rateLimiter = rateLimiter;
@@ -113,37 +105,7 @@ public class ViewRecorder {
         return properties.botUserAgents().stream().anyMatch(b -> ua.contains(b.toLowerCase(Locale.ROOT)));
     }
 
-    /** {@code m:회원} / {@code v:쿠키} / {@code h:해시}. 쿠키 값도 해시해 키에 원문이 남지 않게 한다. */
     String visitorKey(Visit visit) {
-        if (visit.viewer().isPresent()) {
-            return "m:" + visit.viewer().get().memberId();
-        }
-        if (visit.visitorCookie().isPresent()) {
-            return "v:" + sha256(visit.visitorCookie().get().getBytes(StandardCharsets.UTF_8), new byte[0]);
-        }
-        String raw = (visit.ip() == null ? "" : visit.ip()) + "|" + (visit.userAgent() == null ? "" : visit.userAgent());
-        return "h:" + sha256(raw.getBytes(StandardCharsets.UTF_8), todaySecret());
-    }
-
-    private byte[] todaySecret() {
-        LocalDate today = LocalDate.ofInstant(clock.instant(), SEOUL);
-        DailySecret current = secret.get();
-        if (current == null || !current.day().equals(today)) {
-            byte[] value = new byte[32];
-            new SecureRandom().nextBytes(value);
-            current = new DailySecret(today, value);
-            secret.set(current);
-        }
-        return current.value();
-    }
-
-    private static String sha256(byte[] value, byte[] salt) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            digest.update(salt);
-            return HexFormat.of().formatHex(digest.digest(value)).substring(0, 32);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        return visitorKeys.key(visit.viewer(), visit.visitorCookie(), visit.ip(), visit.userAgent());
     }
 }

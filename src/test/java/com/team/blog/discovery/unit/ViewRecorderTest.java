@@ -35,8 +35,9 @@ class ViewRecorderTest {
         when(access.requireReadable(any(), anyLong())).thenReturn(new PostReadAccess.ReadablePost(1, 2, "PUBLIC", false));
         RedisRateLimiter limiter = mock(RedisRateLimiter.class);
         when(limiter.tryAcquire(anyString(), anyInt(), any())).thenThrow(new RedisConnectionFailureException("down"));
-        ViewRecorder recorder = new ViewRecorder(access, mock(StringRedisTemplate.class), limiter, props,
-                Clock.fixed(Instant.parse("2026-10-08T00:00:00Z"), ZoneOffset.UTC));
+        Clock clock = Clock.fixed(Instant.parse("2026-10-08T00:00:00Z"), ZoneOffset.UTC);
+        ViewRecorder recorder = new ViewRecorder(access, mock(StringRedisTemplate.class), limiter, props, clock,
+                new com.team.blog.discovery.application.VisitorKeys(clock));
         boolean counted = recorder.record(1, new ViewRecorder.Visit(Optional.of(new CurrentUser(3, "USER")),
                 Optional.empty(), "203.0.113.7", "Mozilla/5.0", false));
         assertThat(counted).isFalse();

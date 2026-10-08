@@ -28,12 +28,15 @@ public class BlogPageController {
     private final Clock clock;
     private final com.team.blog.post.application.TagListingQuery tagListingQuery;
     private final com.team.blog.interaction.application.FollowQuery followQuery;
+    private final SearchController searchController;
 
     public BlogPageController(BlogOwnerResolver blogOwnerResolver, PostListQuery listQuery,
                               CurrentUserProvider currentUserProvider, Clock clock,
                               com.team.blog.post.application.TagListingQuery tagListingQuery,
-                              com.team.blog.interaction.application.FollowQuery followQuery) {
+                              com.team.blog.interaction.application.FollowQuery followQuery,
+                              SearchController searchController) {
         this.followQuery = followQuery;
+        this.searchController = searchController;
         this.blogOwnerResolver = blogOwnerResolver;
         this.listQuery = listQuery;
         this.currentUserProvider = currentUserProvider;
@@ -44,8 +47,15 @@ public class BlogPageController {
     @GetMapping("/@{handle}")
     public Object blog(@PathVariable("handle") String handle,
                        @RequestParam(value = "cursor", required = false) String cursor,
-                       @RequestParam(value = "tag", required = false) String tagRaw, Model model) {
+                       @RequestParam(value = "tag", required = false) String tagRaw,
+                       @RequestParam(value = "q", required = false) String q,
+                       @RequestParam(value = "sort", required = false) String sort,
+                       jakarta.servlet.http.HttpServletRequest request, Model model) {
         BlogOwner owner = blogOwnerResolver.resolve(handle).orElseThrow(NotFoundException::new);
+        // 020 FR-017: 블로그 안 검색
+        if (q != null) {
+            return searchController.blog(owner, q, sort, cursor, request, model);
+        }
         // 013 FR-026: 블로그 안 태그 필터. 정리되지 않은 값은 정리된 주소로 301, 형식 밖이면 필터 없이
         String tag = null;
         if (tagRaw != null && !tagRaw.isEmpty()) {

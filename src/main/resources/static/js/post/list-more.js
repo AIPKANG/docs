@@ -49,7 +49,14 @@
     var body = el('div', 'card-body');
     var h2 = el('h2', 'card-title'); var link = el('a', 'card-link', item.title); link.href = item.url; link.title = item.title;
     h2.appendChild(link); body.appendChild(h2);
-    body.appendChild(el('p', 'card-excerpt', item.excerpt || ''));
+    var excerpt = el('p', 'card-excerpt');
+    if (item.snippetParts) {
+      // 020 검색: 강조 조각은 <mark>, 나머지는 글자로만
+      item.snippetParts.forEach(function (part) { excerpt.appendChild(part.mark ? el('mark', null, part.text) : document.createTextNode(part.text)); });
+    } else {
+      excerpt.textContent = item.excerpt || '';
+    }
+    body.appendChild(excerpt);
     var meta = el('p', 'card-meta'); var time = el('time', null, dateLabel(item.firstPublicAt)); time.setAttribute('datetime', item.firstPublicAt);
     meta.appendChild(time); meta.appendChild(document.createTextNode(' · 💬 ' + item.commentCount)); body.appendChild(meta);
     var foot = el('p', 'card-foot');

@@ -266,6 +266,12 @@ blog:
   follow:
     per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
     page-size: 20
+  # 020-search: 33 §4·§5
+  search:
+    recent-window: 3000
+    page-size: 9
+    people-limit: 20
+    per-minute: 30
   # 019-trending: 32 §2~§4
   trending:
     window: 7d
