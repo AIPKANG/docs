@@ -35,6 +35,7 @@
         .then(function (r) {
           if (!r.ok) { status.textContent = r.data.message || '미리보기를 만들지 못했어요'; return; }
           body.innerHTML = r.data.html; // 서버가 정화한 HTML(같은 출처, CSP 2차 방어)
+          if (window.blogHighlight) { window.blogHighlight(body); }
           status.textContent = '';
         }, function (e) { if (e.name !== 'AbortError') { status.textContent = '연결되지 않아 미리보기를 만들지 못했어요'; } });
     }

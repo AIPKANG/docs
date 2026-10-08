@@ -200,3 +200,13 @@ main.list-page { max-width: 1120px; }
 .follow-row { display: flex; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--color-border); }
 .follow-text { flex: 1; min-width: 0; }
 .follow-text p { margin: 2px 0; overflow-wrap: anywhere; }
+/* 코드 문법 강조: highlight.js가 붙이는 클래스를 색 역할로(배경은 코드 배경 그대로) */
+.hljs { background: transparent; color: var(--color-text); }
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-literal, .hljs-doctag { color: var(--code-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-attribute .hljs-string { color: var(--code-string); }
+.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-link, .hljs-variable.language_ { color: var(--code-number); }
+.hljs-comment, .hljs-quote, .hljs-deletion { color: var(--code-comment); font-style: italic; }
+.hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: var(--code-title); }
+.hljs-type, .hljs-title.class_, .hljs-attr, .hljs-attribute, .hljs-params { color: var(--code-type); }
+.hljs-meta, .hljs-tag, .hljs-selector-id, .hljs-selector-class, .hljs-template-variable { color: var(--code-meta); }
+.hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }

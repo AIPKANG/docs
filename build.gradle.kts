@@ -42,6 +42,8 @@ dependencies {
     implementation("org.commonmark:commonmark-ext-task-list-items:0.30.0")
     implementation("org.commonmark:commonmark-ext-autolink:0.30.0")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20260924.2")
+    // 코드 문법 강조(브라우저, 우리 서버의 /webjars/에서 제공 — 02 기술 표)
+    runtimeOnly("org.webjars.npm:highlightjs__cdn-assets:11.11.1")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

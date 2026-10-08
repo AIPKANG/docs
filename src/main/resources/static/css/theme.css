@@ -32,6 +32,14 @@
     --color-overlay: rgba(0, 0, 0, .65);
     --color-shadow: rgba(0, 0, 0, .1);
     --color-on-fill: #FFFFFF;
+    /* 코드 문법 강조(highlight.js) — 코드 배경 위 대비 4.5:1 이상 */
+    --code-keyword: #A61E4D;
+    --code-string: #237032;
+    --code-number: #1864AB;
+    --code-comment: #5C636A;
+    --code-title: #6741D9;
+    --code-type: #A35200;
+    --code-meta: #0B7285;
     /* 기본 프로필 아이콘 8색: 흰 글자와 4.5:1 이상, 라이트·다크 같음(FR-020) */
     --avatar-c0: #0B5CAD;
     --avatar-c1: #1A7F37;
@@ -69,6 +77,13 @@
         --color-surface-muted: #25262B;
         --color-overlay: rgba(0, 0, 0, .7);
         --color-shadow: rgba(0, 0, 0, .5);
+        --code-keyword: #F783AC;
+        --code-string: #8CE99A;
+        --code-number: #74C0FC;
+        --code-comment: #ADB5BD;
+        --code-title: #B197FC;
+        --code-type: #FFC078;
+        --code-meta: #66D9E8;
     }
 }
 
@@ -98,6 +113,13 @@
     --color-surface-muted: #25262B;
     --color-overlay: rgba(0, 0, 0, .7);
     --color-shadow: rgba(0, 0, 0, .5);
+    --code-keyword: #F783AC;
+    --code-string: #8CE99A;
+    --code-number: #74C0FC;
+    --code-comment: #ADB5BD;
+    --code-title: #B197FC;
+    --code-type: #FFC078;
+    --code-meta: #66D9E8;
 }
 
 :root[data-theme="light"] {
