@@ -1,0 +1,7 @@
+# 인증서 발급 전 첫 기동용: http만, 인증서 확인 경로만 연다.
+server {
+    listen 80;
+    server_name ${SITE_DOMAIN} ${STORAGE_DOMAIN};
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 200 "preparing\n"; }
+}
