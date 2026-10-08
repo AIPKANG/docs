@@ -301,11 +301,14 @@ input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-fill);
 /* 화면 폭 전체 띠(main 1120px 밖으로) */
 .hero { position: relative; width: 100vw; margin: -32px calc(50% - 50vw) 32px; overflow: hidden;
     background: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-to)); }
-.hero-photo { background-image: linear-gradient(90deg, var(--color-hero-from) 0%, var(--color-hero-from) 28%, transparent 62%),
-    url("/images/hero.jpg"); background-size: cover; background-position: right center; }
 .hero-inner { max-width: 1120px; margin: 0 auto; padding: 56px 20px; min-height: 360px; display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 24px; }
-.hero-photo .hero-inner { grid-template-columns: minmax(0, 1fr); }
+/* 사진 배너(static/images/hero.jpg, 2172×724): 문구는 사진에 그려져 있으므로 글자는 화면 낭독용으로만 두고,
+   검색창만 사진의 문구 아래(가로 18.5%, 세로 72%)에 얹는다. 비율을 그대로 지켜 문구 위치가 어긋나지 않게 한다 */
+.hero-photo { background: url("/images/hero.jpg") center / 100% 100% no-repeat, var(--color-hero-from); aspect-ratio: 2172 / 724; }
+.hero-photo .hero-inner { position: absolute; inset: 0; max-width: none; padding: 0; min-height: 0; display: block; }
+.hero-photo .hero-slogan, .hero-photo .hero-sub { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.hero-photo .hero-search { position: absolute; left: 18.5%; top: 71%; width: clamp(260px, 24vw, 460px); max-width: none; }
 .hero-slogan { font-family: Gaegu, "Pretendard Variable", cursive; font-size: clamp(2.2em, 5vw, 3.2em); line-height: 1.25; margin: 0 0 16px;
     color: var(--color-text); }
 .hero-slogan span { display: inline-block; margin-left: 1.2em; }
@@ -329,9 +332,10 @@ input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-fill);
 .cat-shadow { fill: var(--color-cat-shadow); }
 @media (max-width: 720px) {
     .hero-inner { grid-template-columns: 1fr; padding: 32px 20px 8px; min-height: 0; }
-    .hero-photo .hero-inner { padding-bottom: 180px; }
-    .hero-photo { background-image: linear-gradient(180deg, var(--color-hero-from) 0%, var(--color-hero-from) 45%, transparent 75%),
-        url("/images/hero.jpg"); background-position: center bottom; }
+    /* 좁은 화면: 사진은 그대로 비율 유지, 검색창은 사진 아래로 */
+    .hero-photo { aspect-ratio: auto; background-size: 100% auto; background-position: top center; padding-top: 33.33%; padding-bottom: 16px; }
+    .hero-photo .hero-inner { position: static; }
+    .hero-photo .hero-search { position: static; width: auto; margin: 12px 20px 0; transform: translateY(0); }
     .hero-art { order: 2; }
     .cat-art { max-width: 280px; }
 }
