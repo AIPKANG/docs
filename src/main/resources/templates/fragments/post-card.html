@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  글 카드(10 §2, 009 FR-010~FR-014). card = post.application.PostCard, date = 표시 날짜, showAuthor = 작성자 영역 표시 여부.
+  카드 전체는 제목 링크를 늘린 영역(::after)으로 글 상세에, 작성자 링크는 그 위에 따로 블로그로 간다(키보드 링크 2개).
+  출력은 th:text(이스케이프)만 쓴다.
+-->
+<article th:fragment="card(card, date, showAuthor)" class="post-card" th:attr="data-post-id=${card.id()}">
+    <div class="card-thumb">
+        <img th:if="${card.thumbnailUrl() != null}" th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
+    </div>
+    <div class="card-body">
+        <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
+        <p class="card-excerpt" th:text="${card.excerpt()}">요약</p>
+        <p class="card-meta"><time th:attr="datetime=${card.firstPublicAt()}" th:text="${date}">2026.10.02</time>
+            · <span th:text="${'💬 ' + card.commentCount()}">💬 3</span></p>
+        <p class="card-foot">
+            <a th:if="${showAuthor}" class="card-author" th:href="${'/@' + card.author().handle()}">
+                <th:block th:replace="~{fragments/avatar :: avatar(${card.author().avatar()}, 24)}"></th:block>
+                <span th:text="${card.author().nickname()}">닉네임</span></a>
+            <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
+        </p>
+    </div>
+</article>
+
+<!-- [더 보기] 영역: JS가 없으면 ?cursor= 링크로 다음 9개 -->
+<div th:fragment="more(nextCursor, listApi, showAuthor, hasCards)" class="list-more" th:attr="data-list-api=${listApi},data-show-author=${showAuthor}">
+    <a th:if="${nextCursor != null}" class="more-button" th:href="${'?cursor=' + nextCursor}" th:attr="data-cursor=${nextCursor}">더 보기</a>
+    <p th:if="${nextCursor == null and hasCards}" class="help list-end">모든 글을 다 봤어요</p>
+    <p class="list-error" role="alert" hidden>불러오지 못했어요 <button type="button" class="list-retry">다시 시도</button></p>
+</div>
+</body>
+</html>

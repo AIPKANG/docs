@@ -5,16 +5,33 @@
     <title th:text="${owner.nickname()}">블로그</title>
 </head>
 <body>
-<main>
+<main class="list-page">
     <header class="blog-header profile-header">
         <th:block th:replace="~{fragments/avatar :: avatar(${owner.avatar()}, 96)}"></th:block>
         <div class="profile-text">
             <h1 th:replace="~{fragments/author :: byline(${author})}">닉네임 @주소</h1>
             <!-- 소개는 글자로만(이스케이프), 줄바꿈만 살리고 자동 링크 없음(003 FR-009·FR-010) -->
             <p class="profile-bio" th:if="${owner.bio() != null}" th:text="${owner.bio()}">소개</p>
+            <p class="help" th:text="${'공개 글 ' + publicCount}">공개 글 24</p>
         </div>
     </header>
-    <!-- 글 목록(009)이 이 자리를 채운다 -->
+    <p th:if="${continued}"><a th:href="${'/@' + owner.handle()}">처음부터 보기</a></p>
+    <th:block th:if="${cards.isEmpty() and !continued}">
+        <p class="empty-state" th:unless="${isOwner}">아직 공개한 글이 없어요</p>
+        <div class="empty-state" th:if="${isOwner}">첫 글을 써 보세요
+            <form method="post" action="/write" class="inline-form">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit">글쓰기</button>
+            </form>
+        </div>
+    </th:block>
+    <div class="card-grid" id="card-grid">
+        <th:block th:each="card : ${cards}">
+            <article th:replace="~{fragments/post-card :: card(${card}, ${cardDates.get(card.id())}, false)}"></article>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/post-card :: more(${nextCursor}, ${listApi}, false, ${!cards.isEmpty()})}"></div>
+    <script src="/js/post/list-more.js" defer></script>
 </main>
 </body>
 </html>

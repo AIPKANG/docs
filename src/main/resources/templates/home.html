@@ -5,9 +5,27 @@
     <title>블로그</title>
 </head>
 <body>
-<main>
-    <h1>블로그</h1>
-    <!-- 글 목록·피드는 이후 기능이 이 자리를 채운다 -->
+<main class="list-page">
+    <h1 class="visually-hidden">전체 글</h1>
+    <p th:if="${continued}"><a href="/">처음부터 보기</a></p>
+    <th:block th:if="${cards.isEmpty() and !continued}">
+        <div class="empty-state">아직 올라온 글이 없어요. 첫 글의 주인공이 되어 보세요
+            <th:block th:if="${currentMemberId != null}">
+                <form method="post" action="/write" class="inline-form">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">글쓰기</button>
+                </form>
+            </th:block>
+            <a th:unless="${currentMemberId != null}" href="/login">로그인</a>
+        </div>
+    </th:block>
+    <div class="card-grid" id="card-grid">
+        <th:block th:each="card : ${cards}">
+            <article th:replace="~{fragments/post-card :: card(${card}, ${cardDates.get(card.id())}, true)}"></article>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/post-card :: more(${nextCursor}, ${listApi}, true, ${!cards.isEmpty()})}"></div>
+    <script src="/js/post/list-more.js" defer></script>
 </main>
 </body>
 </html>

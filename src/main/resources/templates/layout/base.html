@@ -98,6 +98,29 @@
         .post-body a[href$=".gif"][aria-pressed="true"]::after { content: "❚❚ 정지"; }
         .alt-field { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
         .alt-field input { flex: 1 1 200px; min-width: 0; padding: 4px; }
+        /* 009 글 카드·목록(10 §2·§3). 썸네일 없음 색 토큰 --thumb-empty(라이트 #F1F3F5, 다크 #2B2F33) */
+        :root { --thumb-empty: #F1F3F5; } /* 다크 #2B2F33은 다크 모드(024)가 테마와 함께 바꾼다 */
+        main.list-page { max-width: 1120px; }
+        .card-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .post-card { position: relative; border: 1px solid #d0d7de; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+        .card-thumb { aspect-ratio: 16 / 9; background: var(--thumb-empty); }
+        .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .card-body { padding: 8px 12px; display: flex; flex-direction: column; flex: 1; min-width: 0; }
+        .card-title { font-size: 1.05em; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-link { color: inherit; text-decoration: none; }
+        .card-link::after { content: ""; position: absolute; inset: 0; }
+        .card-link:focus-visible { outline: none; }
+        .post-card:focus-within { outline: 2px solid #0969da; }
+        .card-excerpt { margin: 0; color: #57606a; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+                        -webkit-box-orient: vertical; overflow: hidden; min-height: calc(1.6em * 3); }
+        .card-meta { margin: 8px 0 0; color: #57606a; font-size: .9em; }
+        .card-foot { margin: 4px 0 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; }
+        .card-author { position: relative; z-index: 1; display: inline-flex; gap: 6px; align-items: center; min-width: 0; color: inherit; }
+        .card-author span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .list-more { text-align: center; margin: 24px 0; }
+        .inline-form { display: inline; }
         .manage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .post-rows { list-style: none; padding: 0; }
         .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
