@@ -7,6 +7,19 @@
 <body>
 <main class="list-page">
     <p th:if="${welcomeBack != null}" class="notice" role="status">다시 오신 걸 환영해요</p>
+    <!-- 시안(10-08) 소개 영역: 첫 화면에만 -->
+    <section class="hero" th:unless="${continued}" aria-label="소개">
+        <div class="hero-text">
+            <p class="hero-slogan">좋은 글이<br><span>머무는 곳</span> <th:block th:replace="~{fragments/icons :: paw}"></th:block></p>
+            <p class="hero-sub">다양한 사람들이 전하는<br>일상과 개발, 그리고 생각들</p>
+            <form method="get" action="/search" role="search" class="hero-search">
+                <label for="hero-q" class="visually-hidden">글 검색</label>
+                <input id="hero-q" type="search" name="q" maxlength="50" placeholder="읽고 싶은 글을 검색해 보세요">
+                <button type="submit" class="hero-search-button" aria-label="검색"><th:block th:replace="~{fragments/icons :: search}"></th:block></button>
+            </form>
+        </div>
+        <div class="hero-art"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
+    </section>
     <h1 class="visually-hidden" th:text="${tab == 'trending' ? '트렌딩' : '전체 글'}">전체 글</h1>
     <!-- 019 [최신] [트렌딩] 탭(기본 최신) -->
     <nav class="manage-tabs home-tabs" aria-label="목록 탭">

@@ -7,21 +7,24 @@
   출력은 th:text(이스케이프)만 쓴다.
 -->
 <article th:fragment="card(card, date, showAuthor)" class="post-card" th:attr="data-post-id=${card.id()}">
-    <div class="card-thumb">
-        <img th:if="${card.thumbnailUrl() != null}" th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
-    </div>
     <div class="card-body">
-        <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
-        <p class="card-excerpt" th:text="${card.excerpt()}">요약</p>
-        <p class="card-meta"><time th:attr="datetime=${card.firstPublicAt()}" th:text="${date}">2026.10.02</time>
-            · <span th:text="${'💬 ' + card.commentCount()}">💬 3</span></p>
-        <p class="card-foot">
-            <a th:if="${showAuthor}" class="card-author" th:href="${'/@' + card.author().handle()}">
+        <p class="card-top" th:if="${showAuthor}">
+            <a class="card-author" th:href="${'/@' + card.author().handle()}">
                 <th:block th:replace="~{fragments/avatar :: avatar(${card.author().avatar()}, 24)}"></th:block>
                 <span th:text="${card.author().nickname()}">닉네임</span></a>
-            <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
         </p>
+        <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
+        <p class="card-excerpt" th:text="${card.excerpt()}">요약</p>
     </div>
+    <!-- 시안(10-08): 사진이 없으면 빈 칸을 두지 않는다 -->
+    <div class="card-thumb" th:if="${card.thumbnailUrl() != null}">
+        <img th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
+    </div>
+    <p class="card-foot">
+        <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
+        <span class="card-comments" th:text="${'💬 ' + card.commentCount()}">💬 3</span>
+        <time class="card-date" th:attr="datetime=${card.firstPublicAt()}" th:text="${date}">2026.10.02</time>
+    </p>
 </article>
 
 <!-- [더 보기] 영역: JS가 없으면 ?cursor= 링크로 다음 9개 -->

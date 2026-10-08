@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>잠시 문제가 생겼어요</title>
+</head>
+<body>
+<main class="error-page">
+    <div class="error-art"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
+    <h1>잠시 문제가 생겼어요</h1>
+    <p>서버에서 요청을 처리하지 못했어요. 잠시 뒤에 다시 시도해 주세요.</p>
+    <p><a href="/" class="btn btn-primary">처음으로</a></p>
+</main>
+</body>
+</html>

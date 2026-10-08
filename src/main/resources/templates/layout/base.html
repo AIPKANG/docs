@@ -27,40 +27,45 @@
         <meta property="og:description" content="친구 공개·비공개 글이거나 삭제된 글입니다.">
         <meta name="robots" content="noindex">
     </th:block>
+    <link rel="stylesheet" href="/fonts/pretendard/pretendard.css">
+    <link rel="stylesheet" href="/fonts/gaegu/gaegu.css">
     <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 <header class="site-header">
-    <a href="/">블로그</a>
-    <!-- 020 검색창: "#태그"는 태그 글 목록으로 -->
-    <form method="get" action="/search" role="search" class="header-search">
-        <label for="header-q" class="visually-hidden">검색</label>
-        <input id="header-q" type="search" name="q" maxlength="50" placeholder="검색">
-    </form>
+  <div class="header-inner">
+    <a href="/" class="brand" aria-label="팀 블로그 처음으로"><th:block th:replace="~{fragments/icons :: paw}"></th:block><span>팀 블로그</span></a>
     <nav class="site-nav" aria-label="주요 메뉴">
         <!-- 좁은 화면에서는 ☰ 안으로 접힌다(스크립트가 없으면 지금처럼 모두 펼친다) -->
         <div id="site-menu" class="site-menu">
-            <th:block th:if="${currentMemberId != null}">
-                <form method="post" action="/write">
-                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit">새 글</button>
-                </form>
-                <a href="/feed">피드</a>
-                <a href="/manage/posts">내 글</a>
+            <div class="menu-main">
+                <a href="/">홈</a>
                 <a href="/tags">태그</a>
-                <a href="/settings">설정</a>
-                <a href="/admin/reports" th:if="${currentIsAdmin}">관리</a>
-                <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
-                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit">로그아웃</button>
-                </form>
-            </th:block>
-            <th:block th:unless="${currentMemberId != null}">
-                <a href="/tags">태그</a>
-                <a href="/login">로그인</a>
-                <a href="/signup">가입하기</a>
-            </th:block>
+                <a href="/search" class="menu-search"><th:block th:replace="~{fragments/icons :: search}"></th:block>검색</a>
+                <th:block th:if="${currentMemberId != null}">
+                    <a href="/feed">피드</a>
+                    <a href="/manage/posts">내 글</a>
+                    <a href="/settings">설정</a>
+                    <a href="/admin/reports" th:if="${currentIsAdmin}">관리</a>
+                </th:block>
+            </div>
+            <div class="menu-account">
+                <th:block th:if="${currentMemberId != null}">
+                    <form method="post" action="/write">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" class="btn btn-primary btn-sm">새 글</button>
+                    </form>
+                    <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" class="btn-text">로그아웃</button>
+                    </form>
+                </th:block>
+                <th:block th:unless="${currentMemberId != null}">
+                    <a href="/login" class="menu-login">로그인</a>
+                    <a href="/signup" class="btn btn-primary btn-sm">가입하기</a>
+                </th:block>
+            </div>
         </div>
         <!-- 항상 보이는 것: 알림 종, 테마 전환(024, 맨 오른쪽), 좁은 화면의 메뉴 버튼 -->
         <span class="header-quick">
@@ -74,11 +79,18 @@
                     aria-label="메뉴 열기">☰</button>
         </span>
     </nav>
+  </div>
 </header>
 <div hidden id="logout-cleanup" th:if="${logoutCleanupMemberId != null}" th:attr="data-member-id=${logoutCleanupMemberId}"></div>
 <main th:replace="${content}">
 </main>
-<footer class="site-footer"><a href="/privacy">개인정보 처리방침</a></footer>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-brand"><th:block th:replace="~{fragments/icons :: paw}"></th:block><span>팀 블로그</span></p>
+    <p class="footer-slogan">좋은 글이 머무는 곳</p>
+    <p class="footer-links"><a href="/privacy">개인정보 처리방침</a></p>
+  </div>
+</footer>
 <script src="/js/auth/auth-logout.js" defer></script>
 <script src="/js/theme-toggle.js" defer></script>
 <script src="/js/menu.js" defer></script>

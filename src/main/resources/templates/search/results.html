@@ -5,14 +5,14 @@
     <title th:text="${q.isEmpty() ? '검색' : q + ' - 검색'}">검색</title>
 </head>
 <body>
-<main class="list-page">
+<main class="list-page search-page">
     <h1 th:text="${owner != null ? owner.nickname() + '님의 블로그에서 검색' : '검색'}">검색</h1>
     <form method="get" th:action="${searchBase}" role="search" class="search-form">
         <label for="search-q" class="visually-hidden">검색어</label>
         <input id="search-q" type="search" name="q" maxlength="50" th:value="${q}" placeholder="검색어를 입력하세요">
         <input type="hidden" name="sort" th:value="${sort}">
         <input type="hidden" name="tab" th:if="${owner == null}" th:value="${tab}">
-        <button type="submit">검색</button>
+        <button type="submit" class="btn btn-primary">검색</button>
     </form>
     <nav class="manage-tabs" aria-label="검색 탭" th:if="${owner == null}">
         <a th:href="${'/search?q=' + encodedQ + '&tab=posts'}" th:attr="aria-current=${tab == 'posts' ? 'page' : null}">글</a>
@@ -31,22 +31,24 @@
         <p th:if="${continued}"><a th:href="${searchBase + '?q=' + encodedQ + '&sort=' + sort}">처음부터 보기</a></p>
         <div class="card-grid" id="card-grid">
             <article th:each="card : ${results}" class="post-card" th:attr="data-post-id=${card.id()}">
-                <div class="card-thumb">
-                    <img th:if="${card.thumbnailUrl() != null}" th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
-                </div>
                 <div class="card-body">
-                    <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
-                    <!-- 미리보기: 서버가 전체를 이스케이프한 뒤 검색어에만 <mark>를 붙인 값(FR-015) -->
-                    <p class="card-excerpt" th:utext="${card.snippetHtml()}">미리보기</p>
-                    <p class="card-meta"><time th:attr="datetime=${card.firstPublicAt()}" th:text="${dates.get(card.id())}">2026.10.02</time>
-                        · <span th:text="${'💬 ' + card.commentCount()}">💬 3</span></p>
-                    <p class="card-foot">
+                    <p class="card-top">
                         <a class="card-author" th:href="${'/@' + card.author().handle()}">
                             <th:block th:replace="~{fragments/avatar :: avatar(${card.author().avatar()}, 24)}"></th:block>
                             <span th:text="${card.author().nickname()}">닉네임</span></a>
-                        <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
                     </p>
+                    <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
+                    <!-- 미리보기: 서버가 전체를 이스케이프한 뒤 검색어에만 <mark>를 붙인 값(FR-015) -->
+                    <p class="card-excerpt" th:utext="${card.snippetHtml()}">미리보기</p>
                 </div>
+                <div class="card-thumb" th:if="${card.thumbnailUrl() != null}">
+                    <img th:src="${card.thumbnailUrl()}" th:alt="${card.title()}" loading="lazy">
+                </div>
+                <p class="card-foot">
+                    <span class="card-likes" th:text="${'♥ ' + card.likeCount()}">♥ 12</span>
+                    <span class="card-comments" th:text="${'💬 ' + card.commentCount()}">💬 3</span>
+                    <time class="card-date" th:attr="datetime=${card.firstPublicAt()}" th:text="${dates.get(card.id())}">2026.10.02</time>
+                </p>
             </article>
         </div>
         <div th:replace="~{fragments/post-card :: moreWith(${nextCursor}, ${listApi}, true, ${!results.isEmpty()}, ${moreLinkBase}, null)}"></div>

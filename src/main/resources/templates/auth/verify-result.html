@@ -5,7 +5,7 @@
     <title th:text="${verified} ? '인증이 완료됐어요' : '링크가 만료됐어요'">이메일 인증</title>
 </head>
 <body>
-<main>
+<main class="auth-page auth-page-single">
     <th:block th:if="${verified}">
         <h1>인증이 완료됐어요</h1>
         <p>이제 글을 쓰고 댓글을 남길 수 있어요.</p>

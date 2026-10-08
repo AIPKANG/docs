@@ -5,7 +5,7 @@
     <title>이메일로 가입하기</title>
 </head>
 <body>
-<main>
+<main class="auth-page auth-page-single">
     <h1>이메일로 가입하기</h1>
     <p><a href="/login">이미 계정이 있어요 — 로그인</a></p>
 
@@ -81,7 +81,7 @@
             <label><input type="checkbox" name="agreePrivacy" value="true" th:checked="${form.agreePrivacy}"> 개인정보 수집·이용에 동의해요 (필수)</label> <a href="/privacy" target="_blank" rel="noopener">처리방침 보기</a>
         </fieldset>
 
-        <button type="submit">가입하기</button>
+        <button type="submit" class="btn btn-primary btn-block">가입하기</button>
     </form>
 
     <script src="/js/account/availability.js" defer></script>

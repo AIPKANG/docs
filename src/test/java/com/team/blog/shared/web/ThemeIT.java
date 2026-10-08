@@ -87,4 +87,15 @@ class ThemeIT extends IntegrationTestBase {
         String html = mockMvc.perform(get("/@hlauthor/posts/{id}", post)).andReturn().getResponse().getContentAsString();
         assertThat(html).contains("/webjars/highlightjs__cdn-assets/11.11.1/highlight.min.js").contains("/js/code-highlight.js");
     }
+
+    /** 디자인 시안(10-08): 글꼴은 우리 서버에서(CSP font-src 'self'), 사진 없는 카드에는 빈 사진 칸이 없다. */
+    @Test
+    void fontsServedFromOwnOriginAndCardsSkipEmptyThumb() throws Exception {
+        mockMvc.perform(get("/fonts/pretendard/pretendard.css")).andExpect(status().isOk());
+        mockMvc.perform(get("/fonts/gaegu/gaegu.css")).andExpect(status().isOk());
+        long author = members.localMember("cardauthor", "cardauthor", "cardauthor@example.com", "Blog#2026ok", true);
+        posts.published(author, "사진 없는 글", "본문", 1, java.time.Instant.parse("2026-10-01T00:00:00Z"));
+        String home = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString();
+        assertThat(home).contains("/fonts/pretendard/pretendard.css").contains("사진 없는 글").doesNotContain("class=\"card-thumb\"");
+    }
 }

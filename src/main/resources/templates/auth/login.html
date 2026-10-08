@@ -5,8 +5,12 @@
     <title>로그인</title>
 </head>
 <body>
-<main>
-    <h1>로그인</h1>
+<main class="auth-page">
+  <div class="auth-card">
+    <div class="auth-art"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
+    <div class="auth-panel">
+    <h1>다시 와줘서 반가워요!</h1>
+    <p class="auth-lead">팀 블로그에서 새로운 이야기를 읽어 보세요.</p>
     <p class="notice" th:if="${notice != null}" th:text="${notice}" role="status">알림</p>
     <p class="form-error" th:if="${message != null}" th:text="${message}" role="alert">오류</p>
 
@@ -14,20 +18,23 @@
         <input type="hidden" name="redirect" th:if="${redirect != null}" th:value="${redirect}">
         <div class="field">
             <label for="email">이메일</label>
-            <input id="email" name="email" type="email" autocomplete="username" required maxlength="254">
+            <input id="email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="이메일을 입력하세요">
         </div>
         <div class="field">
             <label for="password">비밀번호</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="비밀번호를 입력하세요">
         </div>
-        <button type="submit">로그인</button>
+        <button type="submit" class="btn btn-primary btn-block">로그인</button>
     </form>
-    <p><a href="/password/forgot">비밀번호 찾기</a> · <a href="/signup">이메일로 가입하기</a></p>
 
+    <p class="auth-divider"><span>또는</span></p>
     <div class="social-login">
-        <p><a class="button" href="/oauth2/authorization/google">Google로 계속하기</a></p>
-        <p><a class="button" href="/oauth2/authorization/github">GitHub로 계속하기</a></p>
+        <a class="btn btn-social" href="/oauth2/authorization/google"><th:block th:replace="~{fragments/icons :: google}"></th:block>Google로 계속하기</a>
+        <a class="btn btn-social" href="/oauth2/authorization/github"><th:block th:replace="~{fragments/icons :: github}"></th:block>GitHub로 계속하기</a>
     </div>
+    <p class="auth-links">계정이 없나요? <a href="/signup">이메일로 가입하기</a><br><a href="/password/forgot">비밀번호 찾기</a></p>
+    </div>
+  </div>
 </main>
 </body>
 </html>

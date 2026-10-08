@@ -5,7 +5,7 @@
     <title>가입 마무리</title>
 </head>
 <body>
-<main>
+<main class="auth-page auth-page-single">
     <h1 th:text="${providerName} + ' 계정으로 가입 마무리'">가입 마무리</h1>
 
     <section class="notice" th:if="${!sameEmailProviders.isEmpty()}" role="status">
@@ -72,7 +72,7 @@
             <label><input type="checkbox" name="agreePrivacy" value="true" th:checked="${form.agreePrivacy}"> 개인정보 수집·이용에 동의해요 (필수)</label> <a href="/privacy" target="_blank" rel="noopener">처리방침 보기</a>
         </fieldset>
 
-        <button type="submit">가입 마치기</button>
+        <button type="submit" class="btn btn-primary btn-block">가입 마치기</button>
     </form>
 
     <script src="/js/account/availability.js" defer></script>

@@ -5,10 +5,11 @@
     <title>볼 수 없는 페이지예요</title>
 </head>
 <body>
-<main>
+<main class="error-page">
+    <div class="error-art"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
     <h1>볼 수 없는 페이지예요</h1>
     <p>주소가 바뀌었거나 볼 수 없는 페이지예요.</p>
-    <p><a href="/">처음으로</a></p>
+    <p><a href="/" class="btn btn-primary">처음으로</a></p>
 </main>
 </body>
 </html>

@@ -3,35 +3,54 @@
  * 테마 결정: <html data-theme="light|dark">가 있으면 그것, 없으면(시스템 설정·스크립트 꺼짐) 기기 설정(prefers-color-scheme).
  * 테마가 바뀔 때 색 애니메이션은 넣지 않는다(FR-013). 이미지·프로필 사진은 다크에서도 그대로 둔다(FR-019).
  * 공통 목록 밖 역할(--color-brand-soft, --color-highlight, --color-warning-*, --color-success-*, --color-danger-*,
- * --color-surface-muted, --color-overlay, --color-shadow, --color-on-fill)은 이 서비스의 확장이다.
+ * --color-surface-muted, --color-overlay, --color-shadow, --color-on-fill, 시안(10-08)의 --color-like·tag·hero·accent·cat·google)은
+ * 이 서비스의 확장이다.
  */
 :root {
     color-scheme: light dark;
-    --color-bg: #FFFFFF;
+    --color-bg: #FBF7F1;
     --color-surface: #FFFFFF;
-    --color-text: #212529;
-    --color-text-muted: #6C757D;
-    --color-border: #DEE2E6;
-    --color-brand: #0B63C4;
-    --color-brand-fill: #0B63C4;
-    --color-danger: #C92A2A;
-    --color-thumb-empty: #F1F3F5;
-    --color-code-bg: #F8F9FA;
-    --color-focus: #1C7ED6;
-    --color-brand-soft: #E7F5FF;
-    --color-highlight: #FFF3BF;
+    --color-text: #2E2A26;
+    --color-text-muted: #6B6259;
+    --color-border: #ECE4D8;
+    --color-brand: #3D6B55;
+    --color-brand-fill: #456F5B;
+    --color-danger: #B4323F;
+    --color-thumb-empty: #F3ECE2;
+    --color-code-bg: #F7F3EC;
+    --color-focus: #3D6B55;
+    --color-brand-soft: #E5EFE8;
+    --color-highlight: #FFF1C2;
     --color-warning-border: #C29100;
     --color-warning-text: #7D4E00;
     --color-success: #2B8A3E;
     --color-success-soft: #EBFBEE;
     --color-success-strong: #8CE99A;
-    --color-danger-soft: #FFF5F5;
+    --color-danger-soft: #FDECEE;
     --color-danger-strong: #FFA8A8;
-    --color-danger-fill: #C92A2A;
-    --color-surface-muted: #F8F9FA;
+    --color-danger-fill: #C2414E;
+    --color-surface-muted: #F5EFE6;
     --color-overlay: rgba(0, 0, 0, .65);
-    --color-shadow: rgba(0, 0, 0, .1);
+    --color-shadow: rgba(80, 60, 40, .08);
     --color-on-fill: #FFFFFF;
+    /* 시안(10-08): 크림 배경·세이지 버튼·둥근 카드 */
+    --color-like: #C93A4B;
+    --color-tag-bg: #EAF0F7;
+    --color-tag-text: #3A5378;
+    --color-hero-from: #FFF4E4;
+    --color-hero-to: #FBE6D6;
+    --color-accent: #D9823F;
+    /* 그림 색(라이트·다크 같음): 로고 발자국·고양이 그림·Google 로고 */
+    --color-cat-fur: #F6DDC1;
+    --color-cat-stripe: #D9A06E;
+    --color-cat-line: #6B4E3D;
+    --color-cat-pink: #F2A7A4;
+    --color-cat-paw: #FBEBDB;
+    --color-cat-shadow: rgba(120, 80, 40, .12);
+    --color-google-blue: #4285F4;
+    --color-google-green: #34A853;
+    --color-google-yellow: #FBBC05;
+    --color-google-red: #EA4335;
     /* 코드 문법 강조(highlight.js) — 코드 배경 위 대비 4.5:1 이상 */
     --code-keyword: #A61E4D;
     --code-string: #237032;
@@ -54,29 +73,35 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         --color-bg: #121212;
-        --color-surface: #1E1E1E;
-        --color-text: #E9ECEF;
-        --color-text-muted: #ADB5BD;
-        --color-border: #343A40;
-        --color-brand: #74C0FC;
-        --color-brand-fill: #1971C2;
-        --color-danger: #FF6B6B;
-        --color-thumb-empty: #2B2F33;
-        --color-code-bg: #1A1B1E;
-        --color-focus: #74C0FC;
-        --color-brand-soft: #1B2B3A;
+        --color-surface: #1E1C1A;
+        --color-text: #EDE7DF;
+        --color-text-muted: #B5ABA0;
+        --color-border: #36312C;
+        --color-brand: #9BCBB1;
+        --color-brand-fill: #3F6A55;
+        --color-danger: #FF8A8A;
+        --color-thumb-empty: #2A2622;
+        --color-code-bg: #1A1917;
+        --color-focus: #9BCBB1;
+        --color-brand-soft: #1F2E26;
         --color-highlight: #3D3200;
         --color-warning-border: #8F6D00;
         --color-warning-text: #FFD43B;
         --color-success: #69DB7C;
         --color-success-soft: #12301A;
         --color-success-strong: #2B6A3A;
-        --color-danger-soft: #3B1A1A;
+        --color-danger-soft: #3B1A1E;
         --color-danger-strong: #7A2E2E;
-        --color-danger-fill: #E03131;
-        --color-surface-muted: #25262B;
+        --color-danger-fill: #C2414E;
+        --color-surface-muted: #262320;
         --color-overlay: rgba(0, 0, 0, .7);
         --color-shadow: rgba(0, 0, 0, .5);
+        --color-like: #FF7A88;
+        --color-tag-bg: #24303D;
+        --color-tag-text: #B9CDE6;
+        --color-hero-from: #2A2420;
+        --color-hero-to: #1E1A17;
+        --color-accent: #E8A56C;
         --code-keyword: #F783AC;
         --code-string: #8CE99A;
         --code-number: #74C0FC;
@@ -90,29 +115,35 @@
 :root[data-theme="dark"] {
     color-scheme: dark;
     --color-bg: #121212;
-    --color-surface: #1E1E1E;
-    --color-text: #E9ECEF;
-    --color-text-muted: #ADB5BD;
-    --color-border: #343A40;
-    --color-brand: #74C0FC;
-    --color-brand-fill: #1971C2;
-    --color-danger: #FF6B6B;
-    --color-thumb-empty: #2B2F33;
-    --color-code-bg: #1A1B1E;
-    --color-focus: #74C0FC;
-    --color-brand-soft: #1B2B3A;
+    --color-surface: #1E1C1A;
+    --color-text: #EDE7DF;
+    --color-text-muted: #B5ABA0;
+    --color-border: #36312C;
+    --color-brand: #9BCBB1;
+    --color-brand-fill: #3F6A55;
+    --color-danger: #FF8A8A;
+    --color-thumb-empty: #2A2622;
+    --color-code-bg: #1A1917;
+    --color-focus: #9BCBB1;
+    --color-brand-soft: #1F2E26;
     --color-highlight: #3D3200;
     --color-warning-border: #8F6D00;
     --color-warning-text: #FFD43B;
     --color-success: #69DB7C;
     --color-success-soft: #12301A;
     --color-success-strong: #2B6A3A;
-    --color-danger-soft: #3B1A1A;
+    --color-danger-soft: #3B1A1E;
     --color-danger-strong: #7A2E2E;
-    --color-danger-fill: #E03131;
-    --color-surface-muted: #25262B;
+    --color-danger-fill: #C2414E;
+    --color-surface-muted: #262320;
     --color-overlay: rgba(0, 0, 0, .7);
     --color-shadow: rgba(0, 0, 0, .5);
+    --color-like: #FF7A88;
+    --color-tag-bg: #24303D;
+    --color-tag-text: #B9CDE6;
+    --color-hero-from: #2A2420;
+    --color-hero-to: #1E1A17;
+    --color-accent: #E8A56C;
     --code-keyword: #F783AC;
     --code-string: #8CE99A;
     --code-number: #74C0FC;

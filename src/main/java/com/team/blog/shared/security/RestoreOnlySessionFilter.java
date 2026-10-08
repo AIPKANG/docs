@@ -19,7 +19,7 @@ public class RestoreOnlySessionFilter extends OncePerRequestFilter {
     public static final String RESTORE_PATH = "/account/restore";
 
     private static final List<String> ALLOWED_PREFIXES = List.of(
-            RESTORE_PATH, "/logout", "/password/", "/js/", "/css/", "/images/", "/webjars/", "/error");
+            RESTORE_PATH, "/logout", "/password/", "/js/", "/css/", "/fonts/", "/images/", "/webjars/", "/error");
     private static final List<String> ALLOWED_EXACT = List.of("/favicon.ico", "/password");
 
     public static void markRestoreOnly(HttpServletRequest request) {
