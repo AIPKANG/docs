@@ -1,7 +1,8 @@
 # 팀 블로그 플랫폼
 
 여러 사람이 각자 블로그를 갖고 글을 쓰는 서비스입니다(티스토리·벨로그 같은 형태).
-기능은 [GitHub Spec Kit](https://github.com/github/spec-kit)으로 명세(`specs/`)를 먼저 쓰고 그대로 구현했으며, 명세 001~024가 모두 구현돼 있습니다.
+기능은 [GitHub Spec Kit](https://github.com/github/spec-kit)으로 명세(`specs/`)를 먼저 쓰고 그대로 구현했으며, 명세 001~024(팀 공통 최소 요구사항, v1.0.0)가 모두 구현돼 있습니다.
+**명세 025부터는 강성찬 개인 확장**입니다(팀은 공통만 맞추고 각자 추가만 하기로 함). 변경 내역은 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## 할 수 있는 것
 
