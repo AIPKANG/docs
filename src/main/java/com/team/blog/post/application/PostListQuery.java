@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /**
- * 홈·개인 블로그 목록(009, 10 §4·§7). 006의 공용 목록 조건만 쓰고, 목록 한 번에 SQL 1번(글 + 작성자 JOIN, 카드 칸만)이다.
+ * 홈·개인 블로그 목록(009, 10 §4·§7). 006의 공용 목록 조건만 쓰고, 목록 한 번에 SQL 1번(글 + 작성자 JOIN, 카드 칸만, 카드 머리의 첫 태그는 하위 조회)이다.
  * 9개를 보여주려고 10개를 읽어 다음 글이 있는지 판단한다. 정렬·커서는 {@code (first_public_at, id)}.
  */
 @Service
@@ -59,7 +59,9 @@ public class PostListQuery {
     private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor) {
         StringBuilder sql = new StringBuilder("""
                 SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
-                       m.handle, m.nickname, m.profile_image_url
+                       m.handle, m.nickname, m.profile_image_url,
+                       (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
+                        WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
                 FROM post p JOIN member m ON m.id = p.author_id
                 WHERE """).append(' ').append(accessPolicy.publicListingCondition("p", "m"));
         List<Object> args = new ArrayList<>();
@@ -99,7 +101,9 @@ public class PostListQuery {
         }
         List<PostCard> rows = jdbc.query("""
                 SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
-                       m.handle, m.nickname, m.profile_image_url
+                       m.handle, m.nickname, m.profile_image_url,
+                       (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
+                        WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
                 FROM post p JOIN member m ON m.id = p.author_id
                 WHERE """ + " " + accessPolicy.publicListingCondition("p", "m") + " AND p.hidden_at IS NULL AND p.id = ANY (?)",
                 PostListQuery::card, (Object) ids.toArray(new Long[0]));
@@ -114,6 +118,6 @@ public class PostListQuery {
         return new PostCard(id, "/@" + handle + "/posts/" + id, rs.getString("title"),
                 rs.getString("excerpt") == null ? "" : rs.getString("excerpt"), rs.getString("thumbnail_url"),
                 rs.getTimestamp("first_public_at").toInstant(), rs.getInt("comment_count"), rs.getInt("like_count"),
-                new PostCard.Author(handle, rs.getString("nickname"), rs.getString("profile_image_url")));
+                new PostCard.Author(handle, rs.getString("nickname"), rs.getString("profile_image_url")), rs.getString("first_tag"));
     }
 }

@@ -134,7 +134,7 @@ class TrendingIT extends IntegrationTestBase {
         String trend = mockMvc.perform(get("/?tab=trending")).andReturn().getResponse().getContentAsString();
         assertThat(trend).contains("아직 트렌딩 글이 없어요").contains("최신 글 보기").doesNotContain("반응 없음");
         String home = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString();
-        assertThat(home).contains("반응 없음").contains("<a href=\"/\" aria-current=\"page\">최신</a>");
+        assertThat(home).contains("반응 없음").contains("<a href=\"/\" aria-current=\"page\">최신 글</a>");
     }
 
     private static void collect(String body, Set<Long> seen) {

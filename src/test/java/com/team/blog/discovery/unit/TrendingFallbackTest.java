@@ -34,7 +34,7 @@ class TrendingFallbackTest {
         StringRedisTemplate redis = mock(StringRedisTemplate.class);
         when(redis.opsForValue()).thenThrow(new RedisConnectionFailureException("down"));
         PostListQuery listQuery = mock(PostListQuery.class);
-        PostCard card = new PostCard(7, "/@a/posts/7", "글", "", null, Instant.EPOCH, 0, 1, new PostCard.Author("a", "에이", null));
+        PostCard card = new PostCard(7, "/@a/posts/7", "글", "", null, Instant.EPOCH, 0, 1, new PostCard.Author("a", "에이", null), null);
         when(listQuery.cardsByIds(any())).thenReturn(Map.of(7L, card));
         PostAccessPolicy policy = mock(PostAccessPolicy.class);
         when(policy.publicListingCondition("p", "m")).thenReturn("TRUE");

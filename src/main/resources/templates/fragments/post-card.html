@@ -8,10 +8,13 @@
 -->
 <article th:fragment="card(card, date, showAuthor)" class="post-card" th:attr="data-post-id=${card.id()}">
     <div class="card-body">
-        <p class="card-top" th:if="${showAuthor}">
-            <a class="card-author" th:href="${'/@' + card.author().handle()}">
+        <p class="card-top" th:if="${showAuthor or card.firstTag() != null}">
+            <a th:if="${showAuthor}" class="card-author" th:href="${'/@' + card.author().handle()}">
                 <th:block th:replace="~{fragments/avatar :: avatar(${card.author().avatar()}, 24)}"></th:block>
                 <span th:text="${card.author().nickname()}">닉네임</span></a>
+            <!-- 시안(10-08): 첫 태그를 카드 머리에(색은 태그 길이로 4가지 중 하나) -->
+            <a th:if="${card.firstTag() != null}" th:class="${'card-tag chip' + (#strings.length(card.firstTag()) % 4)}"
+               th:href="@{/tags/{name}(name=${card.firstTag()})}" th:text="${card.firstTag()}">태그</a>
         </p>
         <h2 class="card-title"><a class="card-link" th:href="${card.url()}" th:title="${card.title()}" th:text="${card.title()}">제목</a></h2>
         <p class="card-excerpt" th:text="${card.excerpt()}">요약</p>

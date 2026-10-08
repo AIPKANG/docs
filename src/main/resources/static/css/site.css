@@ -298,9 +298,14 @@ input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-fill);
 .tag-chip { padding: 2px 10px; background: var(--color-surface-muted); }
 
 /* 홈 소개 영역 */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 24px; overflow: hidden;
-    margin: 0 0 32px; padding: 40px 48px; border-radius: 28px;
+/* 화면 폭 전체 띠(main 1120px 밖으로) */
+.hero { position: relative; width: 100vw; margin: -32px calc(50% - 50vw) 32px; overflow: hidden;
     background: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-to)); }
+.hero-photo { background-image: linear-gradient(90deg, var(--color-hero-from) 0%, var(--color-hero-from) 28%, transparent 62%),
+    url("/images/hero.jpg"); background-size: cover; background-position: right center; }
+.hero-inner { max-width: 1120px; margin: 0 auto; padding: 56px 20px; min-height: 360px; display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 24px; }
+.hero-photo .hero-inner { grid-template-columns: minmax(0, 1fr); }
 .hero-slogan { font-family: Gaegu, "Pretendard Variable", cursive; font-size: clamp(2.2em, 5vw, 3.2em); line-height: 1.25; margin: 0 0 16px;
     color: var(--color-text); }
 .hero-slogan span { display: inline-block; margin-left: 1.2em; }
@@ -323,7 +328,10 @@ input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-fill);
 .cat-paw { fill: var(--color-cat-paw); }
 .cat-shadow { fill: var(--color-cat-shadow); }
 @media (max-width: 720px) {
-    .hero { grid-template-columns: 1fr; padding: 28px 24px 8px; border-radius: 22px; }
+    .hero-inner { grid-template-columns: 1fr; padding: 32px 20px 8px; min-height: 0; }
+    .hero-photo .hero-inner { padding-bottom: 180px; }
+    .hero-photo { background-image: linear-gradient(180deg, var(--color-hero-from) 0%, var(--color-hero-from) 45%, transparent 75%),
+        url("/images/hero.jpg"); background-position: center bottom; }
     .hero-art { order: 2; }
     .cat-art { max-width: 280px; }
 }
@@ -428,3 +436,17 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 body > main { width: 100%; }
 .site-footer { margin-top: auto; }
 body > main + .site-footer, body > div + .site-footer { margin-top: auto; }
+/* 카드 머리 태그(시안 10-08) */
+.card-tag { position: relative; z-index: 1; margin-left: auto; flex: none; border-radius: 999px; padding: 2px 10px; font-size: .78em;
+    font-weight: 600; text-decoration: none; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-tag:hover { text-decoration: underline; }
+.chip0 { background: var(--color-chip0-bg); color: var(--color-chip0-text); }
+.chip1 { background: var(--color-chip1-bg); color: var(--color-chip1-text); }
+.chip2 { background: var(--color-chip2-bg); color: var(--color-chip2-text); }
+.chip3 { background: var(--color-chip3-bg); color: var(--color-chip3-text); }
+/* 홈 탭 줄: 왼쪽 탭, 오른쪽 더보기 */
+.home-tabs-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--color-border); margin: 8px 0 20px; }
+.home-tabs-row .manage-tabs { border-bottom: 0; margin: 0; }
+.home-more { color: var(--color-text-muted); text-decoration: none; font-size: .92em; padding: 8px 2px; }
+.home-more:hover { color: var(--color-text); }
+html, body { overflow-x: clip; }

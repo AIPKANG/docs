@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class HomeController {
 
+    /** 시안(10-08) 소개 사진: static/images/hero.jpg가 있으면 배경으로, 없으면 그린 고양이 그림. */
+    private static final boolean HERO_PHOTO = new org.springframework.core.io.ClassPathResource("static/images/hero.jpg").exists();
+
     private final PostListQuery listQuery;
     private final TrendingService trendingService;
     private final Clock clock;
@@ -51,6 +54,7 @@ public class HomeController {
         model.addAttribute("continued", cursor != null && !cursor.isEmpty());
         model.addAttribute("listApi", trending ? "/api/posts/trending" : "/api/posts");
         model.addAttribute("moreLinkBase", trending ? "?tab=trending&cursor=" : "?cursor=");
+        model.addAttribute("heroPhoto", HERO_PHOTO);
         return "home";
     }
 

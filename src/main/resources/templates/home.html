@@ -7,25 +7,31 @@
 <body>
 <main class="list-page">
     <p th:if="${welcomeBack != null}" class="notice" role="status">다시 오신 걸 환영해요</p>
-    <!-- 시안(10-08) 소개 영역: 첫 화면에만 -->
-    <section class="hero" th:unless="${continued}" aria-label="소개">
-        <div class="hero-text">
-            <p class="hero-slogan">좋은 글이<br><span>머무는 곳</span> <th:block th:replace="~{fragments/icons :: paw}"></th:block></p>
-            <p class="hero-sub">다양한 사람들이 전하는<br>일상과 개발, 그리고 생각들</p>
-            <form method="get" action="/search" role="search" class="hero-search">
-                <label for="hero-q" class="visually-hidden">글 검색</label>
-                <input id="hero-q" type="search" name="q" maxlength="50" placeholder="읽고 싶은 글을 검색해 보세요">
-                <button type="submit" class="hero-search-button" aria-label="검색"><th:block th:replace="~{fragments/icons :: search}"></th:block></button>
-            </form>
+    <!-- 시안(10-08) 소개 영역: 첫 화면에만, 화면 폭 전체. 사진(static/images/hero.jpg)이 있으면 배경, 없으면 고양이 그림 -->
+    <section class="hero" th:unless="${continued}" th:classappend="${heroPhoto} ? 'hero-photo'" aria-label="소개">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <p class="hero-slogan">좋은 글이<br><span>머무는 곳</span> <th:block th:replace="~{fragments/icons :: paw}"></th:block></p>
+                <p class="hero-sub">다양한 사람들이 전하는<br>일상과 개발, 그리고 생각들</p>
+                <form method="get" action="/search" role="search" class="hero-search">
+                    <label for="hero-q" class="visually-hidden">글 검색</label>
+                    <input id="hero-q" type="search" name="q" maxlength="50" placeholder="읽고 싶은 글을 검색해 보세요">
+                    <button type="submit" class="hero-search-button" aria-label="검색"><th:block th:replace="~{fragments/icons :: search}"></th:block></button>
+                </form>
+            </div>
+            <div class="hero-art" th:unless="${heroPhoto}"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
         </div>
-        <div class="hero-art"><th:block th:replace="~{fragments/icons :: cat}"></th:block></div>
     </section>
     <h1 class="visually-hidden" th:text="${tab == 'trending' ? '트렌딩' : '전체 글'}">전체 글</h1>
     <!-- 019 [최신] [트렌딩] 탭(기본 최신) -->
-    <nav class="manage-tabs home-tabs" aria-label="목록 탭">
-        <a href="/" th:attr="aria-current=${tab == 'latest' ? 'page' : null}">최신</a>
-        <a href="/?tab=trending" th:attr="aria-current=${tab == 'trending' ? 'page' : null}">트렌딩</a>
-    </nav>
+    <div class="home-tabs-row">
+        <nav class="manage-tabs home-tabs" aria-label="목록 탭">
+            <a href="/" th:attr="aria-current=${tab == 'latest' ? 'page' : null}">최신 글</a>
+            <a href="/?tab=trending" th:attr="aria-current=${tab == 'trending' ? 'page' : null}">트렌딩</a>
+        </nav>
+        <!-- 시안(10-08) 오른쪽 "더보기": 다음 쪽으로 -->
+        <a th:if="${nextCursor != null}" class="home-more" th:href="${moreLinkBase + nextCursor}">더보기 <span aria-hidden="true">›</span></a>
+    </div>
     <p th:if="${tab == 'trending'}" class="help">최근 7일 동안 반응이 많은 글 · 10분마다 갱신</p>
     <p th:if="${snapshotExpired}" class="notice" role="status">순위가 새로 바뀌었어요</p>
     <p th:if="${continued}"><a th:href="${tab == 'trending' ? '/?tab=trending' : '/'}">처음부터 보기</a></p>

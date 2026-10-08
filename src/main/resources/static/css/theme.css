@@ -40,6 +40,10 @@
     --color-hero-from: #FFF4E4;
     --color-hero-to: #FBE6D6;
     --color-accent: #D9823F;
+    --color-chip0-bg: #F3E9D8; --color-chip0-text: #7A5A2B;
+    --color-chip1-bg: #E3ECFA; --color-chip1-text: #2B5797;
+    --color-chip2-bg: #ECE6FA; --color-chip2-text: #5B3FA0;
+    --color-chip3-bg: #FCE7E9; --color-chip3-text: #9C2F44;
     /* 그림 색(라이트·다크 같음): 로고 발자국·고양이 그림·Google 로고 */
     --color-cat-fur: #F6DDC1;
     --color-cat-stripe: #D9A06E;
@@ -102,6 +106,10 @@
         --color-hero-from: #2A2420;
         --color-hero-to: #1E1A17;
         --color-accent: #E8A56C;
+        --color-chip0-bg: #33291D; --color-chip0-text: #E8CFA6;
+        --color-chip1-bg: #22303F; --color-chip1-text: #B9CDE6;
+        --color-chip2-bg: #2C2640; --color-chip2-text: #CFC2F2;
+        --color-chip3-bg: #3A2229; --color-chip3-text: #F2B8C2;
         --code-keyword: #F783AC;
         --code-string: #8CE99A;
         --code-number: #74C0FC;
@@ -144,6 +152,10 @@
     --color-hero-from: #2A2420;
     --color-hero-to: #1E1A17;
     --color-accent: #E8A56C;
+    --color-chip0-bg: #33291D; --color-chip0-text: #E8CFA6;
+    --color-chip1-bg: #22303F; --color-chip1-text: #B9CDE6;
+    --color-chip2-bg: #2C2640; --color-chip2-text: #CFC2F2;
+    --color-chip3-bg: #3A2229; --color-chip3-text: #F2B8C2;
     --code-keyword: #F783AC;
     --code-string: #8CE99A;
     --code-number: #74C0FC;

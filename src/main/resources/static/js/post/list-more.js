@@ -45,11 +45,19 @@
     var article = el('article', 'post-card');
     article.dataset.postId = item.id;
     var body = el('div', 'card-body');
-    if (showAuthor) {
+    if (showAuthor || item.firstTag) {
       var top = el('p', 'card-top');
-      var a = el('a', 'card-author'); a.href = '/@' + item.author.handle;
-      a.appendChild(avatar(item.author)); a.appendChild(el('span', null, item.author.nickname || ''));
-      top.appendChild(a); body.appendChild(top);
+      if (showAuthor) {
+        var a = el('a', 'card-author'); a.href = '/@' + item.author.handle;
+        a.appendChild(avatar(item.author)); a.appendChild(el('span', null, item.author.nickname || ''));
+        top.appendChild(a);
+      }
+      if (item.firstTag) {
+        var tag = el('a', 'card-tag chip' + (item.firstTag.length % 4), item.firstTag);
+        tag.href = '/tags/' + encodeURIComponent(item.firstTag);
+        top.appendChild(tag);
+      }
+      body.appendChild(top);
     }
     var h2 = el('h2', 'card-title'); var link = el('a', 'card-link', item.title); link.href = item.url; link.title = item.title;
     h2.appendChild(link); body.appendChild(h2);
