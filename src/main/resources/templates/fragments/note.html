@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- 033 짧은 기록(강성찬 개인 확장): 쓰기 폼과 한 줄. 내용은 글자로만(th:text + pre-line). -->
+<form th:fragment="noteForm(back)" method="post" action="/notes" class="note-form">
+    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="hidden" name="back" th:value="${back}">
+    <label for="note-content" class="visually-hidden">짧은 기록</label>
+    <textarea id="note-content" name="content" maxlength="280" required placeholder="지금 무슨 생각을 하고 있나요? (280자)"></textarea>
+    <div class="note-form-bar">
+        <label for="note-visibility" class="visually-hidden">공개 범위</label>
+        <select id="note-visibility" name="visibility">
+            <option value="PUBLIC">전체 공개</option>
+            <option value="FRIENDS">친구 공개</option>
+            <option value="PRIVATE">나만 보기</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">기록하기</button>
+    </div>
+</form>
+<li th:fragment="item(note, noteDate, noteBack)" class="note" th:id="${'note-' + note.id()}">
+    <p class="note-content" th:text="${note.content()}">내용</p>
+    <p class="note-meta help">
+        <time th:attr="datetime=${note.createdAt()}" th:text="${noteDate}">방금 전</time>
+        <span th:if="${note.visibility() == 'FRIENDS'}"> · 👥 친구 공개</span><span th:if="${note.visibility() == 'PRIVATE'}"> · 🔒 나만 보기</span>
+        <form th:if="${note.mine()}" method="post" th:action="@{/notes/{id}/delete(id=${note.id()})}" class="inline-form">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="back" th:value="${noteBack}">
+            <button type="submit" class="btn-text btn-sm">지우기</button>
+        </form>
+    </p>
+</li>
+</body>
+</html>

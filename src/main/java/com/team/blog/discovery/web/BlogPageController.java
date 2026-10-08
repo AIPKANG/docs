@@ -31,6 +31,7 @@ public class BlogPageController {
     private final SearchController searchController;
     private final com.team.blog.friend.application.FriendQuery friendQuery;
     private final com.team.blog.discovery.application.ActivityQuery activityQuery;
+    private final com.team.blog.note.application.NoteService noteService;
 
     public BlogPageController(BlogOwnerResolver blogOwnerResolver, PostListQuery listQuery,
                               CurrentUserProvider currentUserProvider, Clock clock,
@@ -38,7 +39,9 @@ public class BlogPageController {
                               com.team.blog.interaction.application.FollowQuery followQuery,
                               SearchController searchController,
                               com.team.blog.friend.application.FriendQuery friendQuery,
-                              com.team.blog.discovery.application.ActivityQuery activityQuery) {
+                              com.team.blog.discovery.application.ActivityQuery activityQuery,
+                              com.team.blog.note.application.NoteService noteService) {
+        this.noteService = noteService;
         this.activityQuery = activityQuery;
         this.friendQuery = friendQuery;
         this.followQuery = followQuery;
@@ -106,6 +109,15 @@ public class BlogPageController {
         // 031 강성찬 개인 확장: 잔디·스트릭(첫 화면에서만)
         if (activityQuery.enabled() && (cursor == null || cursor.isEmpty()) && tag == null) {
             model.addAttribute("grass", activityQuery.grass(owner.memberId()));
+        }
+        // 033 강성찬 개인 확장: 짧은 기록 최근 3개(첫 화면에서만)
+        if (noteService.enabled() && (cursor == null || cursor.isEmpty()) && tag == null) {
+            java.util.List<com.team.blog.note.application.NoteService.Note> recent =
+                    noteService.notes(owner.memberId(), currentUserProvider.current(), null, 3);
+            java.util.Map<Long, String> noteDates = new java.util.HashMap<>();
+            recent.forEach(n -> noteDates.put(n.id(), com.team.blog.post.application.CardDates.label(n.createdAt(), clock.instant())));
+            model.addAttribute("recentNotes", recent);
+            model.addAttribute("noteDates", noteDates);
         }
         model.addAttribute("loginRedirect", "/login?redirect=/@" + owner.handle());
         model.addAttribute("continued", cursor != null && !cursor.isEmpty());

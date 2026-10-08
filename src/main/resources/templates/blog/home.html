@@ -38,6 +38,14 @@
             </div>
         </div>
     </section>
+    <!-- 033 강성찬 개인 확장: 짧은 기록 -->
+    <section th:if="${recentNotes != null and (!recentNotes.isEmpty() or isOwner)}" class="notes-box" aria-labelledby="notes-heading">
+        <h2 id="notes-heading" class="grass-title">짧은 기록 <a class="help" th:href="${'/@' + owner.handle() + '/notes'}">모두 보기</a></h2>
+        <th:block th:if="${isOwner}"><form th:replace="~{fragments/note :: noteForm(${'/@' + owner.handle()})}"></form></th:block>
+        <ul class="note-list">
+            <th:block th:each="n : ${recentNotes}"><li th:replace="~{fragments/note :: item(${n}, ${noteDates.get(n.id())}, ${'/@' + owner.handle()})}"></li></th:block>
+        </ul>
+    </section>
     <!-- 013 블로그 태그 줄(처음 10개 + 태그 더 보기)과 필터 -->
     <nav class="blog-tags" th:unless="${blogTags.isEmpty()}" aria-label="이 블로그의 태그">
         <th:block th:each="t, st : ${blogTags}" th:if="${st.index < 10}">
