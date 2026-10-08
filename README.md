@@ -69,7 +69,8 @@ node src/test/js/diff.test.mjs   # 편집 비교 창 diff 자체 검사(선택)
 | `specs/README.md` | 문서 간 차이와 팀 결정 기록 |
 | `specs/NNN-기능/` | 기능별 `spec.md`(명세) → `plan.md`·`research.md`(설계·결정) → `tasks.md`(작업, 모두 완료) |
 | `src/main/resources/db/migration/V1__common_schema.sql` | 실제 DB 스키마(테이블 20개) |
-| `db/mysql/` | 같은 스키마의 MySQL 사본과 한국어 데모 데이터(ERD 도구·데모용) |
+| `db/demo/` | 앱에 바로 넣는 한국어 데모 데이터(PostgreSQL)와 데모 계정 |
+| `db/mysql/` | 같은 스키마의 MySQL 사본과 데모 데이터(ERD 도구용) |
 | Crowfoot ERD | https://crowfoot.java21.net/workspaces/62/models/672 (테이블 20개·관계 41개, 명세 001~024와 연결) |
 
 ## 작업 방식
