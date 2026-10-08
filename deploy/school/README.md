@@ -1,7 +1,12 @@
 # 학교 공용 서버 배포 (서버 배포 설명서 10-08)
 
-`main`에 올리면 GitHub Actions(`.github/workflows/deploy.yml`)가 **테스트 → 도커 이미지 생성 → SSH로 서버에 보내 `run-on-server.sh` 실행**까지 한다.
+`main`에 올리면 GitHub Actions가 **테스트 → 도커 이미지 생성 → SSH로 서버에 보내 `run-on-server.sh` 실행**까지 한다.
 서버에는 우리 앱 컨테이너와 Redis 컨테이너만 뜬다. DB는 Crowfoot PostgreSQL, HTTPS·도메인은 서버의 공용 Nginx가 맡는다.
+
+## 0. 워크플로 파일 넣기
+
+배포 워크플로는 `deploy/school/github-deploy.yml`에 있다. 문서 레포(AIPKANG/docs)에서는 돌지 않게 `.github` 밖에 두었다.
+**소스코드 레포**에 `.github/workflows/deploy.yml`로 복사해서 올린다. 개인 접근 토큰(PAT)으로 push하면 토큰에 `workflow` 권한이 있어야 한다(없으면 "without `workflow` scope"로 거절). 권한을 늘리기 어렵다면 GitHub 웹에서 Add file → Create new file로 같은 경로에 붙여 넣어도 된다.
 
 ## 1. GitHub Repository secrets (Settings → Secrets and variables → Actions)
 
