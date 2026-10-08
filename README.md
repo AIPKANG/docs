@@ -6,13 +6,36 @@
 
 ## 할 수 있는 것
 
+### 팀 공통 최소 요구사항 (v1.0.0, 명세 001~024)
+
 | 영역 | 기능 (명세 번호) |
 |---|---|
 | 회원 | 이메일 가입·인증, Google·GitHub 로그인(001), 블로그 주소·닉네임(002), 프로필·설정(003), 탈퇴·30일 안 복구(023) |
 | 글쓰기 | 자동 저장·충돌 비교(004), 발행·다시 발행(005), 공개/비공개(006), Markdown 정화(007), 사진 올리기(008), 태그(013), AI 태그 추천(021) |
 | 읽기 | 전체 글·개인 블로그(009), 글 상세(010), 내 글 관리·휴지통(011), 트렌딩(019), 검색(020), 다크 모드(024) |
 | 반응 | 댓글·답글(014), 좋아요(015), 조회수(016), 팔로우·피드(018), 인앱 알림(017) |
-| 운영 | 접근 권한 공통 규칙(012), 신고·관리자 숨김·회원 정지(022), 개인정보 처리방침(`/privacy`) |
+| 운영 | 접근 권한 공통 규칙(012), 신고·관리자 숨김·회원 정지(022), 개인정보 처리방침(`/privacy`), sitemap·robots |
+
+### 강성찬 개인 확장 (명세 025~036)
+
+팀은 공통만 맞추고 각자 **추가만** 하기로 했다(docs/01 §2-4). 아래는 강성찬 개인 확장이며 공통 완료 기준은 그대로 통과한다.
+
+| 명세 | 기능 | 끄는 설정 |
+|---|---|---|
+| 025 | 친구 공개 — 친구 요청·수락(거절은 상대에게 안 알림), 친구만 보는 글 | — |
+| 026 | 공개 전환 — 공개로 넓힐 때 확인, 친구에게 첫 공개 응원 알림 | — |
+| 027 | 조회수 30분 5회 | `blog.view.*` |
+| 028 | 답글 무제한 깊이(3단계 뒤 접기) | `blog.comment.max-depth: 1` |
+| 029 | 링크 공개 — 주소의 열쇠를 아는 사람만 | `blog.share.link.enabled` |
+| 030 | 그룹 공개 — 친구 그룹에만 보이는 글 | `blog.friend.groups.enabled` |
+| 031 | 잔디·스트릭 — 블로그 1년 기록 칸 | `blog.activity.enabled` |
+| 032 | 작성자 통계 — `/manage/stats` | `blog.stats.enabled` |
+| 033 | 짧은 기록 — 280자 한 줄 기록 | `blog.notes.enabled` |
+| 034 | 같은 주제로 쓰기·릴레이 — `/missions` | `blog.missions.enabled` |
+| 035 | AI 티저 — 카드 한 줄 소개 | `blog.teaser.enabled` |
+| 036 | 홈 "새로 온 작가" | `blog.home.newcomers.enabled` |
+
+그 밖에 디자인 시안(크림·세이지, 사진 배너, 한 줄 4개 카드·한 쪽 12개)도 강성찬 개인 확장으로 적용했다. 변경 내역: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## 기술 구성
 
@@ -51,7 +74,7 @@ docker compose up -d        # PostgreSQL·Redis·Mailpit·사진 저장소(MinIO
 ## 테스트
 
 ```bash
-./gradlew test              # 통합 테스트 606개(Testcontainers로 PostgreSQL·Redis·Mailpit·MinIO를 띄움)
+./gradlew test              # 통합 테스트 628개(Testcontainers로 PostgreSQL·Redis·Mailpit·MinIO를 띄움)
 node src/test/js/diff.test.mjs   # 편집 비교 창 diff 자체 검사(선택)
 ```
 
@@ -69,7 +92,7 @@ node src/test/js/diff.test.mjs   # 편집 비교 창 diff 자체 검사(선택)
 | `.specify/memory/constitution.md` | 프로젝트 헌법(원칙) |
 | `specs/README.md` | 문서 간 차이와 팀 결정 기록 |
 | `specs/NNN-기능/` | 기능별 `spec.md`(명세) → `plan.md`·`research.md`(설계·결정) → `tasks.md`(작업, 모두 완료) |
-| `src/main/resources/db/migration/V1__common_schema.sql` | 실제 DB 스키마(테이블 20개) |
+| `src/main/resources/db/migration/` | 실제 DB 스키마: V1 공통(테이블 20개), V2~V8 강성찬 개인 확장(테이블 8개 추가, 공통 테이블은 CHECK 교체만) |
 | `db/demo/` | 앱에 바로 넣는 한국어 데모 데이터(PostgreSQL)와 데모 계정 |
 | `db/mysql/` | 같은 스키마의 MySQL 사본과 데모 데이터(ERD 도구용) |
 | Crowfoot ERD | https://crowfoot.java21.net/workspaces/62/models/672 (테이블 20개·관계 41개, 명세 001~024와 연결) |

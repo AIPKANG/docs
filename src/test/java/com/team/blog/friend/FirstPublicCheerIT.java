@@ -64,7 +64,8 @@ class FirstPublicCheerIT extends IntegrationTestBase {
                 .getContentAsString();
         assertThat(list).contains("친구에게만 보여 주던").contains("한 달 전에 쓴 친구 글");
         // 처음 공개된 순간이 최초 공개 시각 → 홈 맨 위
-        String home = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString();
+        String all = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString();
+        String home = all.substring(all.indexOf("id=\"card-grid\"")); // 카드 목록만(036 새로 온 작가 영역 제외)
         assertThat(home.indexOf("한 달 전에 쓴 친구 글")).isLessThan(home.indexOf("예전부터 공개된 글"));
         // 다시 숨겼다가 공개해도 알림은 더 없다
         change(author, old, "PRIVATE");

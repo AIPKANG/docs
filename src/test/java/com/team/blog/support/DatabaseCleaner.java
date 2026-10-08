@@ -13,7 +13,10 @@ public class DatabaseCleaner {
     static final List<String> TABLES = List.of(
             "member", "image", "auth_identity", "member_agreement", "tag", "post", "post_draft", "post_like",
             "post_view_daily", "post_tag", "post_image", "comment", "follow", "friendship", "report_case", "report",
-            "member_suspension", "notification", "notification_actor", "notification_mute");
+            "member_suspension", "notification", "notification_actor", "notification_mute",
+            // 강성찬 개인 확장(029~035)
+            "post_link_share", "friend_group", "group_member", "post_group_visibility", "short_note", "mission",
+            "mission_participant", "post_teaser");
 
     private final JdbcTemplate jdbc;
     private final StringRedisTemplate redis;

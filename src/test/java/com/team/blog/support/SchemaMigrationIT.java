@@ -14,7 +14,8 @@ class SchemaMigrationIT extends IntegrationTestBase {
     JdbcTemplate jdbc;
 
     @Test
-    void v1CreatesAllTwentyTables() {
+    void migrationsCreateCommonTwentyTablesAndPersonalExtensionTables() {
+        // 공통 V1 20개 + 강성찬 개인 확장 V2~V8 8개
         List<String> tables = jdbc.queryForList("""
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> 'flyway_schema_history'
