@@ -1,6 +1,6 @@
 /*
  * 글 상세의 작성자 버튼(010 FR-016·FR-019): 공개 범위 즉시 변경(006 PATCH), 수정 중 안내의 [변경 취소](004 DELETE).
- * [삭제](휴지통)는 011이 붙인다. 인라인 스크립트 없이 data 속성으로 글 번호를 읽는다(FR-023).
+ * [삭제]는 확인창 뒤 휴지통으로 옮기고 내 글 관리 휴지통 탭으로 간다(011). 인라인 스크립트 없이 data 속성으로 글 번호를 읽는다(FR-023).
  */
 (function () {
   'use strict';
@@ -31,6 +31,18 @@
             window.location.reload();
           })
           .catch(function () { select.value = previous; status.textContent = '공개 범위를 바꾸지 못했어요.'; });
+      });
+    }
+    var trash = document.getElementById('trash-post');
+    if (trash) {
+      trash.addEventListener('click', function () {
+        if (!window.confirm('휴지통으로 옮길까요? 30일 뒤 완전히 삭제돼요')) { return; }
+        fetch('/api/posts/' + postId, { method: 'DELETE', headers: csrfHeaders(), credentials: 'same-origin' })
+          .then(function (res) {
+            if (!res.ok) { throw new Error(String(res.status)); }
+            window.location.assign('/manage/posts?tab=trash');
+          })
+          .catch(function () { status.textContent = '삭제하지 못했어요.'; });
       });
     }
     var discard = document.getElementById('discard-editing');
