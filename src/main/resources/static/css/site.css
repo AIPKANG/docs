@@ -465,3 +465,8 @@ html, body { overflow-x: clip; }
 /* 029 링크 공개(강성찬 개인 확장) */
 .share-link input { width: 100%; font-size: .9em; }
 .share-link p { margin: 6px 0; }
+/* 030 친구 그룹(강성찬 개인 확장) */
+.group-create, .group-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.group-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 18px; padding: 16px 20px; margin: 16px 0; }
+.group-card h2 { margin: 0 0 8px; font-size: 1.1em; }
+.group-choice { display: inline-flex; gap: 6px; align-items: center; margin-right: 14px; }

@@ -80,12 +80,12 @@ public class BlogPageController {
                 .map(v -> friendQuery.status(v.memberId(), owner.memberId()))
                 .orElse(com.team.blog.friend.application.FriendQuery.Status.NONE);
         boolean withFriends = friendStatus == com.team.blog.friend.application.FriendQuery.Status.FRIENDS;
+        // 030: 친구면 그 사람이 든 그룹의 그룹 공개 글도
+        Long friendViewer = withFriends ? currentUserProvider.current().map(CurrentUser::memberId).orElse(null) : null;
         try {
-            page = tag == null ? listQuery.blog(owner.memberId(), requestedCursor, withFriends)
-                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, requestedCursor, withFriends)).orElse(new CardPage(java.util.List.of(), null));
+            page = blogPage(owner.memberId(), friendViewer, tag, tagId, requestedCursor);
         } catch (PostContentException e) {
-            page = tag == null ? listQuery.blog(owner.memberId(), null, withFriends)
-                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, null, withFriends)).orElse(new CardPage(java.util.List.of(), null));
+            page = blogPage(owner.memberId(), friendViewer, tag, tagId, null);
             cursor = null;
         }
         model.addAttribute("filterTag", tag);
@@ -106,5 +106,16 @@ public class BlogPageController {
                 + (tag == null ? "" : "?tag=" + org.springframework.web.util.UriUtils.encodeQueryParam(tag, java.nio.charset.StandardCharsets.UTF_8)));
         CardModel.fill(model, page, clock.instant());
         return "blog/home";
+    }
+
+    private CardPage blogPage(long ownerId, Long friendViewer, String tag, java.util.Optional<Long> tagId, String cursor) {
+        if (tag != null && tagId.isEmpty()) {
+            return new CardPage(java.util.List.of(), null);
+        }
+        Long tid = tagId.orElse(null);
+        if (friendViewer != null) {
+            return listQuery.blogForFriend(ownerId, friendViewer, tid, cursor);
+        }
+        return tid == null ? listQuery.blog(ownerId, cursor) : listQuery.blogByTag(ownerId, tid, cursor);
     }
 }

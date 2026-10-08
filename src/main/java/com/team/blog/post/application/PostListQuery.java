@@ -45,6 +45,11 @@ public class PostListQuery {
         return page(authorId, null, null, FeedCursor.decode(cursor), withFriends);
     }
 
+    /** 친구인 {@code viewerId}에게: 친구 공개 + 그 사람이 든 그룹의 그룹 공개 글도(030). */
+    public CardPage blogForFriend(long authorId, long viewerId, Long tagId, String cursor) {
+        return page(authorId, tagId, null, FeedCursor.decode(cursor), true, viewerId);
+    }
+
     /** 013: 블로그 태그 필터. */
     public CardPage blogByTag(long authorId, long tagId, String cursor) {
         return blogByTag(authorId, tagId, cursor, false);
@@ -67,6 +72,11 @@ public class PostListQuery {
     }
 
     private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor, boolean withFriends) {
+        return page(authorId, tagId, followerId, cursor, withFriends, null);
+    }
+
+    private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor, boolean withFriends,
+                          Long groupViewerId) {
         // 친구가 보는 블로그: 친구 공개 글에는 최초 공개 시각이 없으므로 발행 시각으로 대신한다(025 research R-2)
         String at = withFriends ? "COALESCE(p.first_public_at, p.published_at)" : "p.first_public_at";
         StringBuilder sql = new StringBuilder("""
@@ -76,9 +86,12 @@ public class PostListQuery {
                        (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
                         WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
                 FROM post p JOIN member m ON m.id = p.author_id
-                WHERE """).append(' ').append(withFriends ? accessPolicy.friendBlogCondition("p", "m")
-                : accessPolicy.publicListingCondition("p", "m"));
+                WHERE """).append(' ').append(groupViewerId != null ? accessPolicy.friendAndGroupBlogCondition("p", "m")
+                : withFriends ? accessPolicy.friendBlogCondition("p", "m") : accessPolicy.publicListingCondition("p", "m"));
         List<Object> args = new ArrayList<>();
+        if (groupViewerId != null) {
+            args.add(groupViewerId);
+        }
         if (authorId != null) {
             sql.append(" AND p.author_id = ?");
             args.add(authorId);

@@ -39,10 +39,12 @@ public class FriendService {
     private final FriendQuery query;
     private final ApplicationEventPublisher events;
     private final Clock clock;
+    private final GroupService groups;
 
     public FriendService(JdbcTemplate jdbc, TransactionTemplate tx, AccountGuard accountGuard, BlogOwnerResolver ownerResolver,
                          RedisRateLimiter rateLimiter, FriendProperties properties, FriendQuery query,
-                         ApplicationEventPublisher events, Clock clock) {
+                         ApplicationEventPublisher events, Clock clock, GroupService groups) {
+        this.groups = groups;
         this.jdbc = jdbc;
         this.tx = tx;
         this.accountGuard = accountGuard;
@@ -120,6 +122,7 @@ public class FriendService {
             List<Map<String, Object>> removed = jdbc.queryForList("""
                     DELETE FROM friendship WHERE member_a_id = ? AND member_b_id = ? RETURNING status, requested_by
                     """, Math.min(me, target), Math.max(me, target));
+            groups.removeBetween(me, target); // 030: 끊으면 서로의 그룹에서도 빠진다
             if (!removed.isEmpty() && "PENDING".equals(removed.get(0).get("status"))) {
                 long requester = ((Number) removed.get(0).get("requested_by")).longValue();
                 events.publishEvent(new FriendRequestClosed(requester, requester == me ? target : me));

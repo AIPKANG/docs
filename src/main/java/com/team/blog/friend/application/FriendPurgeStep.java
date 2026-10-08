@@ -8,9 +8,11 @@ import org.springframework.stereotype.Component;
 public class FriendPurgeStep implements WithdrawalPurgeStep {
 
     private final FriendService friends;
+    private final GroupService groups;
 
-    public FriendPurgeStep(FriendService friends) {
+    public FriendPurgeStep(FriendService friends, GroupService groups) {
         this.friends = friends;
+        this.groups = groups;
     }
 
     @Override
@@ -20,6 +22,7 @@ public class FriendPurgeStep implements WithdrawalPurgeStep {
 
     @Override
     public void purge(long memberId) {
+        groups.purgeWithdrawn(memberId); // 030 그룹
         friends.purgeWithdrawn(memberId);
     }
 }

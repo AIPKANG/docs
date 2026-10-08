@@ -41,12 +41,14 @@ public class PostListApiController {
                          @RequestParam(value = "tag", required = false) String tag) {
         long ownerId = blogOwnerResolver.resolve(handle).orElseThrow(NotFoundException::new).memberId();
         // 025 강성찬 개인 확장: 친구면 친구 공개 글도(블로그 화면과 같은 규칙)
-        boolean withFriends = currentUserProvider.current().map(v -> friendQuery.areFriends(v.memberId(), ownerId)).orElse(false);
+        Long friendViewer = currentUserProvider.current().map(v -> v.memberId())
+                .filter(v -> friendQuery.areFriends(v, ownerId)).orElse(null);
         if (tag == null || tag.isEmpty()) {
-            return listQuery.blog(ownerId, cursor, withFriends);
+            return friendViewer != null ? listQuery.blogForFriend(ownerId, friendViewer, null, cursor) : listQuery.blog(ownerId, cursor);
         }
         return com.team.blog.tag.domain.TagNormalizer.lookupName(tag).flatMap(tagListingQuery::tagId)
-                .map(id -> listQuery.blogByTag(ownerId, id, cursor, withFriends))
+                .map(id -> friendViewer != null ? listQuery.blogForFriend(ownerId, friendViewer, id, cursor)
+                        : listQuery.blogByTag(ownerId, id, cursor))
                 .orElse(new CardPage(java.util.List.of(), null));
     }
 

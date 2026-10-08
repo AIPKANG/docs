@@ -77,6 +77,15 @@ public class PostAccessPolicy {
         return base(postAlias, memberAlias) + " AND " + postAlias + ".visibility IN ('PUBLIC', 'FRIENDS')";
     }
 
+    /**
+     * 친구가 보는 블로그에 그룹 공개 글(030)도 더한 조건. 보는 사람 번호가 바인딩 값 하나({@code ?})로 들어간다.
+     */
+    public String friendAndGroupBlogCondition(String postAlias, String memberAlias) {
+        return base(postAlias, memberAlias) + " AND (" + postAlias + ".visibility IN ('PUBLIC', 'FRIENDS') OR (" + postAlias
+                + ".visibility = 'GROUP' AND EXISTS (SELECT 1 FROM post_group_visibility pg JOIN group_member gm"
+                + " ON gm.group_id = pg.group_id WHERE pg.post_id = " + postAlias + ".id AND gm.member_id = ?)))";
+    }
+
     private static String base(String postAlias, String memberAlias) {
         return postAlias + ".status = 'PUBLISHED' AND " + postAlias + ".deleted_at IS NULL AND " + postAlias
                 + ".hidden_at IS NULL AND " + memberAlias + ".withdrawn_at IS NULL";

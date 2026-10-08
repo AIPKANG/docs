@@ -11,6 +11,18 @@
             <!-- 상태 배지·안내: 작성자에게만(010 FR-018~FR-020) -->
             <p th:if="${viewerIsAuthor and post.isPrivate()}"><span class="badge">🔒 비공개</span> 나만 볼 수 있는 글이에요.</p>
             <p th:if="${viewerIsAuthor and post.visibility() == 'FRIENDS'}"><span class="badge">👥 친구 공개</span> 나와 친구만 볼 수 있는 글이에요.</p>
+            <!-- 030 강성찬 개인 확장: 그룹 공개 대상 고르기(글쓴이만) -->
+            <form th:if="${myGroups != null}" id="post-groups" method="post" th:action="@{/posts/{id}/groups(id=${post.id()})}" class="notice">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <p><span class="badge">🧑‍🤝‍🧑 그룹 공개</span> 고른 그룹에 든 친구와 나만 볼 수 있어요.
+                    <span th:if="${postGroupIds.isEmpty()}">아직 고른 그룹이 없어 나만 볼 수 있어요.</span></p>
+                <p th:if="${myGroups.isEmpty()}" class="help">그룹이 없어요. <a href="/settings/groups">친구 그룹 만들기</a></p>
+                <p th:unless="${myGroups.isEmpty()}">
+                    <label th:each="g : ${myGroups}" class="group-choice"><input type="checkbox" name="groupId" th:value="${g.id()}"
+                           th:checked="${postGroupIds.contains(g.id())}"> <span th:text="${g.name() + ' (' + g.members().size() + '명)'}">그룹</span></label>
+                </p>
+                <button th:unless="${myGroups.isEmpty()}" type="submit" class="btn btn-sm">보여 줄 그룹 저장</button>
+            </form>
             <!-- 029 강성찬 개인 확장: 링크 공개 주소(글쓴이만) -->
             <div th:if="${shareLinkUrl != null}" id="share-link" class="notice share-link">
                 <p><span class="badge">🔗 링크 공개</span> 이 주소를 아는 사람만 볼 수 있어요. 목록·검색에는 나오지 않아요.</p>
@@ -47,6 +59,7 @@
                         <option value="PUBLIC" th:selected="${post.visibility() == 'PUBLIC'}">🌐 전체 공개</option>
                         <option value="FRIENDS" th:selected="${post.visibility() == 'FRIENDS'}">👥 친구 공개</option>
                         <option value="LINK" th:selected="${post.visibility() == 'LINK'}">🔗 링크 공개</option>
+                        <option value="GROUP" th:selected="${post.visibility() == 'GROUP'}">🧑‍🤝‍🧑 그룹 공개</option>
                         <option value="PRIVATE" th:selected="${post.visibility() == 'PRIVATE'}">🔒 나만 보기</option>
                     </select>
                 </label>

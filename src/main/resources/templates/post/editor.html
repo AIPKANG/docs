@@ -55,6 +55,8 @@
             <label><input type="radio" name="visibility" value="FRIENDS" th:checked="${visibility == 'FRIENDS'}"> 친구 공개</label>
             <!-- 029 강성찬 개인 확장: 링크 공개 -->
             <label><input type="radio" name="visibility" value="LINK" th:checked="${visibility == 'LINK'}"> 링크 공개</label>
+            <!-- 030 강성찬 개인 확장: 그룹 공개(보여 줄 그룹은 올린 뒤 글 화면에서 고른다) -->
+            <label><input type="radio" name="visibility" value="GROUP" th:checked="${visibility == 'GROUP'}"> 그룹 공개</label>
             <label><input type="radio" name="visibility" value="PRIVATE" th:checked="${visibility == 'PRIVATE'}"> 나만 보기</label>
         </fieldset>
         <div class="field">
