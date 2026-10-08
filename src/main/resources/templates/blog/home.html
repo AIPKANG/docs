@@ -12,7 +12,16 @@
             <h1 th:replace="~{fragments/author :: byline(${author})}">닉네임 @주소</h1>
             <!-- 소개는 글자로만(이스케이프), 줄바꿈만 살리고 자동 링크 없음(003 FR-009·FR-010) -->
             <p class="profile-bio" th:if="${owner.bio() != null}" th:text="${owner.bio()}">소개</p>
-            <p class="help" th:text="${'공개 글 ' + publicCount}">공개 글 24</p>
+            <p class="help">
+                <span th:text="${'공개 글 ' + publicCount}">공개 글 24</span> ·
+                <a th:href="${'/@' + owner.handle() + '/followers'}" th:text="${'팔로워 ' + followCounts.followers()}">팔로워 12</a> ·
+                <a th:href="${'/@' + owner.handle() + '/following'}" th:text="${'팔로잉 ' + followCounts.following()}">팔로잉 30</a>
+            </p>
+            <!-- 018 팔로우 버튼(내 블로그에서는 없음) -->
+            <p th:unless="${isOwner}">
+                <th:block th:replace="~{fragments/follow :: button(${owner.handle()}, ${followingOwner}, ${currentMemberId != null}, ${loginRedirect}, ${'/@' + owner.handle()})}"></th:block>
+            </p>
+            <p class="follow-message help" role="status" hidden></p>
         </div>
     </header>
     <!-- 013 블로그 태그 줄(처음 10개 + 태그 더 보기)과 필터 -->
@@ -48,6 +57,7 @@
     </div>
     <div th:replace="~{fragments/post-card :: more(${nextCursor}, ${listApi}, false, ${!cards.isEmpty()})}"></div>
     <script src="/js/post/list-more.js" defer></script>
+    <script src="/js/follow/follow.js" defer></script>
 </main>
 </body>
 </html>

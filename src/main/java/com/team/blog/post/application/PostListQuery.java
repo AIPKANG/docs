@@ -27,21 +27,26 @@ public class PostListQuery {
     }
 
     public CardPage feed(String cursor) {
-        return page(null, null, FeedCursor.decode(cursor));
+        return page(null, null, null, FeedCursor.decode(cursor));
+    }
+
+    /** 018 팔로잉 피드: 그 회원이 팔로우한 사람의 글(같은 공용 조건·정렬·커서). */
+    public CardPage followingFeed(long followerId, String cursor) {
+        return page(null, null, followerId, FeedCursor.decode(cursor));
     }
 
     public CardPage blog(long authorId, String cursor) {
-        return page(authorId, null, FeedCursor.decode(cursor));
+        return page(authorId, null, null, FeedCursor.decode(cursor));
     }
 
     /** 013: 블로그 태그 필터. */
     public CardPage blogByTag(long authorId, long tagId, String cursor) {
-        return page(authorId, tagId, FeedCursor.decode(cursor));
+        return page(authorId, tagId, null, FeedCursor.decode(cursor));
     }
 
     /** 013: 태그별 글 목록(공개 글만). */
     public CardPage byTag(long tagId, String cursor) {
-        return page(null, tagId, FeedCursor.decode(cursor));
+        return page(null, tagId, null, FeedCursor.decode(cursor));
     }
 
     /** 블로그 머리말의 공개 글 수(보는 사람 기준 — 지금은 공개 글만 있으므로 누구에게나 같다). */
@@ -51,7 +56,7 @@ public class PostListQuery {
         return count == null ? 0 : count;
     }
 
-    private CardPage page(Long authorId, Long tagId, Optional<FeedCursor> cursor) {
+    private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor) {
         StringBuilder sql = new StringBuilder("""
                 SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
                        m.handle, m.nickname, m.profile_image_url
@@ -61,6 +66,10 @@ public class PostListQuery {
         if (authorId != null) {
             sql.append(" AND p.author_id = ?");
             args.add(authorId);
+        }
+        if (followerId != null) {
+            sql.append(" AND p.author_id IN (SELECT f.followee_id FROM follow f WHERE f.follower_id = ?)");
+            args.add(followerId);
         }
         if (tagId != null) {
             sql.append(" AND EXISTS (SELECT 1 FROM post_tag pt WHERE pt.post_id = p.id AND pt.tag_id = ?)");

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${owner.nickname() + (followers ? '님의 팔로워' : '님의 팔로잉')}">팔로워</title>
+</head>
+<body>
+<main class="list-page">
+    <h1 th:text="${owner.nickname() + (followers ? '님의 팔로워 ' : '님이 팔로우하는 사람 ') + count}">팔로워 0</h1>
+    <p><a th:href="${'/@' + owner.handle()}">블로그로 돌아가기</a></p>
+    <p th:if="${continued}"><a th:href="${base}">처음부터 보기</a></p>
+    <p th:if="${page.items().isEmpty() and !continued}" class="empty-state"
+       th:text="${followers ? '아직 팔로워가 없어요' : '아직 팔로우한 사람이 없어요'}">아직 팔로워가 없어요</p>
+    <ul class="follow-list">
+        <li th:each="m : ${page.items()}" class="follow-row">
+            <th:block th:replace="~{fragments/avatar :: avatar(${m.avatar()}, 40)}"></th:block>
+            <div class="follow-text">
+                <p><span th:text="${m.nickname()}">닉네임</span> <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a></p>
+                <p class="help" th:if="${m.bio() != null}" th:text="${m.bio()}">소개</p>
+            </div>
+            <th:block th:unless="${m.me()}">
+                <th:block th:replace="~{fragments/follow :: button(${m.handle()}, ${m.followedByMe()}, ${currentMemberId != null}, ${loginRedirect}, ${base})}"></th:block>
+            </th:block>
+        </li>
+    </ul>
+    <p th:if="${page.nextCursor() != null}"><a th:href="@{${base}(cursor=${page.nextCursor()})}">더 보기</a></p>
+    <p class="follow-message help" role="status" hidden></p>
+    <script src="/js/follow/follow.js" defer></script>
+</main>
+</body>
+</html>

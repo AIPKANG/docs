@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>팔로잉 피드</title>
+</head>
+<body>
+<main class="list-page">
+    <h1>팔로잉 피드</h1>
+    <p th:if="${continued}"><a href="/feed">처음부터 보기</a></p>
+    <th:block th:if="${cards.isEmpty() and !continued}">
+        <div class="empty-state" th:unless="${followsAnyone}">팔로우한 사람이 없어요. 홈에서 읽고 싶은 블로그를 찾아보세요 <a href="/">홈</a></div>
+        <div class="empty-state" th:if="${followsAnyone}">팔로우한 사람의 공개 글이 아직 없어요</div>
+    </th:block>
+    <div class="card-grid" id="card-grid">
+        <th:block th:each="card : ${cards}">
+            <article th:replace="~{fragments/post-card :: card(${card}, ${cardDates.get(card.id())}, true)}"></article>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/post-card :: more(${nextCursor}, ${listApi}, true, ${!cards.isEmpty()})}"></div>
+    <script src="/js/post/list-more.js" defer></script>
+</main>
+</body>
+</html>

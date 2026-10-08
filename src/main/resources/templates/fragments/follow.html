@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  018 팔로우 버튼(FR-007). 비회원: 로그인 링크. 회원: 스크립트 없이도 되는 폼(POST /@주소/follow), follow.js가 낙관적으로 바꾼다.
+  팔로우 중은 "팔로잉 ✓"(마우스·초점이면 "언팔로우"), 색만으로 구분하지 않는다. 내 블로그·내 글에서는 부르지 않는다.
+-->
+<th:block th:fragment="button(handle, following, loggedIn, loginRedirect, back)">
+    <a th:unless="${loggedIn}" class="follow-button" th:href="${loginRedirect}">팔로우</a>
+    <form th:if="${loggedIn}" method="post" th:action="${'/@' + handle + '/follow'}" class="follow-form">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="following" th:value="${!following}">
+        <input type="hidden" name="back" th:value="${back}">
+        <button type="submit" class="follow-button" th:attr="data-follow-handle=${handle},data-following=${following},aria-pressed=${following}"
+                th:text="${following ? '팔로잉 ✓' : '팔로우'}">팔로우</button>
+    </form>
+</th:block>
+</body>
+</html>

@@ -230,6 +230,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
     }
 
+    @ExceptionHandler(CannotFollowSelfException.class)
+    public ResponseEntity<ErrorResponse> cannotFollowSelf() {
+        return json(HttpStatus.BAD_REQUEST, error(CannotFollowSelfException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

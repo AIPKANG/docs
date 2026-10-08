@@ -61,7 +61,7 @@
             <button type="button" th:if="${canReact}" class="report-button" th:attr="data-report-post-id=${post.id()}">신고</button>
             <span class="like-message help" role="status" hidden></span>
         </p>
-        <!-- 작성자 카드(FR-013): 팔로우 동작은 018 -->
+        <!-- 작성자 카드(FR-013): 팔로우 버튼은 018 -->
         <aside class="author-card">
             <th:block th:replace="~{fragments/avatar :: avatar(${author.avatar()}, 56)}"></th:block>
             <div class="author-card-text">
@@ -69,10 +69,10 @@
                 <p class="profile-bio" th:if="${post.author().bio() != null}" th:text="${post.author().bio()}">소개</p>
                 <p>
                     <a th:href="${'/@' + post.author().handle()}">블로그 가기</a>
-                    <a th:if="${!viewerIsAuthor and currentMemberId == null}" class="follow-button" th:href="${loginRedirect}">팔로우</a>
-                    <button type="button" th:if="${!viewerIsAuthor and currentMemberId != null}" class="follow-button"
-                            th:attr="data-follow-handle=${post.author().handle()}">팔로우</button>
+                    <th:block th:unless="${viewerIsAuthor}"><th:block
+                              th:replace="~{fragments/follow :: button(${post.author().handle()}, ${followingAuthor}, ${currentMemberId != null}, ${loginRedirect}, ${post.url()})}"></th:block></th:block>
                 </p>
+                <p class="follow-message help" role="status" hidden></p>
             </div>
         </aside>
         <!-- 댓글(014): 첫 20개를 화면과 함께, 스크립트 없이도 더 보기·작성 -->
@@ -115,6 +115,7 @@
     <script src="/js/post/post-detail.js" defer></script>
     <script src="/js/post/comments.js" defer></script>
     <script src="/js/post/like.js" defer></script>
+    <script src="/js/follow/follow.js" defer></script>
     <script th:if="${recordView}" src="/js/post/post-view.js" defer></script>
 </main>
 </body>

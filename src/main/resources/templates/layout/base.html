@@ -190,6 +190,12 @@
         .notif-unread .notif-message { font-weight: 700; }
         .notif-dot { color: #0969da; margin-right: 4px; }
         .notif-time { display: block; color: #6e7781; font-size: .85em; }
+        /* 018 팔로우 */
+        .follow-form { display: inline; margin: 0; }
+        .follow-list { list-style: none; padding: 0; }
+        .follow-row { display: flex; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
+        .follow-text { flex: 1; min-width: 0; }
+        .follow-text p { margin: 2px 0; overflow-wrap: anywhere; }
     </style>
 </head>
 <body>
@@ -201,6 +207,7 @@
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit">새 글</button>
             </form>
+            <a href="/feed">피드</a>
             <a href="/manage/posts">내 글</a>
             <a href="/tags">태그</a>
             <span class="notif-bell-wrap">

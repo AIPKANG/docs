@@ -27,10 +27,13 @@ public class BlogPageController {
     private final CurrentUserProvider currentUserProvider;
     private final Clock clock;
     private final com.team.blog.post.application.TagListingQuery tagListingQuery;
+    private final com.team.blog.interaction.application.FollowQuery followQuery;
 
     public BlogPageController(BlogOwnerResolver blogOwnerResolver, PostListQuery listQuery,
                               CurrentUserProvider currentUserProvider, Clock clock,
-                              com.team.blog.post.application.TagListingQuery tagListingQuery) {
+                              com.team.blog.post.application.TagListingQuery tagListingQuery,
+                              com.team.blog.interaction.application.FollowQuery followQuery) {
+        this.followQuery = followQuery;
         this.blogOwnerResolver = blogOwnerResolver;
         this.listQuery = listQuery;
         this.currentUserProvider = currentUserProvider;
@@ -74,6 +77,11 @@ public class BlogPageController {
         model.addAttribute("publicCount", listQuery.publicCount(owner.memberId()));
         model.addAttribute("isOwner", currentUserProvider.current().map(CurrentUser::memberId)
                 .map(id -> id == owner.memberId()).orElse(false));
+        // 018: 팔로워·팔로잉 수와 보는 사람 기준 팔로우 상태
+        model.addAttribute("followCounts", followQuery.counts(owner.memberId()));
+        model.addAttribute("followingOwner", currentUserProvider.current().map(CurrentUser::memberId)
+                .filter(id -> id != owner.memberId()).map(id -> followQuery.isFollowing(id, owner.memberId())).orElse(false));
+        model.addAttribute("loginRedirect", "/login?redirect=/@" + owner.handle());
         model.addAttribute("continued", cursor != null && !cursor.isEmpty());
         model.addAttribute("listApi", "/api/members/" + owner.handle() + "/posts"
                 + (tag == null ? "" : "?tag=" + org.springframework.web.util.UriUtils.encodeQueryParam(tag, java.nio.charset.StandardCharsets.UTF_8)));

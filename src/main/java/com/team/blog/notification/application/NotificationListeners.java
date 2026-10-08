@@ -2,6 +2,8 @@ package com.team.blog.notification.application;
 
 import com.team.blog.shared.event.CommentCreated;
 import com.team.blog.shared.event.CommentDeleted;
+import com.team.blog.shared.event.MemberFollowed;
+import com.team.blog.shared.event.MemberUnfollowed;
 import com.team.blog.shared.event.PostLiked;
 import com.team.blog.shared.event.PostPublished;
 import com.team.blog.shared.event.PostUnliked;
@@ -13,7 +15,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * 업무 사건 → 알림(25 §4, 20 §4). 커밋 뒤에만 받고(롤백이면 없음), 처리는 {@link NotificationDispatcher}가 요청과 떼어 한다.
- * 사건에는 식별자만 있어 받는 사람·글 상태는 처리할 때 다시 읽는다. 팔로우(018)·신고·숨김(022) 사건은 그 기능이 여기에 더한다.
+ * 사건에는 식별자만 있어 받는 사람·글 상태는 처리할 때 다시 읽는다. 신고·숨김(022) 사건은 그 기능이 여기에 더한다.
  */
 @Component
 public class NotificationListeners {
@@ -77,5 +79,18 @@ public class NotificationListeners {
         if (e.firstPublic()) {
             dispatcher.submit("new post " + e.postId(), () -> writer.newPost(e.postId(), e.authorId()));
         }
+    }
+
+    /** 018: 새 팔로워 묶음(7일에 한 번), 언팔로우는 안 읽은 묶음에서만 뺀다(상대에게 알리지 않음). */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(MemberFollowed e) {
+        dispatcher.submit("follow " + e.followeeId(), () -> writer.addToGroup(e.followeeId(), NotificationType.FOLLOW,
+                NotificationWriter.FOLLOW_GROUP, null, e.followerId()));
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(MemberUnfollowed e) {
+        dispatcher.submit("unfollow " + e.followeeId(), () -> writer.removeFromGroup(e.followeeId(),
+                NotificationWriter.FOLLOW_GROUP, e.followerId()));
     }
 }

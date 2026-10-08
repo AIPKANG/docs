@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * 012 권한 매트릭스(42 §5·§9·§10, FR-032): 구현된 기능의 표 1·2·7·8 모든 칸. 표 3~6·9는 해당 기능이 행을 더한다.
- * 017은 §10-3 알림 행("작성자" 칸 = 받은 사람 본인)을 더했다.
+ * 017은 §10-3 알림 행("작성자" 칸 = 받은 사람 본인)을, 018은 §10-1 팔로우 행("작성자" 칸 = 대상 본인)을 더했다.
  * 행위자: 비회원, 인증 전 회원, 회원(남), 작성자, 관리자(남). 404는 없는 글과 본문이 같아야 한다.
  */
 class PermissionMatrixIT extends IntegrationTestBase {
@@ -234,6 +234,17 @@ class PermissionMatrixIT extends IntegrationTestBase {
         row("종류 끄기", id -> put("/api/me/notification-settings").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"LIKE\":false}"), () -> 0, 401, 200, 200, 200, 200);
         assertThat(run(get("/notifications"), null).getStatus()).isEqualTo(303);
+    }
+
+    // ----- §10-1: 팔로우(018) — "작성자" 칸이 대상 본인 -----
+
+    @Test
+    void section10_1Follow() throws Exception {
+        row("팔로우", id -> put("/api/members/mxauthor/follow").with(csrf()), () -> 0, 401, 200, 200, 400, 200);
+        row("언팔로우", id -> delete("/api/members/mxauthor/follow").with(csrf()), () -> 0, 401, 200, 200, 400, 200);
+        row("팔로워 목록", id -> get("/api/members/mxauthor/followers"), () -> 0, 200, 200, 200, 200, 200);
+        row("팔로잉 목록", id -> get("/api/members/mxauthor/following"), () -> 0, 200, 200, 200, 200, 200);
+        row("피드", id -> get("/api/feed"), () -> 0, 401, 200, 200, 200, 200);
     }
 
     // ----- 판정 순서(42 §3) -----

@@ -260,6 +260,12 @@ blog:
     flush-interval: 1m
     daily-retention: 90d
     retention-cron: "0 0 5 * * *"
+  # 018-follow-feed: 팔로우만의 제한 없음, 공통 IP 제한 기준값을 그대로(FR-020)
+  rate-limit:
+    per-ip-per-minute: 120
+  follow:
+    per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
+    page-size: 20
   # 017-notification: 25 §4~§7
   notification:
     async: true
