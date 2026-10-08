@@ -2,6 +2,7 @@
 
 - 명시적 id를 넣으므로 IDENTITY 테이블에는 OVERRIDING SYSTEM VALUE, 끝에서 시퀀스를 max(id)로 맞춘다.
 - 가상 CDN(cdn.example.com) 사진은 앱에서 열리지 않으므로 본문 사진·썸네일·프로필 사진 연결을 뺀다(기본 아이콘으로 보인다).
+- 비밀번호 해시에 {bcrypt} 접두를 붙인다(없으면 로그인할 때 서버 오류).
 - render_version을 0으로 두어 앱의 다시 렌더링 작업이 본문 HTML을 지금 규칙으로 새로 만들게 한다.
 다시 만들기: python3 db/demo/convert_mysql_seed.py
 """
@@ -22,6 +23,8 @@ s = re.sub(r"\n\n!\[[^\]]*\]\(https://cdn\.example\.com/[^)]*\)", "", s)
 s = re.sub(r"\n?<p><img src=\"https://cdn\.example\.com/[^\"]*\"[^>]*></p>", "", s)
 s = re.sub(r"'https://cdn\.example\.com/[^']*'", "NULL", s)
 s = re.sub(r"^-- AUTO_INCREMENT.*\n?", "", s, flags=re.M)
+# 앱의 DelegatingPasswordEncoder는 {bcrypt} 접두가 있어야 비교한다(PasswordConfig)
+s = re.sub(r"'(\$2[aby]\$\d\d\$[./A-Za-z0-9]{53})'", r"'{bcrypt}\1'", s)
 
 
 def overriding(m):

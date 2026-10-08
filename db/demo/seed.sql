@@ -39,14 +39,14 @@ INSERT INTO image (id, uploader_id, storage_key, thumb_storage_key, original_nam
 
 -- auth_identity (10)
 INSERT INTO auth_identity (id, member_id, provider, provider_user_id, email, password_hash, email_verified_at, created_at, last_login_at) OVERRIDING SYSTEM VALUE VALUES
-    (1, 1, 'LOCAL', 'admin@example.com', 'admin@example.com', '$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-01 00:05:00.000000', '2026-06-01 00:00:00.000000', '2026-10-05 13:00:00.000000'),
-    (2, 2, 'LOCAL', 'minji@example.com', 'minji@example.com', '$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-10 10:17:00.000000', '2026-06-10 10:12:00.000000', '2026-10-05 06:00:00.000000'),
+    (1, 1, 'LOCAL', 'admin@example.com', 'admin@example.com', '{bcrypt}$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-01 00:05:00.000000', '2026-06-01 00:00:00.000000', '2026-10-05 13:00:00.000000'),
+    (2, 2, 'LOCAL', 'minji@example.com', 'minji@example.com', '{bcrypt}$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-10 10:17:00.000000', '2026-06-10 10:12:00.000000', '2026-10-05 06:00:00.000000'),
     (3, 3, 'GOOGLE', '109876543210987654321', 'junho.lee@gmail.example', NULL, '2026-06-12 21:45:00.000000', '2026-06-12 21:40:00.000000', '2026-10-04 23:00:00.000000'),
     (4, 4, 'GITHUB', '48213377', 'seoyeon@users.noreply.github.example', NULL, '2026-06-15 13:10:00.000000', '2026-06-15 13:05:00.000000', '2026-10-04 16:00:00.000000'),
-    (5, 5, 'LOCAL', 'hyunwoo.choi@example.com', 'hyunwoo.choi@example.com', '$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-20 08:35:00.000000', '2026-06-20 08:30:00.000000', '2026-10-04 09:00:00.000000'),
+    (5, 5, 'LOCAL', 'hyunwoo.choi@example.com', 'hyunwoo.choi@example.com', '{bcrypt}$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-06-20 08:35:00.000000', '2026-06-20 08:30:00.000000', '2026-10-04 09:00:00.000000'),
     (6, 6, 'GOOGLE', '117733551199008822446', 'jiwon.jung@gmail.example', NULL, '2026-07-02 19:27:00.000000', '2026-07-02 19:22:00.000000', '2026-10-04 02:00:00.000000'),
     (7, 7, 'GITHUB', '90011234', NULL, NULL, NULL, '2026-07-05 02:11:00.000000', '2026-10-03 19:00:00.000000'),
-    (8, 8, 'LOCAL', 'sujin@example.com', 'sujin@example.com', '$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-07-10 17:50:00.000000', '2026-07-10 17:45:00.000000', '2026-10-03 12:00:00.000000'),
+    (8, 8, 'LOCAL', 'sujin@example.com', 'sujin@example.com', '{bcrypt}$2a$10$BPtiHwDUfqgc/JT9wNqNs.ufs0oa5kWZkQhT6a3M5gfK2XtJO70.G', '2026-07-10 17:50:00.000000', '2026-07-10 17:45:00.000000', '2026-10-03 12:00:00.000000'),
     (9, 9, 'GITHUB', '31415926', 'dohyun.han@example.com', NULL, '2026-07-18 11:05:00.000000', '2026-07-18 11:00:00.000000', '2026-10-03 05:00:00.000000'),
     (10, 10, 'GOOGLE', '100200300400500600700', 'yerin.lim@gmail.example', NULL, '2026-07-20 15:35:00.000000', '2026-07-20 15:30:00.000000', '2026-10-02 22:00:00.000000');
 
