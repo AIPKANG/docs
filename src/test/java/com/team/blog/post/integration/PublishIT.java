@@ -65,7 +65,7 @@ class PublishIT extends IntegrationTestBase {
     void everyFailingFieldIsReportedAndDraftStays() throws Exception {
         long me = writer(members, "badinput");
         long postId = posts.draft(me, "", "", 0);
-        String body = publishBody("   ​", " \n ", "[\"ok\",\"🔥hot\",\"" + "a".repeat(31) + "\"]", "FRIENDS", 0);
+        String body = publishBody("   ​", " \n ", "[\"ok\",\"🔥hot\",\"" + "a".repeat(31) + "\"]", "PROTECTED", 0); // FRIENDS는 025에서 허용
         mockMvc.perform(publish(postId, UUID.randomUUID().toString(), body).with(TestAuth.member(me)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))

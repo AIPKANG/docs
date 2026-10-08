@@ -250,6 +250,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.GONE, error(SnapshotExpiredException.CODE));
     }
 
+    @ExceptionHandler(CannotFriendSelfException.class)
+    public ResponseEntity<ErrorResponse> cannotFriendSelf() {
+        return json(HttpStatus.BAD_REQUEST, error(CannotFriendSelfException.CODE));
+    }
+
     @ExceptionHandler(CannotFollowSelfException.class)
     public ResponseEntity<ErrorResponse> cannotFollowSelf() {
         return json(HttpStatus.BAD_REQUEST, error(CannotFollowSelfException.CODE));

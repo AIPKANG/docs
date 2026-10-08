@@ -116,7 +116,7 @@ class VisibilityChangeIT extends IntegrationTestBase {
         mockMvc.perform(change(postId, "PRIVATE")).andExpect(status().isUnauthorized());
         long unverified = members.localMember("visunver", "미인증자", "visunver@example.com", "Blog#2026ok", false);
         mockMvc.perform(change(postId, "PRIVATE").with(TestAuth.member(unverified))).andExpect(status().isForbidden());
-        for (String bad : new String[] {"FRIENDS", "PROTECTED", "public", null}) {
+        for (String bad : new String[] {"PROTECTED", "public", null}) { // FRIENDS는 025(강성찬 개인 확장)로 허용
             mockMvc.perform(change(postId, bad).with(TestAuth.member(owner)))
                     .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors[0].code").value("INVALID_VISIBILITY"));
         }

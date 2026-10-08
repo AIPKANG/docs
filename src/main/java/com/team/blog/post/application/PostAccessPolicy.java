@@ -67,7 +67,18 @@ public class PostAccessPolicy {
         if (visibility.isEmpty()) {
             visibility = "FALSE";
         }
+        return base(postAlias, memberAlias) + " AND (" + visibility + ")";
+    }
+
+    /**
+     * 친구가 보는 개인 블로그 목록 조건(025, 강성찬 개인 확장, 06 §6-3): 공용 조건에 친구 공개 글을 더한다. 다른 목록에는 쓰지 않는다.
+     */
+    public String friendBlogCondition(String postAlias, String memberAlias) {
+        return base(postAlias, memberAlias) + " AND " + postAlias + ".visibility IN ('PUBLIC', 'FRIENDS')";
+    }
+
+    private static String base(String postAlias, String memberAlias) {
         return postAlias + ".status = 'PUBLISHED' AND " + postAlias + ".deleted_at IS NULL AND " + postAlias
-                + ".hidden_at IS NULL AND " + memberAlias + ".withdrawn_at IS NULL AND (" + visibility + ")";
+                + ".hidden_at IS NULL AND " + memberAlias + ".withdrawn_at IS NULL";
     }
 }

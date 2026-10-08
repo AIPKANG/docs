@@ -68,17 +68,17 @@
     Array.prototype.forEach.call(document.querySelectorAll('.visibility-toggle'), function (button) {
       button.addEventListener('click', function () {
         var row = rowOf(button);
-        var to = button.dataset.visibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE';
+        var to = button.dataset.visibility !== 'PUBLIC' ? 'PUBLIC' : 'PRIVATE'; // 친구 공개(025)도 공개 쪽으로
         button.disabled = true;
         call('PATCH', '/api/posts/' + button.dataset.postId + '/visibility', { visibility: to }).then(function (data) {
           button.disabled = false;
           button.dataset.visibility = data.visibility;
-          button.textContent = data.visibility === 'PRIVATE' ? '전체 공개로' : '나만 보기로';
+          button.textContent = data.visibility !== 'PUBLIC' ? '전체 공개로' : '나만 보기로';
           var badge = row.querySelector('[data-visibility-badge]');
           if (badge) {
             badge.dataset.visibility = data.visibility;
-            badge.children[0].textContent = data.visibility === 'PRIVATE' ? '🔒' : '🌐';
-            badge.children[1].textContent = data.visibility === 'PRIVATE' ? '비공개' : '공개';
+            badge.children[0].textContent = data.visibility === 'PRIVATE' ? '🔒' : (data.visibility === 'FRIENDS' ? '👥' : '🌐');
+            badge.children[1].textContent = data.visibility === 'PRIVATE' ? '비공개' : (data.visibility === 'FRIENDS' ? '친구 공개' : '공개');
           }
         }).catch(function (err) {
           button.disabled = false;

@@ -10,6 +10,7 @@
         <header class="post-head">
             <!-- 상태 배지·안내: 작성자에게만(010 FR-018~FR-020) -->
             <p th:if="${viewerIsAuthor and post.isPrivate()}"><span class="badge">🔒 비공개</span> 나만 볼 수 있는 글이에요.</p>
+            <p th:if="${viewerIsAuthor and post.visibility() == 'FRIENDS'}"><span class="badge">👥 친구 공개</span> 나와 친구만 볼 수 있는 글이에요.</p>
             <div th:if="${viewerIsAuthor and post.editing()}" class="notice" id="editing-notice">
                 <span class="badge badge-editing">수정 중</span>
                 <span th:text="${'수정 중인 내용이 있어요(' + editingSavedAt + ' 저장)'}">수정 중인 내용이 있어요</span>
@@ -34,6 +35,7 @@
                 <label>공개 범위
                     <select id="visibility-select">
                         <option value="PUBLIC" th:selected="${post.visibility() == 'PUBLIC'}">🌐 전체 공개</option>
+                        <option value="FRIENDS" th:selected="${post.visibility() == 'FRIENDS'}">👥 친구 공개</option>
                         <option value="PRIVATE" th:selected="${post.visibility() == 'PRIVATE'}">🔒 나만 보기</option>
                     </select>
                 </label>

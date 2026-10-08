@@ -27,7 +27,7 @@
           .then(function (res) {
             if (!res.ok) { throw new Error(String(res.status)); }
             previous = select.value;
-            status.textContent = select.value === 'PRIVATE' ? '나만 볼 수 있게 바꿨어요.' : '전체 공개로 바꿨어요.';
+            status.textContent = select.value === 'PRIVATE' ? '나만 볼 수 있게 바꿨어요.' : (select.value === 'FRIENDS' ? '친구만 볼 수 있게 바꿨어요.' : '전체 공개로 바꿨어요.');
             window.location.reload();
           })
           .catch(function () { select.value = previous; status.textContent = '공개 범위를 바꾸지 못했어요.'; });

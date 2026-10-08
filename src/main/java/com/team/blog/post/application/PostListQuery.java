@@ -27,26 +27,35 @@ public class PostListQuery {
     }
 
     public CardPage feed(String cursor) {
-        return page(null, null, null, FeedCursor.decode(cursor));
+        return page(null, null, null, FeedCursor.decode(cursor), false);
     }
 
     /** 018 팔로잉 피드: 그 회원이 팔로우한 사람의 글(같은 공용 조건·정렬·커서). */
     public CardPage followingFeed(long followerId, String cursor) {
-        return page(null, null, followerId, FeedCursor.decode(cursor));
+        return page(null, null, followerId, FeedCursor.decode(cursor), false);
     }
 
     public CardPage blog(long authorId, String cursor) {
-        return page(authorId, null, null, FeedCursor.decode(cursor));
+        return blog(authorId, cursor, false);
+    }
+
+    /** {@code withFriends}: 보는 사람이 글쓴이의 친구면 친구 공개 글도(025, 강성찬 개인 확장). */
+    public CardPage blog(long authorId, String cursor, boolean withFriends) {
+        return page(authorId, null, null, FeedCursor.decode(cursor), withFriends);
     }
 
     /** 013: 블로그 태그 필터. */
     public CardPage blogByTag(long authorId, long tagId, String cursor) {
-        return page(authorId, tagId, null, FeedCursor.decode(cursor));
+        return blogByTag(authorId, tagId, cursor, false);
+    }
+
+    public CardPage blogByTag(long authorId, long tagId, String cursor, boolean withFriends) {
+        return page(authorId, tagId, null, FeedCursor.decode(cursor), withFriends);
     }
 
     /** 013: 태그별 글 목록(공개 글만). */
     public CardPage byTag(long tagId, String cursor) {
-        return page(null, tagId, null, FeedCursor.decode(cursor));
+        return page(null, tagId, null, FeedCursor.decode(cursor), false);
     }
 
     /** 블로그 머리말의 공개 글 수(보는 사람 기준 — 지금은 공개 글만 있으므로 누구에게나 같다). */
@@ -56,14 +65,18 @@ public class PostListQuery {
         return count == null ? 0 : count;
     }
 
-    private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor) {
+    private CardPage page(Long authorId, Long tagId, Long followerId, Optional<FeedCursor> cursor, boolean withFriends) {
+        // 친구가 보는 블로그: 친구 공개 글에는 최초 공개 시각이 없으므로 발행 시각으로 대신한다(025 research R-2)
+        String at = withFriends ? "COALESCE(p.first_public_at, p.published_at)" : "p.first_public_at";
         StringBuilder sql = new StringBuilder("""
-                SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
+                SELECT p.id, p.title, p.excerpt, p.thumbnail_url, """ + at + """
+                 AS first_public_at, p.comment_count, p.like_count,
                        m.handle, m.nickname, m.profile_image_url,
                        (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
                         WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
                 FROM post p JOIN member m ON m.id = p.author_id
-                WHERE """).append(' ').append(accessPolicy.publicListingCondition("p", "m"));
+                WHERE """).append(' ').append(withFriends ? accessPolicy.friendBlogCondition("p", "m")
+                : accessPolicy.publicListingCondition("p", "m"));
         List<Object> args = new ArrayList<>();
         if (authorId != null) {
             sql.append(" AND p.author_id = ?");
@@ -78,11 +91,11 @@ public class PostListQuery {
             args.add(tagId);
         }
         if (cursor.isPresent()) {
-            sql.append(" AND (p.first_public_at, p.id) < (?, ?)");
+            sql.append(" AND (").append(at).append(", p.id) < (?, ?)");
             args.add(Timestamp.from(cursor.get().firstPublicAt()));
             args.add(cursor.get().id());
         }
-        sql.append(" ORDER BY p.first_public_at DESC, p.id DESC LIMIT ").append(PAGE_SIZE + 1);
+        sql.append(" ORDER BY ").append(at).append(" DESC, p.id DESC LIMIT ").append(PAGE_SIZE + 1);
         List<PostCard> rows = jdbc.query(sql.toString(), PostListQuery::card, args.toArray());
         if (rows.size() <= PAGE_SIZE) {
             return new CardPage(rows, null);

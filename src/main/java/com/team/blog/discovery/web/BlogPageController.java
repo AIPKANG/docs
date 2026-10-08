@@ -29,12 +29,15 @@ public class BlogPageController {
     private final com.team.blog.post.application.TagListingQuery tagListingQuery;
     private final com.team.blog.interaction.application.FollowQuery followQuery;
     private final SearchController searchController;
+    private final com.team.blog.friend.application.FriendQuery friendQuery;
 
     public BlogPageController(BlogOwnerResolver blogOwnerResolver, PostListQuery listQuery,
                               CurrentUserProvider currentUserProvider, Clock clock,
                               com.team.blog.post.application.TagListingQuery tagListingQuery,
                               com.team.blog.interaction.application.FollowQuery followQuery,
-                              SearchController searchController) {
+                              SearchController searchController,
+                              com.team.blog.friend.application.FriendQuery friendQuery) {
+        this.friendQuery = friendQuery;
         this.followQuery = followQuery;
         this.searchController = searchController;
         this.blogOwnerResolver = blogOwnerResolver;
@@ -72,12 +75,17 @@ public class BlogPageController {
         java.util.Optional<Long> tagId = tag == null ? java.util.Optional.empty() : tagListingQuery.tagId(tag);
         CardPage page;
         String requestedCursor = cursor;
+        // 025 강성찬 개인 확장: 보는 사람 기준 친구 상태, 친구면 친구 공개 글도 목록에
+        com.team.blog.friend.application.FriendQuery.Status friendStatus = currentUserProvider.current()
+                .map(v -> friendQuery.status(v.memberId(), owner.memberId()))
+                .orElse(com.team.blog.friend.application.FriendQuery.Status.NONE);
+        boolean withFriends = friendStatus == com.team.blog.friend.application.FriendQuery.Status.FRIENDS;
         try {
-            page = tag == null ? listQuery.blog(owner.memberId(), requestedCursor)
-                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, requestedCursor)).orElse(new CardPage(java.util.List.of(), null));
+            page = tag == null ? listQuery.blog(owner.memberId(), requestedCursor, withFriends)
+                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, requestedCursor, withFriends)).orElse(new CardPage(java.util.List.of(), null));
         } catch (PostContentException e) {
-            page = tag == null ? listQuery.blog(owner.memberId(), null)
-                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, null)).orElse(new CardPage(java.util.List.of(), null));
+            page = tag == null ? listQuery.blog(owner.memberId(), null, withFriends)
+                    : tagId.map(id -> listQuery.blogByTag(owner.memberId(), id, null, withFriends)).orElse(new CardPage(java.util.List.of(), null));
             cursor = null;
         }
         model.addAttribute("filterTag", tag);
@@ -91,6 +99,7 @@ public class BlogPageController {
         model.addAttribute("followCounts", followQuery.counts(owner.memberId()));
         model.addAttribute("followingOwner", currentUserProvider.current().map(CurrentUser::memberId)
                 .filter(id -> id != owner.memberId()).map(id -> followQuery.isFollowing(id, owner.memberId())).orElse(false));
+        model.addAttribute("friendStatus", friendStatus.name());
         model.addAttribute("loginRedirect", "/login?redirect=/@" + owner.handle());
         model.addAttribute("continued", cursor != null && !cursor.isEmpty());
         model.addAttribute("listApi", "/api/members/" + owner.handle() + "/posts"

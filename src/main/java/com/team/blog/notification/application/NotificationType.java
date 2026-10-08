@@ -4,7 +4,9 @@ import java.util.List;
 
 /** 알림 종류(25 §2). 끌 수 있는 종류는 {@link #MUTABLE}만. */
 public enum NotificationType {
-    COMMENT, REPLY, LIKE, FOLLOW, NEW_POST, REPORT_RESOLVED, CONTENT_HIDDEN;
+    COMMENT, REPLY, LIKE, FOLLOW, NEW_POST, REPORT_RESOLVED, CONTENT_HIDDEN,
+    /** 친구 요청(025, 강성찬 개인 확장): 처리해야 하는 요청이라 끌 수 없다. */
+    FRIEND_REQUEST;
 
     public static final List<NotificationType> MUTABLE = List.of(COMMENT, REPLY, LIKE, FOLLOW, NEW_POST);
 

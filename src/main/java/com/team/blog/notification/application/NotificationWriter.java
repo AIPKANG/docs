@@ -118,6 +118,9 @@ public class NotificationWriter {
 
     public static final String FOLLOW_GROUP = "FOLLOW";
 
+    /** 친구 요청 묶음(025). */
+    public static final String FRIEND_GROUP = "FRIEND_REQUEST";
+
     /**
      * 묶음에 더하기(25 §4-2). 좋아요는 이 글로 들어간 적이 있으면(읽음 무관), 팔로우는 7일 안에 들어간 적이 있으면 넣지 않는다.
      *
@@ -128,7 +131,7 @@ public class NotificationWriter {
             return false;
         }
         Instant now = clock.instant();
-        Instant since = type == NotificationType.FOLLOW ? now.minus(properties.followDedupe()) : Instant.EPOCH;
+        Instant since = (type == NotificationType.FOLLOW || type == NotificationType.FRIEND_REQUEST) ? now.minus(properties.followDedupe()) : Instant.EPOCH;
         return Boolean.TRUE.equals(tx.execute(status -> {
             Boolean seen = jdbc.queryForObject("""
                     SELECT EXISTS (SELECT 1 FROM notification_actor na JOIN notification n ON n.id = na.notification_id

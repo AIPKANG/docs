@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>친구</title>
+</head>
+<body>
+<main class="friends-page">
+    <h1>친구</h1>
+    <p class="help">친구 공개 글은 나와 친구만 볼 수 있어요. 친구 목록은 나만 볼 수 있고, 거절·취소·끊기는 상대에게 알리지 않아요.
+        <a href="/settings">설정으로</a></p>
+
+    <section aria-labelledby="received-heading">
+        <h2 id="received-heading" th:text="${'받은 친구 요청 ' + received.size()}">받은 친구 요청 0</h2>
+        <p th:if="${received.isEmpty()}" class="help">받은 요청이 없어요</p>
+        <ul class="follow-list">
+            <li th:each="m : ${received}" class="follow-row">
+                <th:block th:replace="~{fragments/avatar :: avatar(${m.avatar()}, 40)}"></th:block>
+                <div class="follow-text"><p><span th:text="${m.nickname()}">닉네임</span>
+                    <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a></p></div>
+                <th:block th:replace="~{fragments/friend :: button(${m.handle()}, 'RECEIVED', true, null, '/settings/friends')}"></th:block>
+            </li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="friends-heading">
+        <h2 id="friends-heading" th:text="${'내 친구 ' + friends.size()}">내 친구 0</h2>
+        <p th:if="${friends.isEmpty()}" class="help">아직 친구가 없어요. 블로그에서 [친구 요청]을 보내 보세요</p>
+        <ul class="follow-list">
+            <li th:each="m : ${friends}" class="follow-row">
+                <th:block th:replace="~{fragments/avatar :: avatar(${m.avatar()}, 40)}"></th:block>
+                <div class="follow-text"><p><span th:text="${m.nickname()}">닉네임</span>
+                    <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a></p></div>
+                <th:block th:replace="~{fragments/friend :: button(${m.handle()}, 'FRIENDS', true, null, '/settings/friends')}"></th:block>
+            </li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="sent-heading">
+        <h2 id="sent-heading" th:text="${'보낸 친구 요청 ' + sent.size()}">보낸 친구 요청 0</h2>
+        <p th:if="${sent.isEmpty()}" class="help">보낸 요청이 없어요</p>
+        <ul class="follow-list">
+            <li th:each="m : ${sent}" class="follow-row">
+                <th:block th:replace="~{fragments/avatar :: avatar(${m.avatar()}, 40)}"></th:block>
+                <div class="follow-text"><p><span th:text="${m.nickname()}">닉네임</span>
+                    <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a></p></div>
+                <th:block th:replace="~{fragments/friend :: button(${m.handle()}, 'SENT', true, null, '/settings/friends')}"></th:block>
+            </li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

@@ -16,9 +16,15 @@ public class PostListApiController {
     private final PostListQuery listQuery;
     private final BlogOwnerResolver blogOwnerResolver;
     private final com.team.blog.post.application.TagListingQuery tagListingQuery;
+    private final com.team.blog.shared.security.CurrentUserProvider currentUserProvider;
+    private final com.team.blog.friend.application.FriendQuery friendQuery;
 
     public PostListApiController(PostListQuery listQuery, BlogOwnerResolver blogOwnerResolver,
-                                 com.team.blog.post.application.TagListingQuery tagListingQuery) {
+                                 com.team.blog.post.application.TagListingQuery tagListingQuery,
+                                 com.team.blog.shared.security.CurrentUserProvider currentUserProvider,
+                                 com.team.blog.friend.application.FriendQuery friendQuery) {
+        this.currentUserProvider = currentUserProvider;
+        this.friendQuery = friendQuery;
         this.listQuery = listQuery;
         this.blogOwnerResolver = blogOwnerResolver;
         this.tagListingQuery = tagListingQuery;
@@ -34,11 +40,13 @@ public class PostListApiController {
                          @RequestParam(value = "cursor", required = false) String cursor,
                          @RequestParam(value = "tag", required = false) String tag) {
         long ownerId = blogOwnerResolver.resolve(handle).orElseThrow(NotFoundException::new).memberId();
+        // 025 강성찬 개인 확장: 친구면 친구 공개 글도(블로그 화면과 같은 규칙)
+        boolean withFriends = currentUserProvider.current().map(v -> friendQuery.areFriends(v.memberId(), ownerId)).orElse(false);
         if (tag == null || tag.isEmpty()) {
-            return listQuery.blog(ownerId, cursor);
+            return listQuery.blog(ownerId, cursor, withFriends);
         }
         return com.team.blog.tag.domain.TagNormalizer.lookupName(tag).flatMap(tagListingQuery::tagId)
-                .map(id -> listQuery.blogByTag(ownerId, id, cursor))
+                .map(id -> listQuery.blogByTag(ownerId, id, cursor, withFriends))
                 .orElse(new CardPage(java.util.List.of(), null));
     }
 

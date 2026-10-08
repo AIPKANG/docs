@@ -25,6 +25,7 @@
     <nav th:if="${tab == 'published'}" class="manage-filter" aria-label="공개 범위 필터">
         <a th:href="@{/manage/posts(tab='published')}" th:attr="aria-current=${visibility == '' ? 'page' : null}">전체</a>
         <a th:href="@{/manage/posts(tab='published',visibility='public')}" th:attr="aria-current=${visibility == 'public' ? 'page' : null}">공개</a>
+        <a th:href="@{/manage/posts(tab='published',visibility='friends')}" th:attr="aria-current=${visibility == 'friends' ? 'page' : null}">친구 공개</a>
         <a th:href="@{/manage/posts(tab='published',visibility='private')}" th:attr="aria-current=${visibility == 'private' ? 'page' : null}">비공개</a>
     </nav>
     <p th:if="${tab == 'trash'}" class="notice">휴지통의 글은 30일 뒤 자동으로 완전히 삭제돼요</p>
@@ -43,7 +44,7 @@
                 <!-- 발행 글 -->
                 <th:block th:if="${tab == 'published'}">
                     <span class="visibility-icon" data-visibility-badge th:attr="data-visibility=${row.visibility()}">
-                        <span aria-hidden="true" th:text="${row.visibility() == 'PRIVATE' ? '🔒' : '🌐'}">🌐</span><span class="visually-hidden" th:text="${row.visibility() == 'PRIVATE' ? '비공개' : '공개'}">공개</span></span>
+                        <span aria-hidden="true" th:text="${row.visibility() == 'PRIVATE' ? '🔒' : (row.visibility() == 'FRIENDS' ? '👥' : '🌐')}">🌐</span><span class="visually-hidden" th:text="${row.visibility() == 'PRIVATE' ? '비공개' : (row.visibility() == 'FRIENDS' ? '친구 공개' : '공개')}">공개</span></span>
                     <a th:href="${row.url()}" th:text="${row.title()}">제목</a>
                     <span class="badge badge-editing" th:if="${row.editing()}">수정 중</span>
                     <span class="badge" th:if="${row.hidden()}" title="운영 정책에 따라 숨겨졌어요">숨김</span>
@@ -68,7 +69,7 @@
                     <a th:href="@{/write/{id}(id=${row.id()})}" th:text="${row.editing() ? '이어서 수정' : '수정'}">수정</a>
                     <button type="button" th:if="${row.editing()}" class="discard-editing" th:attr="data-post-id=${row.id()}">변경 취소</button>
                     <button type="button" class="visibility-toggle" th:attr="data-post-id=${row.id()},data-visibility=${row.visibility()}"
-                            th:text="${row.visibility() == 'PRIVATE' ? '전체 공개로' : '나만 보기로'}">나만 보기로</button>
+                            th:text="${row.visibility() != 'PUBLIC' ? '전체 공개로' : '나만 보기로'}">나만 보기로</button>
                 </th:block>
                 <form th:if="${tab != 'trash'}" method="post" th:action="@{/manage/posts/{id}/trash(id=${row.id()},tab=${tab})}" data-row-action="trash">
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

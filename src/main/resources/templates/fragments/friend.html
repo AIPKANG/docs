@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  025 친구 버튼(강성찬 개인 확장). status = NONE / SENT / RECEIVED / FRIENDS (보는 사람 기준). 스크립트 없이 폼으로 동작한다.
+  비회원은 로그인 링크. 거절·취소·끊기는 상대에게 알리지 않는다.
+-->
+<th:block th:fragment="button(handle, status, loggedIn, loginRedirect, back)">
+    <a th:unless="${loggedIn}" class="btn btn-sm" th:href="${loginRedirect}">친구 요청</a>
+    <th:block th:if="${loggedIn}">
+        <form method="post" th:action="${'/@' + handle + '/friend'}" class="friend-form">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="back" th:value="${back}">
+            <button th:if="${status == 'NONE'}" type="submit" name="action" value="request" class="btn btn-sm">친구 요청</button>
+            <button th:if="${status == 'SENT'}" type="submit" name="action" value="remove" class="btn btn-sm"
+                    aria-label="친구 요청 취소">요청 중 · 취소</button>
+            <th:block th:if="${status == 'RECEIVED'}">
+                <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm">친구 요청 수락</button>
+                <button type="submit" name="action" value="remove" class="btn btn-sm">거절</button>
+            </th:block>
+            <th:block th:if="${status == 'FRIENDS'}">
+                <span class="friend-badge">친구 ✓</span>
+                <button type="submit" name="action" value="remove" class="btn-text btn-sm">친구 끊기</button>
+            </th:block>
+        </form>
+    </th:block>
+</th:block>
+</body>
+</html>

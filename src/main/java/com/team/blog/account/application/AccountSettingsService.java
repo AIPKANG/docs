@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AccountSettingsService {
 
-    static final Set<String> VISIBILITIES = Set.of("PUBLIC", "PRIVATE");
+    static final Set<String> VISIBILITIES = Set.of("PUBLIC", "FRIENDS", "PRIVATE"); // FRIENDS: 025 강성찬 개인 확장
 
     private final AccountGuard accountGuard;
     private final MemberRepository memberRepository;

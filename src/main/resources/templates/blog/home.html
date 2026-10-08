@@ -21,6 +21,8 @@
             <!-- 018 팔로우 버튼(내 블로그에서는 없음) -->
             <p th:unless="${isOwner}">
                 <th:block th:replace="~{fragments/follow :: button(${owner.handle()}, ${followingOwner}, ${currentMemberId != null}, ${loginRedirect}, ${'/@' + owner.handle()})}"></th:block>
+                <!-- 025 강성찬 개인 확장: 친구 요청 -->
+                <th:block th:replace="~{fragments/friend :: button(${owner.handle()}, ${friendStatus}, ${currentMemberId != null}, ${loginRedirect}, ${'/@' + owner.handle()})}"></th:block>
             </p>
             <p class="follow-message help" role="status" hidden></p>
         </div>

@@ -4,6 +4,8 @@ import com.team.blog.shared.event.CommentCreated;
 import com.team.blog.shared.event.CommentDeleted;
 import com.team.blog.shared.event.ContentHidden;
 import com.team.blog.shared.event.ReportsResolved;
+import com.team.blog.shared.event.FriendRequestClosed;
+import com.team.blog.shared.event.FriendRequested;
 import com.team.blog.shared.event.MemberFollowed;
 import com.team.blog.shared.event.MemberUnfollowed;
 import com.team.blog.shared.event.PostLiked;
@@ -94,6 +96,19 @@ public class NotificationListeners {
     public void on(MemberUnfollowed e) {
         dispatcher.submit("unfollow " + e.followeeId(), () -> writer.removeFromGroup(e.followeeId(),
                 NotificationWriter.FOLLOW_GROUP, e.followerId()));
+    }
+
+    /** 025 친구 요청: 받는 사람에게 묶음 알림. 수락·거절·취소는 그 사람을 묶음에서 뺄 뿐 새 알림이 없다. */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(FriendRequested e) {
+        dispatcher.submit("friend " + e.receiverId(), () -> writer.addToGroup(e.receiverId(), NotificationType.FRIEND_REQUEST,
+                NotificationWriter.FRIEND_GROUP, null, e.requesterId()));
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(FriendRequestClosed e) {
+        dispatcher.submit("friend-closed " + e.receiverId(), () -> writer.removeFromGroup(e.receiverId(),
+                NotificationWriter.FRIEND_GROUP, e.requesterId()));
     }
 
     /** 022: 숨김 → 작성자에게 1건(신고자·관리자 정보 없음). 댓글이면 그 댓글로 생긴 댓글·답글 알림을 지운다. */

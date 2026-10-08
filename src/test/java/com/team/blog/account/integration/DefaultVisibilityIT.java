@@ -42,7 +42,7 @@ class DefaultVisibilityIT extends IntegrationTestBase {
     @Test
     void unsupportedValuesAreRejected() throws Exception {
         long id = members.active("kim755030", "김민서");
-        for (String json : new String[] {"{\"defaultVisibility\":\"FRIENDS\"}", "{\"defaultVisibility\":\"ALL\"}",
+        for (String json : new String[] {"{\"defaultVisibility\":\"ALL\"}",
                 "{\"defaultVisibility\":null}", "{}", "{\"defaultVisibility\":1}"}) {
             mockMvc.perform(settings(json).with(TestAuth.member(id)))
                     .andExpect(status().isBadRequest())

@@ -115,6 +115,8 @@
                 <legend>새 글 기본 공개 범위</legend>
                 <label><input type="radio" name="defaultVisibility" value="PUBLIC"
                               th:checked="${profile.defaultVisibility() == 'PUBLIC'}"> 전체 공개</label>
+                <label><input type="radio" name="defaultVisibility" value="FRIENDS"
+                              th:checked="${profile.defaultVisibility() == 'FRIENDS'}"> 친구 공개</label>
                 <label><input type="radio" name="defaultVisibility" value="PRIVATE"
                               th:checked="${profile.defaultVisibility() == 'PRIVATE'}"> 나만 보기</label>
             </fieldset>
@@ -130,6 +132,10 @@
         <p class="help">한 사람당 1GB, 하루 200장까지 올릴 수 있어요. 지운 글의 사진은 정리 작업이 지울 때 공간이 돌아와요.</p>
     </section>
 
+    <section aria-labelledby="friends-heading">
+        <h2 id="friends-heading">친구</h2>
+        <p class="help">친구 공개 글은 나와 친구만 볼 수 있어요. <a href="/settings/friends">친구·받은 요청 관리</a></p>
+    </section>
     <!-- 017 알림 종류 끄기(FR-031) -->
     <section aria-labelledby="notification-heading">
         <h2 id="notification-heading">알림</h2>
