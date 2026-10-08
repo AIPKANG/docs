@@ -72,6 +72,26 @@
         <ul class="post-tags" th:unless="${post.tags().isEmpty()}">
             <li th:each="tag : ${post.tags()}"><a class="tag" th:href="@{/tags/{name}(name=${tag})}" th:text="${'#' + tag}">#태그</a></li>
         </ul>
+        <!-- 035 강성찬 개인 확장: AI 티저(글쓴이만) — 카드의 요약 자리에 보일 한 줄 -->
+        <section th:if="${teaserBox != null}" id="teaser" class="notice teaser-box" aria-labelledby="teaser-heading">
+            <h2 id="teaser-heading">카드 한 줄 소개</h2>
+            <p class="help">글 목록 카드에 요약 대신 보여요. 비워 두면 본문 앞부분이 보여요.</p>
+            <p th:if="${teaserError != null}" class="form-error" role="alert" th:text="${teaserError}">오류</p>
+            <form method="post" th:action="@{/posts/{id}/teaser(id=${post.id()})}" class="teaser-form">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <label for="teaser-text" class="visually-hidden">한 줄 소개</label>
+                <input id="teaser-text" name="teaser" type="text" maxlength="80"
+                       th:value="${teaserDraft != null ? teaserDraft : currentTeaser}" placeholder="이 글을 한 줄로 소개해 보세요">
+                <button type="submit" class="btn btn-primary btn-sm">저장</button>
+            </form>
+            <p th:if="${teaserDraft != null}" class="help">✨ AI 제안이에요. 고쳐서 저장하거나 그대로 저장하세요.</p>
+            <form th:if="${teaserConsent}" method="post" th:action="@{/posts/{id}/teaser/generate(id=${post.id()})}">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-sm">✨ AI로 만들기</button>
+                <span class="help">제목과 본문 앞부분이 AI 서비스로 전송돼요(AI 태그 추천과 같은 동의)</span>
+            </form>
+            <p th:unless="${teaserConsent}" class="help">AI로 만들려면 글쓰기의 [AI 태그 추천]에서 먼저 동의해 주세요.</p>
+        </section>
         <!-- 034 강성찬 개인 확장: 같은 주제로 쓰기 -->
         <p th:if="${postMissions != null and !postMissions.isEmpty()}" class="post-missions">
             <a th:each="m : ${postMissions}" class="tag" th:href="@{/missions/{id}(id=${m.id()})}" th:text="${'🏃 ' + m.title()}">미션</a>

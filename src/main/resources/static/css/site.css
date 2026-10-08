@@ -517,3 +517,7 @@ main.notes-page .note-list { background: var(--color-surface); border: 1px solid
     display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
 .mission-join { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
 .post-missions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* 035 AI 티저(강성찬 개인 확장) */
+.teaser-box h2 { margin: 0 0 4px; font-size: 1em; }
+.teaser-form { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+.teaser-form input { flex: 1; min-width: 0; }

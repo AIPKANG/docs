@@ -80,12 +80,12 @@ public class PostListQuery {
         // 친구가 보는 블로그: 친구 공개 글에는 최초 공개 시각이 없으므로 발행 시각으로 대신한다(025 research R-2)
         String at = withFriends ? "COALESCE(p.first_public_at, p.published_at)" : "p.first_public_at";
         StringBuilder sql = new StringBuilder("""
-                SELECT p.id, p.title, p.excerpt, p.thumbnail_url, """ + at + """
+                SELECT p.id, p.title, COALESCE(tz.teaser, p.excerpt) AS excerpt, p.thumbnail_url, """ + at + """
                  AS first_public_at, p.comment_count, p.like_count,
                        m.handle, m.nickname, m.profile_image_url,
                        (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
                         WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
-                FROM post p JOIN member m ON m.id = p.author_id
+                FROM post p JOIN member m ON m.id = p.author_id LEFT JOIN post_teaser tz ON tz.post_id = p.id
                 WHERE """).append(' ').append(groupViewerId != null ? accessPolicy.friendAndGroupBlogCondition("p", "m")
                 : withFriends ? accessPolicy.friendBlogCondition("p", "m") : accessPolicy.publicListingCondition("p", "m"));
         List<Object> args = new ArrayList<>();
@@ -127,11 +127,11 @@ public class PostListQuery {
             return java.util.Map.of();
         }
         List<PostCard> rows = jdbc.query("""
-                SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
+                SELECT p.id, p.title, COALESCE(tz.teaser, p.excerpt) AS excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
                        m.handle, m.nickname, m.profile_image_url,
                        (SELECT t.name FROM post_tag pt JOIN tag t ON t.id = pt.tag_id
                         WHERE pt.post_id = p.id ORDER BY pt.position LIMIT 1) AS first_tag
-                FROM post p JOIN member m ON m.id = p.author_id
+                FROM post p JOIN member m ON m.id = p.author_id LEFT JOIN post_teaser tz ON tz.post_id = p.id
                 WHERE """ + " " + accessPolicy.publicListingCondition("p", "m") + " AND p.hidden_at IS NULL AND p.id = ANY (?)",
                 PostListQuery::card, (Object) ids.toArray(new Long[0]));
         java.util.Map<Long, PostCard> result = new java.util.HashMap<>();
