@@ -60,7 +60,8 @@ class PostAccessMatrixIT extends IntegrationTestBase {
         }
         // 비공개·임시글: 작성자만, 나머지는 없는 글과 같은 404 본문
         for (long hidden : new long[] {privatePost, draftPublic, draftPrivate}) {
-            assertThat(open("matrixa", hidden, self).getStatus()).isEqualTo(200);
+            // 010: 작성자 본인의 임시글은 에디터로 302, 비공개 발행 글은 200
+            assertThat(open("matrixa", hidden, self).getStatus()).isEqualTo(hidden == privatePost ? 200 : 302);
             for (RequestPostProcessor viewer : new RequestPostProcessor[] {guest, member, admin}) {
                 MockHttpServletResponse response = open("matrixa", hidden, viewer);
                 assertThat(response.getStatus()).isEqualTo(404);

@@ -2,30 +2,75 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
 <head>
-    <title th:text="${post.title().isEmpty() ? '(제목 없음)' : post.title()}">글</title>
+    <title th:text="${post.title() + ' - ' + post.author().nickname()}">글</title>
 </head>
 <body>
 <main>
-    <article class="post">
+    <article class="post" th:attr="data-post-id=${post.id()},data-view-post-id=${recordView ? post.id() : null}">
         <header class="post-head">
-            <p th:if="${post.isDraft()}"><span class="badge">임시저장</span> 아직 발행하지 않은 글이에요.</p>
-            <p th:if="${!post.isDraft() and post.isPrivate()}"><span class="badge">🔒 나만 보기</span></p>
-            <p th:if="${post.editing()}" class="notice">고치는 중인 내용이 있어요. 다시 발행하기 전까지 독자에게는 이 발행본이 보여요.</p>
-            <h1 th:text="${post.title().isEmpty() ? '(제목 없음)' : post.title()}">제목</h1>
+            <!-- 상태 배지·안내: 작성자에게만(010 FR-018~FR-020) -->
+            <p th:if="${viewerIsAuthor and post.isPrivate()}"><span class="badge">🔒 비공개</span> 나만 볼 수 있는 글이에요.</p>
+            <div th:if="${viewerIsAuthor and post.editing()}" class="notice" id="editing-notice">
+                <span class="badge badge-editing">수정 중</span>
+                <span th:text="${'수정 중인 내용이 있어요(' + editingSavedAt + ' 저장)'}">수정 중인 내용이 있어요</span>
+                <a th:href="@{/write/{id}(id=${post.id()})}">이어서 수정</a>
+                <button type="button" id="discard-editing">변경 취소</button>
+            </div>
+            <h1 th:text="${post.title()}">제목</h1>
             <p class="post-meta">
+                <a class="author-link" th:href="${'/@' + post.author().handle()}">
+                    <th:block th:replace="~{fragments/avatar :: avatar(${author.avatar()}, 28)}"></th:block>
+                </a>
                 <th:block th:replace="~{fragments/author :: byline(${author})}"></th:block>
-                <span th:if="${publishedDate != null}"> · <time th:attr="datetime=${post.publishedAt()}" th:text="${publishedDate}">발행일</time></span>
-                <span th:if="${editedDate != null}" class="post-edited"> · 수정됨 · <time th:attr="datetime=${post.editedAt()}" th:text="${editedDate}">수정일</time></span>
+                <span> · <time th:attr="datetime=${post.displayDate()}" th:text="${displayDate}">2026.10.02</time></span>
+                <span th:if="${editedDate != null}" class="post-edited"> · 수정됨 <time th:attr="datetime=${post.editedAt()}" th:text="${editedDate}">10월 3일</time></span>
             </p>
-            <p th:if="${viewerIsAuthor}"><a th:href="@{/write/{id}(id=${post.id()})}" class="button-link">수정</a></p>
+            <!-- 작성자 버튼(FR-016). 서버는 각 기능에서 다시 검사한다 -->
+            <div th:if="${viewerIsAuthor}" class="author-actions">
+                <a th:href="@{/write/{id}(id=${post.id()})}" class="button-link">수정</a>
+                <label>공개 범위
+                    <select id="visibility-select">
+                        <option value="PUBLIC" th:selected="${post.visibility() == 'PUBLIC'}">🌐 전체 공개</option>
+                        <option value="PRIVATE" th:selected="${post.visibility() == 'PRIVATE'}">🔒 나만 보기</option>
+                    </select>
+                </label>
+                <button type="button" id="trash-post" data-trash-post>삭제</button>
+                <span id="author-action-status" class="help" role="status"></span>
+            </div>
         </header>
-        <!-- 본문: 007 렌더러가 허용 목록으로 정화해 저장한 HTML만 그대로 낸다(헌법 IV) -->
+        <!-- 본문: 007 렌더러가 허용 목록으로 정화해 저장한 HTML만 그대로 낸다(헌법 IV, FR-010) -->
         <div class="post-body" th:utext="${post.contentHtml()}"></div>
         <ul class="post-tags" th:unless="${post.tags().isEmpty()}">
-            <li th:each="tag : ${post.tags()}"><span class="tag" th:text="${'#' + tag}">#태그</span></li>
+            <li th:each="tag : ${post.tags()}"><a class="tag" th:href="@{/tags/{name}(name=${tag})}" th:text="${'#' + tag}">#태그</a></li>
         </ul>
+        <!-- 반응 줄(FR-012·FR-017): 좋아요(015)·신고(022)는 인증된 비작성자에게만 -->
+        <p class="reaction-row">
+            <span class="like-count" th:text="${'♥ ' + post.likeCount()}">♥ 12</span>
+            <button type="button" th:if="${canReact}" class="like-button" th:attr="data-like-post-id=${post.id()}">좋아요</button>
+            <span class="view-count" th:text="${'조회 ' + viewCount}">조회 1,234</span>
+            <button type="button" th:if="${canReact}" class="report-button" th:attr="data-report-post-id=${post.id()}">신고</button>
+        </p>
+        <!-- 작성자 카드(FR-013): 팔로우 동작은 018 -->
+        <aside class="author-card">
+            <th:block th:replace="~{fragments/avatar :: avatar(${author.avatar()}, 56)}"></th:block>
+            <div class="author-card-text">
+                <p><th:block th:replace="~{fragments/author :: byline(${author})}"></th:block></p>
+                <p class="profile-bio" th:if="${post.author().bio() != null}" th:text="${post.author().bio()}">소개</p>
+                <p>
+                    <a th:href="${'/@' + post.author().handle()}">블로그 가기</a>
+                    <a th:if="${!viewerIsAuthor and currentMemberId == null}" class="follow-button" th:href="${loginRedirect}">팔로우</a>
+                    <button type="button" th:if="${!viewerIsAuthor and currentMemberId != null}" class="follow-button"
+                            th:attr="data-follow-handle=${post.author().handle()}">팔로우</button>
+                </p>
+            </div>
+        </aside>
+        <!-- 댓글(014)이 이 자리를 채운다 -->
+        <section id="comments" class="comments" aria-label="댓글" th:attr="data-comment-count=${post.commentCount()}">
+            <h2 th:text="${'댓글 ' + post.commentCount()}">댓글 0</h2>
+        </section>
     </article>
     <script src="/js/gif-play.js" defer></script>
+    <script src="/js/post/post-detail.js" defer></script>
 </main>
 </body>
 </html>

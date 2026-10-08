@@ -46,13 +46,16 @@ class PostDetailIT extends IntegrationTestBase {
                 }
             }
         }
-        assertThat(mockMvc.perform(get("/@detailown/posts/{id}", draft).with(TestAuth.member(me)))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).contains("임시저장");
+        // 010: 작성자 본인의 임시글은 에디터로
+        mockMvc.perform(get("/@detailown/posts/{id}", draft).with(TestAuth.member(me)))
+                .andExpect(status().isFound())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/write/" + draft));
         assertThat(mockMvc.perform(get("/@detailown/posts/{id}", priv).with(TestAuth.member(me)))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).contains("나만 보기");
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).contains("나만 볼 수 있는 글이에요");
         mockMvc.perform(get("/@detailown/posts/{id}", trashed).with(TestAuth.member(me))).andExpect(status().isNotFound());
-        // 다른 블로그 주소로는 열리지 않는다
-        mockMvc.perform(get("/@detailoth/posts/{id}", pub)).andExpect(status().isNotFound());
+        // 010: 다른 블로그 주소로 열면 작성자 주소로 301
+        mockMvc.perform(get("/@detailoth/posts/{id}", pub)).andExpect(status().isMovedPermanently())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/@detailown/posts/" + pub));
     }
 
     @Test
@@ -63,11 +66,11 @@ class PostDetailIT extends IntegrationTestBase {
         posts.workingCopy(pub, "고치는 중", "", 2);
         String mine = mockMvc.perform(get("/@editbtn/posts/{id}", pub).with(TestAuth.member(me)))
                 .andReturn().getResponse().getContentAsString();
-        assertThat(mine).contains("href=\"/write/" + pub + "\"").contains("고치는 중인 내용이 있어요");
+        assertThat(mine).contains("href=\"/write/" + pub + "\"").contains("수정 중인 내용이 있어요");
         for (MockHttpServletRequestBuilder request : new MockHttpServletRequestBuilder[] {
                 get("/@editbtn/posts/{id}", pub), get("/@editbtn/posts/{id}", pub).with(TestAuth.member(other))}) {
             String html = mockMvc.perform(request).andReturn().getResponse().getContentAsString();
-            assertThat(html).doesNotContain("/write/" + pub).doesNotContain("고치는 중").contains("<p>발행본</p>");
+            assertThat(html).doesNotContain("/write/" + pub).doesNotContain("수정 중인 내용").contains("<p>발행본</p>");
         }
     }
 }

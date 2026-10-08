@@ -42,6 +42,21 @@ public class PostEditStore {
         return jdbc.query(SELECT_ROW, ROW, postId).stream().findFirst();
     }
 
+    /** 발행 글의 버전 정보만(본문 없이, 010 상세의 "수정 중" 안내용). */
+    public record EditVersions(long postVersion, Long draftVersion, Instant draftUpdatedAt) {
+    }
+
+    public Optional<EditVersions> editVersions(long postId) {
+        return jdbc.query("""
+                SELECT p.edit_version, d.edit_version AS d_version, d.updated_at AS d_updated_at
+                FROM post p LEFT JOIN post_draft d ON d.post_id = p.id
+                WHERE p.id = ? AND p.deleted_at IS NULL
+                """, (rs, n) -> {
+            long dv = rs.getLong("d_version");
+            return new EditVersions(rs.getLong("edit_version"), rs.wasNull() ? null : dv, instant(rs, "d_updated_at"));
+        }, postId).stream().findFirst();
+    }
+
     /** 새 임시글({@code edit_version} 0). */
     public long insertDraft(long authorId, String title, String contentMd, String visibility, Instant now) {
         Long id = jdbc.queryForObject("""

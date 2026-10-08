@@ -6,6 +6,18 @@
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <title th:replace="${title}">블로그</title>
+    <th:block th:if="${pageMeta != null}">
+        <meta name="description" th:content="${pageMeta.description()}">
+        <link rel="canonical" th:href="${pageMeta.canonicalUrl()}">
+        <meta property="og:type" content="article">
+        <meta property="og:title" th:content="${pageMeta.title()}">
+        <meta property="og:description" th:content="${pageMeta.description()}">
+        <meta property="og:url" th:content="${pageMeta.canonicalUrl()}">
+        <meta property="og:image" th:content="${pageMeta.imageUrl()}">
+        <meta property="article:published_time" th:content="${pageMeta.publishedTime()}">
+        <meta property="article:modified_time" th:if="${pageMeta.modifiedTime() != null}" th:content="${pageMeta.modifiedTime()}">
+    </th:block>
+    <meta name="robots" content="noindex" th:if="${pageNoindex != null and pageNoindex}">
     <th:block th:if="${notFoundPage != null and notFoundPage}">
         <meta property="og:title" content="볼 수 없는 글이에요">
         <meta property="og:description" content="친구 공개·비공개 글이거나 삭제된 글입니다.">
@@ -121,6 +133,13 @@
         .card-author span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .list-more { text-align: center; margin: 24px 0; }
         .inline-form { display: inline; }
+        /* 010 글 상세 */
+        .post-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .author-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .reaction-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; color: #57606a; }
+        .author-card { display: flex; gap: 12px; align-items: flex-start; border-top: 1px solid #d0d7de; border-bottom: 1px solid #d0d7de; padding: 12px 0; margin: 16px 0; }
+        .author-card-text { flex: 1; min-width: 0; }
+        .author-card-text p { margin: 4px 0; }
         .manage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .post-rows { list-style: none; padding: 0; }
         .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }

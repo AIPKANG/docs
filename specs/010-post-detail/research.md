@@ -16,7 +16,7 @@
 - 조회수 숫자 형식: 1만 미만 `1,234`, 이상 `1.2만`(소수 첫째 자리, 내림).
 
 ## R-4. 링크 미리보기·캐시 (FR-024~FR-026)
-- **Decision**: 공개 글: `<title>{제목} - {닉네임}</title>`, description·og:description(요약 앞 160자), canonical, og:type article, og:title, og:image(본문 첫 우리 저장소 이미지 **원본** — 렌더러 `imageUrls`를 `content_html`에서 다시 얻지 않으려고 `post_image`가 아닌 요약 대신 `thumbnail_url`의 원본 키 규칙을 쓴다: `_thumb.webp`를 지운 원본 주소는 확장자를 모르므로, **발행 때 렌더러가 찾은 첫 이미지 주소를 그대로** 쓴다 → 조회 때는 `content_html`의 첫 `<img src>`를 문자열로 찾는다(정화된 HTML이라 형식이 고정). 없으면 `/images/og-default.png`), article:published_time(`first_public_at`), article:modified_time(`edited_at` 있을 때). 값은 Thymeleaf 속성 이스케이프. 작성자 본인이 보는 비공개 글은 `noindex`. 캐시: 공개 글 `Cache-Control: private, no-cache`, 그 밖 `private, no-store`.
+- **Decision**: 공개 글: `<title>{제목} - {닉네임}</title>`, description·og:description(요약 앞 160자), canonical, og:type article, og:title, og:image(정화된 본문의 첫 `<img src>` — 우리 저장소 주소만 남아 있음. 없으면 `/images/og-default.png`), article:published_time(`first_public_at`), article:modified_time(`edited_at` 있을 때). 값은 Thymeleaf 속성 이스케이프. 작성자 본인이 보는 비공개 글은 `noindex`. 캐시: 공개 글 `Cache-Control: private, no-cache`, 그 밖 `private, no-store`.
 
 ## R-5. 조회 기록 (FR-021~FR-023)
 - **Decision**: 016(조회수)이 `POST /api/posts/{id}/views`와 `post-view.js`를 만든다. 010은 공개·발행 글을 독자(작성자·관리자 아님)가 볼 때만 본문 요소에 `data-view-post-id`를 넣어 둔다. 상세 응답 경로에서는 조회수를 바꾸지 않는다.
@@ -26,3 +26,10 @@
 |---|---|---|
 | U-1 | 코드 강조(highlight.js) | 007 U-1과 같이 보류 |
 | U-2 | 좋아요·신고·팔로우·삭제·댓글 동작 | 015·022·018·011·014 |
+
+## 구현 메모 (/speckit-implement, 2026-10-08)
+- **I-1.** og:image는 `content_html`의 첫 `<img src>`다. GIF 글이면 정지 장면(썸네일)이 잡힌다(23 §5-2의 "OG는 원본 GIF"와 다름 — 메신저 미리보기가 정지 이미지를 더 잘 다룬다는 점에서 그대로 둠, 팀 확인 U-3).
+- **I-2.** 005의 "다른 블로그 주소면 404"를 FR-002 ④대로 "볼 수 있으면 301"로 바꿨다. 볼 수 없으면 여전히 404(존재 비노출).
+- **I-3.** "수정 중" 안내는 본문을 읽지 않는 버전 조회(`PostEditStore.editVersions`) + 버퍼로 판단한다(FR-027).
+- **I-4.** 좋아요·신고·팔로우·삭제 버튼과 댓글 영역, 조회 기록용 `data-view-post-id`는 자리만 두었다(015·022·018·011·014·016).
+- **I-5.** 전체 Gradle 테스트 513개 통과.
