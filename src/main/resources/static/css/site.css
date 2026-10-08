@@ -470,3 +470,12 @@ html, body { overflow-x: clip; }
 .group-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 18px; padding: 16px 20px; margin: 16px 0; }
 .group-card h2 { margin: 0 0 8px; font-size: 1.1em; }
 .group-choice { display: inline-flex; gap: 6px; align-items: center; margin-right: 14px; }
+/* 031 잔디·스트릭(강성찬 개인 확장): 주 53개 × 7일, 좁은 화면에서는 가로로 밀어 본다 */
+.grass { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 18px; padding: 14px 18px; margin: 0 0 20px; }
+.grass-title { margin: 0 0 10px; font-size: 1em; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.grass-streak { color: var(--color-accent); font-weight: 700; }
+.grass-grid { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 4px; }
+.grass-week { display: flex; flex-direction: column; gap: 3px; }
+.grass-day { width: 11px; height: 11px; border-radius: 3px; background: var(--color-grass-0); }
+.grass-1 { background: var(--color-grass-1); } .grass-2 { background: var(--color-grass-2); }
+.grass-3 { background: var(--color-grass-3); } .grass-4 { background: var(--color-grass-4); }

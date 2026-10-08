@@ -27,6 +27,17 @@
             <p class="follow-message help" role="status" hidden></p>
         </div>
     </header>
+    <!-- 031 강성찬 개인 확장: 잔디·스트릭(최근 1년, 공개 글·공개 글 댓글만) -->
+    <section th:if="${grass != null}" class="grass" aria-labelledby="grass-heading">
+        <h2 id="grass-heading" class="grass-title">기록
+            <span class="grass-streak" th:if="${grass.currentStreak() > 0}" th:text="${'🔥 ' + grass.currentStreak() + '일 연속'}">🔥 3일 연속</span>
+            <span class="help" th:text="${'최근 1년 ' + grass.activeDays() + '일 · 최고 ' + grass.bestStreak() + '일 연속'}">최근 1년</span></h2>
+        <div class="grass-grid" role="img" th:attr="aria-label=${'최근 1년 동안 ' + grass.activeDays() + '일 기록, 최고 ' + grass.bestStreak() + '일 연속'}">
+            <div class="grass-week" th:each="w : ${grass.weeks()}">
+                <span th:each="d : ${w}" th:class="${'grass-day grass-' + d.level()}" th:title="${d.label()}"></span>
+            </div>
+        </div>
+    </section>
     <!-- 013 블로그 태그 줄(처음 10개 + 태그 더 보기)과 필터 -->
     <nav class="blog-tags" th:unless="${blogTags.isEmpty()}" aria-label="이 블로그의 태그">
         <th:block th:each="t, st : ${blogTags}" th:if="${st.index < 10}">

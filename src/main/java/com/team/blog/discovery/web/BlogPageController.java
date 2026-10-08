@@ -30,13 +30,16 @@ public class BlogPageController {
     private final com.team.blog.interaction.application.FollowQuery followQuery;
     private final SearchController searchController;
     private final com.team.blog.friend.application.FriendQuery friendQuery;
+    private final com.team.blog.discovery.application.ActivityQuery activityQuery;
 
     public BlogPageController(BlogOwnerResolver blogOwnerResolver, PostListQuery listQuery,
                               CurrentUserProvider currentUserProvider, Clock clock,
                               com.team.blog.post.application.TagListingQuery tagListingQuery,
                               com.team.blog.interaction.application.FollowQuery followQuery,
                               SearchController searchController,
-                              com.team.blog.friend.application.FriendQuery friendQuery) {
+                              com.team.blog.friend.application.FriendQuery friendQuery,
+                              com.team.blog.discovery.application.ActivityQuery activityQuery) {
+        this.activityQuery = activityQuery;
         this.friendQuery = friendQuery;
         this.followQuery = followQuery;
         this.searchController = searchController;
@@ -100,6 +103,10 @@ public class BlogPageController {
         model.addAttribute("followingOwner", currentUserProvider.current().map(CurrentUser::memberId)
                 .filter(id -> id != owner.memberId()).map(id -> followQuery.isFollowing(id, owner.memberId())).orElse(false));
         model.addAttribute("friendStatus", friendStatus.name());
+        // 031 강성찬 개인 확장: 잔디·스트릭(첫 화면에서만)
+        if (activityQuery.enabled() && (cursor == null || cursor.isEmpty()) && tag == null) {
+            model.addAttribute("grass", activityQuery.grass(owner.memberId()));
+        }
         model.addAttribute("loginRedirect", "/login?redirect=/@" + owner.handle());
         model.addAttribute("continued", cursor != null && !cursor.isEmpty());
         model.addAttribute("listApi", "/api/members/" + owner.handle() + "/posts"
