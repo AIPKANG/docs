@@ -29,6 +29,19 @@ public final class StorageTestClient {
     }
 
     /** 익명 GET 상태 코드(공개 주소 확인용). */
+    /** 008: 익명 GET 응답 헤더 하나(없으면 null). */
+    public static String getHeader(String url, String name) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(url)).GET().build();
+        try {
+            return HTTP.send(request, HttpResponse.BodyHandlers.discarding()).headers().firstValue(name).orElse(null);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static int get(String url) {
         return send(HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(10)).GET().build());
     }

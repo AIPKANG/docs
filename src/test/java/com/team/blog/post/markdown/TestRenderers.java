@@ -34,6 +34,11 @@ final class TestRenderers {
             }
 
             @Override
+            public Optional<byte[]> read(String key, long maxBytes) {
+                return Optional.empty();
+            }
+
+            @Override
             public String publicUrl(String key) {
                 return "https://cdn.devlog.example/blog-images/" + key;
             }

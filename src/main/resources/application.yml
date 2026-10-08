@@ -155,6 +155,10 @@ blog:
     presign-ttl: 5m
     # 시작할 때 버킷·익명 읽기 정책을 만든다(개발·테스트만 true)
     create-bucket: false
+    # 008: s3(기본) | local(저장소를 띄울 수 없는 환경). local은 서명 키를 환경 변수로
+    type: ${STORAGE_TYPE:s3}
+    local-dir: ${STORAGE_LOCAL_DIR:./build/local-images}
+    local-secret: ${STORAGE_LOCAL_SECRET:}
   # 003-profile: 프로필 이미지 업로드·정리(04 §4, 11 §4). 008이 글 사진 값을 더한다
   image:
     upload-per-minute: 20
@@ -167,6 +171,16 @@ blog:
       enabled: true
       cron: "0 30 4 * * *"
       batch-size: 500
+    # 008-image-upload: 글 사진 규격·회원별 한도(04 §4, 23 §3·§5)
+    post:
+      max-bytes: 10485760
+      thumb-max-bytes: 1048576
+      thumb-max-width: 640
+      max-dimension: 10000
+      gif-max-dimension: 1920
+      gif-max-frames: 300
+    quota-bytes: 1073741824
+    daily-limit: 200
   # 003-profile: 소개·소셜 사진(11 §3·§4-2)
   profile:
     bio:

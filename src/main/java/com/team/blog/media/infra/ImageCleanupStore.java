@@ -26,6 +26,7 @@ public class ImageCleanupStore {
         jdbc.query("""
                 DELETE FROM image
                 WHERE id = ? AND ((status = 'TEMP' AND created_at < ?) OR (detached_at IS NOT NULL AND detached_at < ?))
+                  AND NOT EXISTS (SELECT 1 FROM post_image pi WHERE pi.image_id = image.id)
                 RETURNING storage_key, thumb_storage_key
                 """, rs -> {
                     keys.add(rs.getString(1));

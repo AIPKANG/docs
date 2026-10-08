@@ -40,11 +40,12 @@ public class PostDraftService {
     private final PostProperties properties;
     private final Clock clock;
     private final com.team.blog.tag.application.PostTagService tagService;
+    private final PostImageLinker imageLinker;
 
     public PostDraftService(AccountGuard accountGuard, AccountSettingsService accountSettings, PostEditStore store,
                             AutosaveBuffer buffer, AutosaveFlusher flusher, BufferCircuit circuit,
                             RedisRateLimiter rateLimiter, PostProperties properties, Clock clock,
-                            com.team.blog.tag.application.PostTagService tagService) {
+                            com.team.blog.tag.application.PostTagService tagService, PostImageLinker imageLinker) {
         this.accountGuard = accountGuard;
         this.accountSettings = accountSettings;
         this.store = store;
@@ -55,6 +56,7 @@ public class PostDraftService {
         this.properties = properties;
         this.clock = clock;
         this.tagService = tagService;
+        this.imageLinker = imageLinker;
     }
 
     /** [새 글](FR-015): 편집 버전 0인 임시글, 공개 범위는 회원 기본값. */
@@ -110,6 +112,7 @@ public class PostDraftService {
         if (!store.discardWorkingCopy(postId, currentVersion)) {
             throw new NotFoundException();
         }
+        imageLinker.relink(row, null); // 008: 발행본 사진만 남긴다
         // 트랜잭션은 store 안에서 커밋됐다 — 그 뒤에 버퍼를 지운다(커밋 전에 지우면 실패 시 내용이 사라짐)
         try {
             buffer.evict(postId);
@@ -204,6 +207,7 @@ public class PostDraftService {
         if (!direct.accepted()) {
             throw conflict(direct.row().dbContent());
         }
+        imageLinker.relink(direct.row(), input.contentMd());
         return new Stored(new SaveResult(direct.version(), now), false);
     }
 

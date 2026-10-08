@@ -200,6 +200,21 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.UNPROCESSABLE_CONTENT, error(IdempotencyKeyReusedException.CODE));
     }
 
+    // ----- 008: 사진 한도 -----
+
+    @ExceptionHandler(StorageQuotaExceededException.class)
+    public ResponseEntity<ErrorResponse> storageQuotaExceeded() {
+        return json(HttpStatus.CONFLICT, error(StorageQuotaExceededException.CODE));
+    }
+
+    @ExceptionHandler(DailyUploadLimitException.class)
+    public ResponseEntity<ErrorResponse> dailyUploadLimit(DailyUploadLimitException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(e.getRetryAfterSeconds()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(error(DailyUploadLimitException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

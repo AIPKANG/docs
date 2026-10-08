@@ -27,6 +27,7 @@ class RerenderIT extends IntegrationTestBase {
         long old = posts.published(me, "옛 글", "# 제목\n\n<b>글자</b> 본문", 4, Instant.parse("2026-10-01T00:00:00Z"));
         jdbc.update("UPDATE post SET render_version = 0, edited_at = '2026-10-02T00:00:00Z', updated_at = '2026-10-02T00:00:00Z' WHERE id = ?", old);
         long current = posts.published(me, "새 글", "그대로", 1, Instant.parse("2026-10-01T00:00:00Z"));
+        jdbc.update("UPDATE post SET render_version = ? WHERE id = ?", ContentRenderer.RENDER_VERSION, current);
         long draft = posts.draft(me, "임시", "# 임시", 0);
         jdbc.update("UPDATE post SET render_version = 0 WHERE id = ?", draft);
         Map<String, Object> before = posts.post(old);

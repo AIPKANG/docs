@@ -16,11 +16,13 @@ public class AutosaveFlusher {
     private final AutosaveBuffer buffer;
     private final PostEditStore store;
     private final Clock clock;
+    private final PostImageLinker imageLinker;
 
-    public AutosaveFlusher(AutosaveBuffer buffer, PostEditStore store, Clock clock) {
+    public AutosaveFlusher(AutosaveBuffer buffer, PostEditStore store, Clock clock, PostImageLinker imageLinker) {
         this.buffer = buffer;
         this.store = store;
         this.clock = clock;
+        this.imageLinker = imageLinker;
     }
 
     /** 반영한 버전(버퍼가 비었으면 빈 값). 글이 없거나 휴지통이면 반영 없이 대기 목록에서만 뺀다. */
@@ -37,6 +39,7 @@ public class AutosaveFlusher {
             } else {
                 store.flushWorkingCopy(postId, c.title(), c.contentMd(), c.version(), clock.instant());
             }
+            imageLinker.relink(row, c.contentMd()); // 008: 본문 사진 연결
         });
         buffer.markFlushed(postId, c.version());
         return Optional.of(c.version());

@@ -86,6 +86,25 @@ public class Image {
         return new Image(uploaderId, storageKey, originalName, format, declaredSize, ImagePurpose.PROFILE, now);
     }
 
+    /** 008: 글 사진 업로드 승인 시점의 행. 크기는 신고 크기, 썸네일이 없으면 키·크기 null. */
+    public static Image postUpload(long uploaderId, String storageKey, String thumbStorageKey, String originalName,
+                                   ImageFormat format, int declaredSize, Integer declaredThumbSize, Instant now) {
+        Image image = new Image(uploaderId, storageKey, originalName, format, declaredSize, ImagePurpose.POST, now);
+        image.thumbStorageKey = thumbStorageKey;
+        image.thumbSizeBytes = declaredThumbSize;
+        return image;
+    }
+
+    public Integer getThumbSizeBytes() {
+        return thumbSizeBytes;
+    }
+
+    /** 008 complete 통과: 썸네일 실제 크기도 기록. */
+    public void complete(int width, int height, int actualSize, Integer actualThumbSize) {
+        complete(width, height, actualSize);
+        this.thumbSizeBytes = actualThumbSize;
+    }
+
     /** complete 통과: 실제 크기와 해상도 기록. */
     public void complete(int width, int height, int actualSize) {
         this.width = width;

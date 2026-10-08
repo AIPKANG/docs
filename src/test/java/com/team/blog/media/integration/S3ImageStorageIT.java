@@ -43,7 +43,7 @@ class S3ImageStorageIT extends IntegrationTestBase {
     void contentTypeOtherThanSignedIsRejected() {
         String key = "images/2026/10/" + UUID.randomUUID() + ".webp";
         UploadTarget target = storage.prepareUpload(key, "image/webp", 100);
-        int status = StorageTestClient.put(target.url(), Map.of("Content-Type", "image/png"), TestImages.png(8, 8));
+        int status = StorageTestClient.put(target.url(), Map.of("Content-Type", "image/png", "Cache-Control", ImageStorage.CACHE_CONTROL), TestImages.png(8, 8));
         assertThat(status).isEqualTo(403);
         assertThat(storage.inspect(key)).isEmpty();
     }

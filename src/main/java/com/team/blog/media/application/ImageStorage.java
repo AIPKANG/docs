@@ -11,11 +11,17 @@ import java.util.Optional;
  */
 public interface ImageStorage {
 
+    /** 사진 주소는 바뀌지 않으므로 1년 변경 없는 캐시(04 §4-2, 008 FR-007). 업로드 서명에 넣어 저장소가 그대로 돌려준다. */
+    String CACHE_CONTROL = "public, max-age=31536000, immutable";
+
     /** 업로드 주소 발급(서명에 {@code Content-Type} 포함, 유효 시간은 설정값). */
     UploadTarget prepareUpload(String key, String contentType, long size);
 
     /** 존재·실제 크기·Content-Type·앞부분 바이트(최대 {@link StoredObject#HEAD_BYTES}). 없으면 empty. */
     Optional<StoredObject> inspect(String key);
+
+    /** 파일 전체(최대 {@code maxBytes}바이트, GIF 프레임 검사용). 없으면 empty. 더 크면 앞 {@code maxBytes}만. */
+    Optional<byte[]> read(String key, long maxBytes);
 
     /** 사진을 보여줄 공개 주소. */
     String publicUrl(String key);

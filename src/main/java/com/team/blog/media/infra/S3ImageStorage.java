@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 
 /** MinIO·S3 호환 저장소 구현(04 §4-1, §6-1). 키·서명은 로그에 남기지 않는다. */
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "blog.storage.type", havingValue = "s3", matchIfMissing = true)
 public class S3ImageStorage implements ImageStorage {
 
     private final S3Client s3;
@@ -41,12 +42,14 @@ public class S3ImageStorage implements ImageStorage {
                 .bucket(properties.bucket())
                 .key(key)
                 .contentType(contentType)
+                .cacheControl(CACHE_CONTROL)
                 .build();
         PresignedPutObjectRequest presigned = presigner.presignPutObject(request -> request
                 .signatureDuration(properties.presignTtl())
                 .putObjectRequest(put));
         Instant expiresAt = presigned.expiration();
-        return new UploadTarget(presigned.url().toString(), "PUT", Map.of("Content-Type", contentType), expiresAt);
+        return new UploadTarget(presigned.url().toString(), "PUT",
+                Map.of("Content-Type", contentType, "Cache-Control", CACHE_CONTROL), expiresAt);
     }
 
     @Override
@@ -71,6 +74,22 @@ public class S3ImageStorage implements ImageStorage {
             bytes = body.asByteArray();
         }
         return Optional.of(new StoredObject(size, head.contentType(), bytes));
+    }
+
+    @Override
+    public Optional<byte[]> read(String key, long maxBytes) {
+        try {
+            ResponseBytes<GetObjectResponse> body = s3.getObjectAsBytes(GetObjectRequest.builder()
+                    .bucket(properties.bucket()).key(key).range("bytes=0-" + (maxBytes - 1)).build());
+            return Optional.of(body.asByteArray());
+        } catch (NoSuchKeyException e) {
+            return Optional.empty();
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404 || e.statusCode() == 416) {
+                return Optional.empty();
+            }
+            throw e;
+        }
     }
 
     @Override

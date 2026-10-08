@@ -9,7 +9,7 @@ public class ImageInvalidException extends RuntimeException {
 
     public static final String CODE = "IMAGE_INVALID";
 
-    public enum Detail { TYPE, SIZE, MISSING, CONTENT_MISMATCH, DIMENSION, METADATA }
+    public enum Detail { TYPE, SIZE, MISSING, CONTENT_MISMATCH, DIMENSION, METADATA, THUMBNAIL, FRAMES }
 
     private final Detail detail;
 

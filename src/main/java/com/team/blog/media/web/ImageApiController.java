@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/images")
 public class ImageApiController {
 
-    public record PresignRequest(String purpose, String contentType, Long size, String originalName) {
+    public record PresignRequest(String purpose, String contentType, Long size, String originalName, Long thumbSize) {
     }
 
     private final ImageUploadService imageUploadService;
@@ -30,7 +30,7 @@ public class ImageApiController {
     @PostMapping("/presign")
     public PresignResult presign(@RequestBody PresignRequest body) {
         return imageUploadService.presign(currentUserProvider.current(),
-                new PresignCommand(body.purpose(), body.contentType(), body.size(), body.originalName()));
+                new PresignCommand(body.purpose(), body.contentType(), body.size(), body.originalName(), body.thumbSize()));
     }
 
     @PostMapping("/{id}/complete")

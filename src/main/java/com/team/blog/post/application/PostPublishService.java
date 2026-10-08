@@ -1,6 +1,9 @@
 package com.team.blog.post.application;
 
 import com.team.blog.account.application.MemberSummaryQuery;
+import com.team.blog.media.application.PostImageService;
+import com.team.blog.shared.error.FieldError;
+import com.team.blog.shared.error.ProfileValidationException;
 import com.team.blog.post.domain.PostStatus;
 import com.team.blog.post.infra.PostEditStore;
 import com.team.blog.post.markdown.ContentRenderer;
@@ -52,12 +55,13 @@ public class PostPublishService {
     private final ApplicationEventPublisher events;
     private final TransactionTemplate transactionTemplate;
     private final Clock clock;
+    private final PostImageService postImageService;
 
     public PostPublishService(AccountGuard accountGuard, PostEditStore store, PostDraftService draftService,
                               PublishValidator validator, PublishIdempotency idempotency, ContentRenderer renderer,
                               PostTagService tagService, AutosaveBuffer buffer, BufferCircuit circuit,
                               MemberSummaryQuery memberSummaryQuery, ApplicationEventPublisher events,
-                              TransactionTemplate transactionTemplate, Clock clock) {
+                              TransactionTemplate transactionTemplate, Clock clock, PostImageService postImageService) {
         this.accountGuard = accountGuard;
         this.store = store;
         this.draftService = draftService;
@@ -71,6 +75,7 @@ public class PostPublishService {
         this.events = events;
         this.transactionTemplate = transactionTemplate;
         this.clock = clock;
+        this.postImageService = postImageService;
     }
 
     public PublishResult publish(Optional<CurrentUser> currentUser, long postId, String idempotencyKey,
@@ -112,7 +117,12 @@ public class PostPublishService {
     private PublishResult publishNow(CurrentUser user, long postId, PublishCommand command) {
         PublishValidator.Validated input = validator.validate(command);
         RenderedContent rendered = renderer.render(input.contentMd());
-        String thumbnail = rendered.imageUrls().isEmpty() ? null : rendered.imageUrls().get(0);
+        // 008 FR-010: 우리 저장소 주소인데 내가 올린 글 사진이 아니면 거부
+        if (!postImageService.foreignImageUrls(user.memberId(), rendered.imageUrls()).isEmpty()) {
+            throw new ProfileValidationException(FieldError.of("contentMd", "INVALID_IMAGE"));
+        }
+        // 008 FR-020: 카드 썸네일 = 첫 사진의 썸네일(없으면 원본)
+        String thumbnail = rendered.imageUrls().isEmpty() ? null : postImageService.cardThumbnailOf(rendered.imageUrls().get(0));
         String handle = memberSummaryQuery.findByIds(Set.of(user.memberId())).get(user.memberId()).handle();
 
         Applied applied = transactionTemplate.execute(status -> {
@@ -125,6 +135,7 @@ public class PostPublishService {
             }
             tagService.replace(postId, input.tags());
             Instant now = clock.instant();
+            postImageService.sync(postId, user.memberId(), rendered.imageUrls(), now);
             long nextVersion = current.version() + 1;
             PostEditStore.PublishedTimes times = store.applyPublish(postId, input.title(), input.contentMd(),
                     rendered.html(), rendered.excerpt().isEmpty() ? null : rendered.excerpt(), thumbnail,

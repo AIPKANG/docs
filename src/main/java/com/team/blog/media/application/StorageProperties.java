@@ -17,6 +17,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param secretKey     비밀 키(환경 변수)
  * @param presignTtl    업로드 주소 유효 시간(04 §4-1: 5분)
  * @param createBucket  시작할 때 버킷·익명 읽기 정책을 만들지(개발·테스트만)
+ * @param type          {@code s3}(기본) 또는 {@code local}(저장소를 띄울 수 없는 환경, 008 research R-6)
+ * @param localDir      {@code local}일 때 파일을 둘 디렉터리
+ * @param localSecret   {@code local}일 때 업로드 주소 서명 키(환경 변수)
  */
 @ConfigurationProperties("blog.storage")
 public record StorageProperties(
@@ -27,7 +30,14 @@ public record StorageProperties(
         String accessKey,
         String secretKey,
         @DefaultValue("5m") Duration presignTtl,
-        @DefaultValue("false") boolean createBucket) {
+        @DefaultValue("false") boolean createBucket,
+        @DefaultValue("s3") String type,
+        @DefaultValue("./build/local-images") String localDir,
+        String localSecret) {
+
+    public boolean isLocal() {
+        return "local".equals(type);
+    }
 
     /** 공개 주소 기준(끝의 {@code /} 제거). */
     public String effectivePublicBaseUrl() {

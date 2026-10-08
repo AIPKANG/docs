@@ -77,6 +77,28 @@ public final class TestImages {
     }
 
     /** 지정한 크기의 의미 없는 바이트(크기 초과 시험용). */
+    /** 008: 프레임 {@code frames}장짜리 GIF(블록 구조만 맞춘 최소 파일, 프레임 수 검사용). */
+    public static byte[] gif(int width, int height, int frames) {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        out.writeBytes("GIF89a".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        out.write(width & 0xFF);
+        out.write((width >> 8) & 0xFF);
+        out.write(height & 0xFF);
+        out.write((height >> 8) & 0xFF);
+        out.write(0x80); // 전역 색표 2색
+        out.write(0);
+        out.write(0);
+        out.writeBytes(new byte[] {0, 0, 0, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        for (int f = 0; f < frames; f++) {
+            out.writeBytes(new byte[] {0x21, (byte) 0xF9, 4, 0, 10, 0, 0, 0});
+            out.writeBytes(new byte[] {0x2C, 0, 0, 0, 0, (byte) (width & 0xFF), (byte) ((width >> 8) & 0xFF),
+                    (byte) (height & 0xFF), (byte) ((height >> 8) & 0xFF), 0});
+            out.writeBytes(new byte[] {2, 2, 0x44, 0x01, 0});
+        }
+        out.write(0x3B);
+        return out.toByteArray();
+    }
+
     public static byte[] filler(byte[] head, int totalSize) {
         byte[] out = new byte[totalSize];
         System.arraycopy(head, 0, out, 0, Math.min(head.length, totalSize));

@@ -1,6 +1,7 @@
 package com.team.blog.post.markdown;
 
 import com.team.blog.media.application.ImageStorage;
+import com.team.blog.media.application.PostImageService;
 import com.team.blog.shared.error.ContentTooComplexException;
 import jakarta.annotation.PreDestroy;
 import java.util.List;
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Component;
 public class ContentRenderer {
 
     /** 렌더링 규칙 버전. 렌더러·변환·정화 규칙을 바꾸면 올리고 다시 렌더링 배치를 돌린다(12 §7-7). */
-    public static final int RENDER_VERSION = 1;
+    public static final int RENDER_VERSION = 2; // 2: 008 GIF 정지 장면 규칙
 
     private static final List<Extension> EXTENSIONS = List.of(TablesExtension.create(), StrikethroughExtension.create(),
             TaskListItemsExtension.create(), AutolinkExtension.create());
@@ -42,8 +43,20 @@ public class ContentRenderer {
     private final LinkRules linkRules;
     private final PolicyFactory policy;
     private final ThreadPoolExecutor executor;
+    private final MarkdownTransformer.GifThumbnails gifThumbnails;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    public ContentRenderer(MarkdownProperties properties, ImageStorage imageStorage, PostImageService postImageService) {
+        this(properties, imageStorage, postImageService::thumbnailOf);
+    }
+
+    /** 단위 테스트용: GIF 정지 장면을 찾지 않는다(원본 GIF를 그대로 보임). */
     public ContentRenderer(MarkdownProperties properties, ImageStorage imageStorage) {
+        this(properties, imageStorage, (MarkdownTransformer.GifThumbnails) null);
+    }
+
+    ContentRenderer(MarkdownProperties properties, ImageStorage imageStorage, MarkdownTransformer.GifThumbnails gifThumbnails) {
+        this.gifThumbnails = gifThumbnails;
         this.properties = properties;
         this.linkRules = new LinkRules(properties.siteOrigin(), imageStorage.publicUrl("images/"));
         this.policy = SanitizePolicy.create(linkRules);
@@ -86,7 +99,7 @@ public class ContentRenderer {
 
     private RenderedContent renderNow(String source) {
         Node document = parser.parse(source);
-        MarkdownTransformer transformer = new MarkdownTransformer(linkRules, properties.maxNesting());
+        MarkdownTransformer transformer = new MarkdownTransformer(linkRules, properties.maxNesting(), gifThumbnails);
         document.accept(transformer);
         HtmlRenderer renderer = HtmlRenderer.builder()
                 .extensions(EXTENSIONS)
@@ -98,6 +111,20 @@ public class ContentRenderer {
         String html = policy.sanitize(rendered);
         return new RenderedContent(html, ExcerptExtractor.extract(document), List.copyOf(transformer.imageUrls()),
                 RENDER_VERSION);
+    }
+
+    /**
+     * 본문에 나온 우리 저장소 이미지 주소만(HTML을 만들지 않음, 008 사진 연결용). 구조가 너무 복잡하면 빈 목록.
+     */
+    public List<String> imageUrls(String contentMd) {
+        try {
+            Node document = parser.parse(contentMd == null ? "" : contentMd);
+            MarkdownTransformer transformer = new MarkdownTransformer(linkRules, properties.maxNesting(), null);
+            document.accept(transformer);
+            return List.copyOf(transformer.imageUrls());
+        } catch (MarkdownTransformer.ContentTooComplexSignal | StackOverflowError e) {
+            return List.of();
+        }
     }
 
     @PreDestroy

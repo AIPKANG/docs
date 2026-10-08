@@ -97,7 +97,7 @@ class ImageUploadIT extends IntegrationTestBase {
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("SIZE"));
         mockMvc.perform(presignRequest(id, "image/webp", 0))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("SIZE"));
-        mockMvc.perform(presignRequest(id, "POST", "image/webp", 100))
+        mockMvc.perform(presignRequest(id, "AVATAR", "image/webp", 100))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("IMAGE_PURPOSE_NOT_SUPPORTED"));
         assertThat(jdbc.queryForObject("SELECT count(*) FROM image", Integer.class)).isZero();
     }

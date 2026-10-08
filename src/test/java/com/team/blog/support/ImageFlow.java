@@ -64,6 +64,59 @@ public final class ImageFlow {
         return presigned.imageId();
     }
 
+    // ----- 008: 글 사진(원본 + 썸네일) -----
+
+    public static MockHttpServletRequestBuilder postPresignRequest(long memberId, String contentType, long size, Long thumbSize) {
+        return post("/api/images/presign").with(csrf()).with(TestAuth.member(memberId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"purpose\":\"POST\",\"contentType\":\"" + contentType + "\",\"size\":" + size
+                        + (thumbSize == null ? "" : ",\"thumbSize\":" + thumbSize) + ",\"originalName\":\"휴가 사진.jpg\"}");
+    }
+
+    public record PostPresigned(long imageId, String uploadUrl, Map<String, String> headers, String thumbUploadUrl,
+                                Map<String, String> thumbHeaders) {
+    }
+
+    public record Uploaded(long imageId, String url, String thumbUrl) {
+    }
+
+    public PostPresigned presignPost(long memberId, String contentType, long size, Long thumbSize) throws Exception {
+        MockHttpServletResponse response = mockMvc.perform(postPresignRequest(memberId, contentType, size, thumbSize))
+                .andReturn().getResponse();
+        if (response.getStatus() != 200) {
+            throw new IllegalStateException("presign failed: " + response.getStatus() + " " + response.getContentAsString());
+        }
+        String json = response.getContentAsString();
+        Number id = JsonPath.read(json, "$.imageId");
+        String thumbUrl = thumbSize == null ? null : JsonPath.read(json, "$.thumbUploadUrl");
+        Map<String, String> thumbHeaders = thumbSize == null ? null : JsonPath.read(json, "$.thumbHeaders");
+        return new PostPresigned(id.longValue(), JsonPath.read(json, "$.uploadUrl"), JsonPath.read(json, "$.headers"),
+                thumbUrl, thumbHeaders);
+    }
+
+    /** presign → 원본·썸네일 PUT → complete. */
+    public Uploaded uploadPost(long memberId, String contentType, byte[] bytes, byte[] thumb) throws Exception {
+        PostPresigned p = presignPost(memberId, contentType, bytes.length, thumb == null ? null : (long) thumb.length);
+        if (StorageTestClient.put(p.uploadUrl(), p.headers(), bytes) != 200) {
+            throw new IllegalStateException("put failed");
+        }
+        if (thumb != null && StorageTestClient.put(p.thumbUploadUrl(), p.thumbHeaders(), thumb) != 200) {
+            throw new IllegalStateException("thumb put failed");
+        }
+        MockHttpServletResponse response = mockMvc.perform(completeRequest(memberId, p.imageId())).andReturn().getResponse();
+        if (response.getStatus() != 200) {
+            throw new IllegalStateException("complete failed: " + response.getStatus() + " " + response.getContentAsString());
+        }
+        String json = response.getContentAsString();
+        String thumbUrl = thumb == null ? null : JsonPath.read(json, "$.thumbUrl");
+        return new Uploaded(p.imageId(), JsonPath.read(json, "$.url"), thumbUrl);
+    }
+
+    /** 1200×800 WebP 원본 + 640×427 WebP 썸네일. */
+    public Uploaded uploadPostWebp(long memberId) throws Exception {
+        return uploadPost(memberId, "image/webp", TestImages.webp(1200, 800), TestImages.webp(640, 427));
+    }
+
     /** 256×256 WebP 프로필 이미지 한 장. */
     public long uploadProfile(long memberId) throws Exception {
         return upload(memberId, "image/webp", TestImages.webp(256, 256));

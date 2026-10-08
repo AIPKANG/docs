@@ -81,7 +81,7 @@ class SocialPictureIT extends IntegrationTestBase {
                 .getResponse().getContentAsString();
         long imageId = ((Number) com.jayway.jsonpath.JsonPath.read(presign, "$.imageId")).longValue();
         String uploadUrl = com.jayway.jsonpath.JsonPath.read(presign, "$.uploadUrl");
-        assertThat(StorageTestClient.put(uploadUrl, Map.of("Content-Type", "image/webp"), copy)).isEqualTo(200);
+        assertThat(StorageTestClient.put(uploadUrl, Map.of("Content-Type", "image/webp", "Cache-Control", com.team.blog.media.application.ImageStorage.CACHE_CONTROL), copy)).isEqualTo(200);
         assertThat(browser.perform(post("/api/images/" + imageId + "/complete").with(csrf())).getResponse().getStatus())
                 .isEqualTo(200);
         assertThat(browser.perform(patchProfile(memberId, "{\"profileImageId\":" + imageId + "}")).getResponse().getStatus())
