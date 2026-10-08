@@ -71,6 +71,7 @@
 <div hidden id="logout-cleanup" th:if="${logoutCleanupMemberId != null}" th:attr="data-member-id=${logoutCleanupMemberId}"></div>
 <main th:replace="${content}">
 </main>
+<footer class="site-footer"><a href="/privacy">개인정보 처리방침</a></footer>
 <script src="/js/auth/auth-logout.js" defer></script>
 <script src="/js/theme-toggle.js" defer></script>
 <script th:if="${currentMemberId != null}" src="/js/notification/bell.js" defer></script>

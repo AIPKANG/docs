@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>개인정보 처리방침</title>
+</head>
+<body>
+<main class="settings">
+    <h1>개인정보 처리방침</h1>
+    <p class="help">시행일 2026년 10월 8일 · 팀이 표현을 다듬기 전 초안이에요.</p>
+
+    <section aria-labelledby="pv-collect">
+        <h2 id="pv-collect">모으는 정보</h2>
+        <ul>
+            <li>가입할 때: 이메일, 비밀번호(복원할 수 없게 바꿔 저장), 블로그 주소, 닉네임. 소셜 로그인은 공급자가 주는 이메일과 회원 식별 번호.</li>
+            <li>쓰는 동안: 소개, 프로필 사진, 글·댓글·태그, 좋아요·팔로우, 신고 내용, 알림 설정, 약관·개인정보·AI 전송 동의 시각.</li>
+            <li>자동으로: 로그인 유지를 위한 세션 쿠키, 보안과 요청 횟수 제한을 위한 접속 IP(원래 IP는 저장하지 않고 제한 판정에만 잠깐 씀).</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="pv-cookie">
+        <h2 id="pv-cookie">쿠키와 브라우저 저장소</h2>
+        <ul>
+            <li><strong>로그인 세션 쿠키</strong>: 로그인 상태를 유지해요.</li>
+            <li><strong>방문자 식별 쿠키(<code>vid</code>)</strong>: 조회수 중복 방지용 무작위 식별자예요. 비회원이 글을 볼 때 만들어지고 1년 동안 유지돼요. 누구인지 알 수 있는 정보는 담지 않아요. 쿠키를 막으면 IP와 브라우저 정보를 그날만 쓰는 비밀값과 섞어 되돌릴 수 없게 가린 값으로 대신 구분해요.</li>
+            <li><strong>브라우저 저장소</strong>: 작성 중인 글의 임시 저장(로그아웃하면 지워요)과 화면 테마 선택(이 기기에만 저장)에 써요.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="pv-ai">
+        <h2 id="pv-ai">AI 태그 추천과 외부 전송</h2>
+        <p>AI 태그 추천은 동의한 회원이 공개 글에서 버튼을 누를 때만 동작해요.</p>
+        <ul>
+            <li>글 제목과 본문 앞부분이 외부 AI 서비스인 <strong>Google Gemini API(무료 등급)</strong>로 전송돼요.</li>
+            <li>무료 등급에서는 Google이 보낸 내용과 응답을 제품과 머신러닝 기술 개선에 사용하고, 사람이 읽고 검토할 수 있어요(검토 전에 계정 정보와 분리).</li>
+            <li>외부 AI를 쓸 수 없을 때는 우리 서버의 자체 AI로 처리하며, 이때는 외부로 전송되지 않아요.</li>
+            <li>이메일·닉네임 같은 회원 정보와 다른 사람의 글은 보내지 않아요. 개인정보·비밀번호·회사 기밀이 든 글에는 쓰지 마세요.</li>
+            <li>설정 화면에서 동의를 철회할 수 있고, 철회하면 다음에 다시 물어봐요.</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="pv-keep">
+        <h2 id="pv-keep">보관 기간</h2>
+        <ul>
+            <li>회원 탈퇴: 신청 후 30일 동안 복구할 수 있고, 그 뒤 글·사진·좋아요를 지우고 회원 정보를 익명 처리해요. 블로그 주소만 다시 쓰이지 않도록 남겨요.</li>
+            <li>휴지통의 글: 30일 뒤 완전히 삭제해요.</li>
+            <li>알림: 90일 또는 1인당 최신 1,000개까지.</li>
+            <li>날짜별 조회수: 90일(누가 봤는지는 저장하지 않아요).</li>
+            <li>신고 시점의 내용 복사본: 대상이 삭제된 뒤 30일.</li>
+            <li>AI 추천 결과: 같은 내용 재사용을 위해 30일(내용 자체가 아닌 해시를 키로 써요).</li>
+        </ul>
+    </section>
+
+    <section aria-labelledby="pv-rights">
+        <h2 id="pv-rights">이용자의 권리</h2>
+        <p>설정 화면에서 프로필을 고치거나 동의를 철회하고, 회원 탈퇴를 할 수 있어요. 그 밖의 문의는 운영팀 연락처로 보내 주세요.</p>
+    </section>
+</main>
+</body>
+</html>

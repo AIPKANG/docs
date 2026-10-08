@@ -27,8 +27,8 @@
 - 013 `TagNormalizer.normalize`(소문자·공백→하이픈·허용 문자·30자·금칙어)로 정리, 중복 제거, 이미 붙인 태그 제외, 남은 자리만큼. 0개면 "추천할 태그를 찾지 못했어요".
 
 ## 남은 확인
-- U-1: Gemini 모델 이름(`gemini-flash-lite-latest`)과 하루 한도 450은 AI Studio에서 확인해 설정으로 바꾼다.
-- U-2: FR-035 개인정보 처리방침 화면이 아직 없다(016 U-1과 함께).
+- U-1: Gemini 모델 이름(`gemini-flash-lite-latest`)과 하루 한도 450은 유지하고, 배포 직전 AI Studio의 실제 한도 90% 정도로 설정값만 바꾼다(2026-10-08 결정).
+- ~~U-2: FR-035 처리방침 화면 없음~~ → 해결: `/privacy`의 "AI 태그 추천과 외부 전송", 동의 창에서 링크.
 
 ## 구현 메모 (2026-10-08)
 - `AiTagSuggestIT` 4개(판정 순서·동의·철회·짧은 글, Gemini 성공·거르기·두 단계 재사용·다시 추천·키 모양·잘림·모두 걸러짐, 하루 한도·서버 오류·미리 전환·동시 처리·형식 실패·둘 다 실패해도 자동 저장, 개인 20회), `AiInputCleanerTest`. 테스트 시계(`MutableClock.withZone`이 자기 자신을 돌려줌) 때문에 날짜 계산을 `LocalDate.ofInstant(clock.instant(), zone)`으로 바꿨다(실제 동작도 같음).

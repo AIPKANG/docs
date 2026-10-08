@@ -168,6 +168,8 @@ main.list-page { max-width: 1120px; }
 .snapshot { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--color-surface-muted); padding: 8px; border-radius: 6px; }
 #report-form label { display: block; }
 #report-form textarea { width: 100%; }
+/* 016·021 처리방침 링크 */
+.site-footer { max-width: 760px; margin: 0 auto; padding: 16px; border-top: 1px solid var(--color-border); font-size: .9em; }
 /* 020 검색 */
 .header-search { margin: 0; }
 .header-search input { width: 9em; }
