@@ -72,6 +72,20 @@
         <ul class="post-tags" th:unless="${post.tags().isEmpty()}">
             <li th:each="tag : ${post.tags()}"><a class="tag" th:href="@{/tags/{name}(name=${tag})}" th:text="${'#' + tag}">#태그</a></li>
         </ul>
+        <!-- 034 강성찬 개인 확장: 같은 주제로 쓰기 -->
+        <p th:if="${postMissions != null and !postMissions.isEmpty()}" class="post-missions">
+            <a th:each="m : ${postMissions}" class="tag" th:href="@{/missions/{id}(id=${m.id()})}" th:text="${'🏃 ' + m.title()}">미션</a>
+        </p>
+        <form th:if="${joinableMissions != null and !joinableMissions.isEmpty()}" class="mission-join" method="post"
+              action="/missions/join">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="postId" th:value="${post.id()}">
+            <label for="mission-select">이 글로 미션에 참여</label>
+            <select id="mission-select" name="missionId">
+                <option th:each="m : ${joinableMissions}" th:value="${m.id()}" th:text="${m.title()}">미션</option>
+            </select>
+            <button type="submit" class="btn btn-sm">미션에 참여</button>
+        </form>
         <!-- 반응 줄(FR-012·FR-017): 좋아요(015)·신고(022)는 인증된 비작성자에게만 -->
         <p class="reaction-row">
             <!-- 015: 작성자에게는 수만, 그 밖에는 버튼(비회원·인증 전도 보임). 스크립트 없으면 폼 -->

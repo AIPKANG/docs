@@ -504,3 +504,16 @@ main.stats-page { max-width: 900px; }
 .note-content { white-space: pre-line; margin: 0 0 4px; }
 .note-meta { margin: 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 main.notes-page .note-list { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 18px; padding: 4px 18px; }
+/* 034 같은 주제로 쓰기(강성찬 개인 확장) */
+.mission-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.mission-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 14px 16px; }
+.mission-card p { margin: 4px 0 0; }
+.mission-title { font-weight: 700; color: var(--color-text); text-decoration: none; }
+.mission-ended { opacity: .75; }
+.mission-desc { white-space: pre-line; }
+.mission-relay { list-style: none; padding: 0; }
+.mission-relay li { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.relay-order { min-width: 2em; height: 2em; border-radius: 999px; background: var(--color-brand-soft); color: var(--color-brand);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+.mission-join { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.post-missions { display: flex; gap: 8px; flex-wrap: wrap; }

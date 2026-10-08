@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>미션 열기</title>
+</head>
+<body>
+<main class="auth-page auth-page-single">
+    <h1>미션 열기</h1>
+    <p class="help">같은 주제로 함께 쓸 사람을 모아요. 참여한 글은 공개 글만 보여요.</p>
+    <form method="post" action="/missions" class="auth-form">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div class="field"><label for="mission-title">주제 (40자)</label>
+            <input id="mission-title" name="title" type="text" maxlength="40" required placeholder="예: 올해 가장 잘한 일"></div>
+        <div class="field"><label for="mission-desc">설명 (500자, 선택)</label>
+            <textarea id="mission-desc" name="description" maxlength="500"></textarea></div>
+        <div class="field"><label for="mission-days">기간</label>
+            <select id="mission-days" name="days">
+                <option value="3">3일</option><option value="7" selected>7일</option><option value="14">14일</option><option value="30">30일</option>
+            </select></div>
+        <button type="submit" class="btn btn-primary btn-block">미션 열기</button>
+    </form>
+</main>
+</body>
+</html>

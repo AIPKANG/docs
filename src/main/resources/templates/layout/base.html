@@ -42,6 +42,7 @@
             <div class="menu-main">
                 <a href="/">홈</a>
                 <a href="/tags">태그</a>
+                <a href="/missions" th:if="${missionsEnabled != null and missionsEnabled}">미션</a>
                 <a href="/search" class="menu-search"><th:block th:replace="~{fragments/icons :: search}"></th:block>검색</a>
                 <th:block th:if="${currentMemberId != null}">
                     <a href="/feed">피드</a>

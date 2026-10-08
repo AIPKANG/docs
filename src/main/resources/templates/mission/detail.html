@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${mission.title() + ' - 같은 주제로 쓰기'}">미션</title>
+</head>
+<body>
+<main class="missions-page">
+    <p><a href="/missions">미션 목록</a></p>
+    <h1 th:text="${mission.title()}">주제</h1>
+    <p class="help">
+        <span th:text="${mission.creatorNickname() + '님이 ' + startedLabel + ' 열었어요'}">열었어요</span> ·
+        <span th:text="${leftLabel}">7일 남음</span> · <span th:text="${'참여 ' + entries.size() + '명'}">참여 0명</span>
+    </p>
+    <p class="mission-desc" th:if="${!mission.description().isEmpty()}" th:text="${mission.description()}">설명</p>
+    <p th:if="${mission.active()}" class="notice">내 블로그에 이 주제로 글을 쓴 뒤, 그 글 화면 아래 [미션에 참여]를 누르면 이어 붙어요.</p>
+    <h2>릴레이</h2>
+    <p th:if="${entries.isEmpty()}" class="empty-state">아직 참여한 글이 없어요. 첫 주자가 되어 보세요</p>
+    <ol class="mission-relay">
+        <li th:each="e : ${entries}">
+            <span class="relay-order" th:text="${e.order()}">1</span>
+            <a th:href="${e.url()}" th:text="${e.title()}">글</a>
+            <a class="help" th:href="${'/@' + e.handle()}" th:text="${e.nickname()}">닉네임</a>
+        </li>
+    </ol>
+    <form th:if="${currentMemberId != null}" method="post" th:action="@{/missions/{id}/leave(id=${mission.id()})}">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit" class="btn-text btn-sm">내 참여 빼기</button>
+    </form>
+</main>
+</body>
+</html>
