@@ -1,0 +1,2 @@
+# Data Model: 회원 탈퇴 (023)
+새 마이그레이션 없음. `member.status`·`withdrawn_at`·`deleted_at`(익명화 표시), 닉네임 등 NULL 가능 칸(`ck_member_nickname_null`). 정리 단계 순서 10~90(인터페이스 `WithdrawalPurgeStep`). 사건 `MemberWithdrawalRequested(memberId, email, restoreDeadline)`, `MemberRestored(memberId, email)`. Redis `withdraw:fail:{id}`·`withdraw:lock:{id}`. 오류 409 `ADMIN_CANNOT_WITHDRAW`, 400 `WITHDRAW_CONFIRM_REQUIRED`·`WITHDRAW_VERIFICATION_FAILED`, 429. 설정 `blog.withdraw.*`.

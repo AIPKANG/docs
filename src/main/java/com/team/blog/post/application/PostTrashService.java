@@ -150,6 +150,16 @@ public class PostTrashService {
     }
 
     /**
+     * 023 익명 처리 단계 10: 이 회원의 글을 휴지통 포함 모두 완전 삭제(남의 댓글·좋아요·알림은 FK로 함께). 부르는 쪽 트랜잭션 안에서.
+     */
+    public int purgeAllByAuthor(long authorId) {
+        Instant now = clock.instant();
+        List<Long> ids = jdbc.queryForList("SELECT id FROM post WHERE author_id = ? FOR UPDATE", Long.class, authorId);
+        ids.forEach(id -> purgeLocked(id, now));
+        return ids.size();
+    }
+
+    /**
      * 완전 삭제(FR-029~FR-031): 이 글에서만 쓰던 사진은 끊긴 시각을 기록하고(7일 뒤 사진 정리), 글을 지운다 — 댓글·좋아요·태그 연결·
      * 사진 연결·작업본은 FK CASCADE로 함께 지워지고 태그 자체는 남는다. 글 번호는 IDENTITY라 재사용되지 않는다.
      */

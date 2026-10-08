@@ -230,6 +230,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
     }
 
+    @ExceptionHandler(AdminCannotWithdrawException.class)
+    public ResponseEntity<ErrorResponse> adminCannotWithdraw() {
+        return json(HttpStatus.CONFLICT, error(AdminCannotWithdrawException.CODE));
+    }
+
     @ExceptionHandler(CannotReportOwnException.class)
     public ResponseEntity<ErrorResponse> cannotReportOwn(CannotReportOwnException e) {
         return json(HttpStatus.BAD_REQUEST, error(e.getCode()));

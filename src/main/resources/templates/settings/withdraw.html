@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>회원 탈퇴</title>
+</head>
+<body>
+<main class="settings">
+    <h1>회원 탈퇴</h1>
+    <!-- ① 안내(화면을 열 때 계산) -->
+    <section aria-labelledby="withdraw-info">
+        <h2 id="withdraw-info">탈퇴하면</h2>
+        <ul>
+            <li><span th:text="${'블로그 주소 @' + overview.handle()}">블로그 주소</span>와 모든 글이 바로 다른 사람에게 보이지 않아요.</li>
+            <li th:text="${'내 글 ' + overview.postCount() + '개(휴지통 포함), 남의 글에 쓴 댓글 ' + overview.commentCount() + '개, 받은 좋아요 ' + overview.likesReceived() + '개'}">내 글 수</li>
+            <li th:text="${deadline + '까지 로그인하면 복구할 수 있어요.'}">복구 기한</li>
+            <li>그 뒤에는 글·사진·좋아요가 완전히 삭제되고 되돌릴 수 없어요.</li>
+            <li>답글이 달린 댓글은 내용 없이 자리만 남아요.</li>
+            <li>블로그 주소는 다른 사람도, 나도 다시 쓸 수 없어요.</li>
+        </ul>
+    </section>
+    <!-- ② 본인 확인 → [탈퇴하기]. 사유는 묻지 않는다 -->
+    <form method="post" action="/settings/withdraw" id="withdraw-form">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div class="field">
+            <label><input type="checkbox" name="confirm" id="withdraw-confirm" value="on"> 위 내용을 확인했어요</label>
+            <p class="field-error" data-error-for="confirm" role="alert"></p>
+        </div>
+        <div class="field" th:if="${overview.passwordAccount()}">
+            <label for="withdraw-verification">현재 비밀번호</label>
+            <input type="password" id="withdraw-verification" name="verification" autocomplete="current-password">
+        </div>
+        <div class="field" th:unless="${overview.passwordAccount()}">
+            <label for="withdraw-verification">확인을 위해 "탈퇴"를 입력해 주세요</label>
+            <input type="text" id="withdraw-verification" name="verification" autocomplete="off">
+        </div>
+        <p class="field-error" data-error-for="verification" role="alert"></p>
+        <button type="submit" id="withdraw-submit" disabled>탈퇴하기</button>
+        <a href="/settings">취소</a>
+    </form>
+    <script src="/js/account/withdraw.js" defer></script>
+</main>
+</body>
+</html>

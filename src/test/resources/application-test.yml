@@ -27,6 +27,8 @@ blog:
     refresh-enabled: false
   moderation:
     cleanup-enabled: false
+  withdraw:
+    purge-enabled: false
   notification:
     async: false
     cleanup-enabled: false

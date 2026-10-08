@@ -7,8 +7,9 @@
 <body>
 <main>
     <h1>탈퇴 신청한 계정이에요</h1>
-    <p>복구하면 다시 블로그를 쓸 수 있어요. 복구하지 않으면 유예 기간이 지난 뒤 계정이 정리돼요.</p>
-    <!-- 복구 동작(POST /account/restore)은 회원 탈퇴 기능(13·44)이 맡는다 -->
+    <p th:if="${restoreDeadline != null}" th:text="${restoreDeadline + '까지 복구할 수 있어요 (' + restoreDaysLeft + '일 남음)'}">복구 기한</p>
+    <p>복구하면 블로그와 글이 탈퇴 전 그대로 돌아와요. 복구하지 않으면 기한이 지난 뒤 계정이 정리돼요.</p>
+    <!-- 로그인만으로는 복구되지 않는다: [복구하기]를 눌러야 한다(023 FR-021) -->
     <form method="post" th:action="@{/account/restore}">
         <button type="submit">복구하기</button>
     </form>

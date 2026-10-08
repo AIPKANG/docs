@@ -266,6 +266,14 @@ blog:
   follow:
     per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
     page-size: 20
+  # 023-account-withdraw: 13 §3, 44
+  withdraw:
+    grace: 30d
+    max-failures: 5
+    lock-duration: 15m
+    purge-enabled: true
+    purge-cron: "0 0 3 * * *"
+    purge-batch: 100
   # 022-report-hide: 43 §2·§6
   moderation:
     reports-per-minute: 5
