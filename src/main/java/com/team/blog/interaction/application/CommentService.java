@@ -28,8 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * 댓글 작성·수정·삭제(014, 21 §5·§7·§8). 구조는 1단계: 답글은 항상 최상위 아래({@code parent_id} = 최상위),
- * 답글의 답글은 대상 회원만 기록한다. 최상위 행 잠금으로 같은 스레드의 작성·삭제를 직렬화한다.
+ * 댓글 작성·수정·삭제(014, 21 §5·§7·§8). 공통 구조는 1단계: 답글은 항상 최상위 아래({@code parent_id} = 최상위),
+ * 답글의 답글은 대상 회원만 기록한다. {@code blog.comment.max-depth}가 1이 아니면(028 강성찬 개인 확장) 답글은 바로 위 댓글 아래에 단다. 최상위 행 잠금으로 같은 스레드의 작성·삭제를 직렬화한다.
  */
 @Service
 public class CommentService {
@@ -118,6 +118,19 @@ public class CommentService {
                     // 대상과 그 최상위를 잠근다: 동시에 최상위 삭제가 오면 한쪽이 먼저 반영된다(FR-028)
                     Target t = target(replyTo, " FOR SHARE OF c").filter(Target::normal)
                             .orElseThrow(() -> new PostContentException(REPLY_TARGET_UNAVAILABLE));
+                    if (properties.nested()) {
+                        // 028 강성찬 개인 확장: 바로 위 댓글에 단다(대상은 구조가 곧 보여 주므로 @대상은 쓰지 않음)
+                        if (properties.maxDepth() > 1 && depth(t.id()) >= properties.maxDepth()) {
+                            throw new PostContentException(REPLY_TARGET_UNAVAILABLE);
+                        }
+                        Long nestedId = jdbc.queryForObject("""
+                                INSERT INTO comment (post_id, author_id, parent_id, content, created_at, updated_at)
+                                VALUES (?, ?, ?, ?, ?, ?) RETURNING id
+                                """, Long.class, postId, user.memberId(), t.id(), content, Timestamp.from(now), Timestamp.from(now));
+                        postCounters.adjustComments(postId, +1);
+                        events.publishEvent(new CommentCreated(nestedId, postId, user.memberId(), t.id(), null, t.authorId()));
+                        return nestedId;
+                    }
                     rootId = t.rootId();
                     replyTargetAuthor = t.authorId();
                     if (t.parentId() != null) {
@@ -178,26 +191,26 @@ public class CommentService {
                 .orElseThrow(NotFoundException::new);
         postReadAccess.requireReadable(currentUser, first.postId());
         Boolean deleted = transactionTemplate.execute(status -> {
-            // 최상위를 먼저 잠근다(작성의 FOR SHARE와 직렬화)
-            target(first.rootId(), " FOR UPDATE OF c");
+            // 지울 댓글을 먼저, 그다음 위쪽을 잠근다(작성의 대상 → 최상위 FOR SHARE와 같은 순서)
             Target t = target(commentId, " FOR UPDATE OF c").filter(x -> !x.deleted()).orElse(null);
             if (t == null) {
                 return false;
             }
-            if (t.parentId() == null) {
-                Integer replies = jdbc.queryForObject("SELECT count(*) FROM comment WHERE parent_id = ?", Integer.class, t.id());
-                if (replies != null && replies > 0) {
-                    jdbc.update("UPDATE comment SET content = '', deleted_at = ? WHERE id = ?", Timestamp.from(clock.instant()), t.id());
-                } else {
-                    jdbc.update("DELETE FROM comment WHERE id = ?", t.id());
-                }
+            // 아래 답글이 있으면 자리만, 없으면 행 삭제(답글 깊이와 상관없이 같은 규칙, 028)
+            if (hasChildren(t.id())) {
+                jdbc.update("UPDATE comment SET content = '', deleted_at = ? WHERE id = ?", Timestamp.from(clock.instant()), t.id());
             } else {
                 jdbc.update("DELETE FROM comment WHERE id = ?", t.id());
-                // 자리만 남은 최상위에 답글이 없으면 자리도 정리(댓글 수 변화 없음)
-                jdbc.update("""
-                        DELETE FROM comment r WHERE r.id = ? AND r.deleted_at IS NOT NULL
-                          AND NOT EXISTS (SELECT 1 FROM comment c WHERE c.parent_id = r.id)
-                        """, t.parentId());
+                // 자리만 남은 위쪽 댓글에 답글이 없어지면 위로 올라가며 자리도 정리(댓글 수 변화 없음)
+                Long up = t.parentId();
+                while (up != null) {
+                    Target p = target(up, " FOR UPDATE OF c").orElse(null);
+                    if (p == null || !p.deleted() || hasChildren(p.id())) {
+                        break;
+                    }
+                    jdbc.update("DELETE FROM comment WHERE id = ?", p.id());
+                    up = p.parentId();
+                }
             }
             if (!t.hidden()) {
                 postCounters.adjustComments(t.postId(), -1);
@@ -208,6 +221,22 @@ public class CommentService {
         if (!Boolean.TRUE.equals(deleted)) {
             throw new NotFoundException();
         }
+    }
+
+    private boolean hasChildren(long commentId) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM comment WHERE parent_id = ?)",
+                Boolean.class, commentId));
+    }
+
+    /** 댓글의 깊이(최상위 1). */
+    private int depth(long commentId) {
+        Integer d = jdbc.queryForObject("""
+                WITH RECURSIVE up(id, parent_id, d) AS (
+                  SELECT id, parent_id, 1 FROM comment WHERE id = ?
+                  UNION ALL SELECT c.id, c.parent_id, up.d + 1 FROM comment c JOIN up ON c.id = up.parent_id)
+                SELECT max(d) FROM up
+                """, Integer.class, commentId);
+        return d == null ? 1 : d;
     }
 
     private void limit(String prefix, long memberId, int perMinute) {

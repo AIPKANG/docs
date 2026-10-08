@@ -65,7 +65,7 @@ public class CommentQuery {
         int size = properties.pageSize();
         String rootsWhere = SELECT + " WHERE c.post_id = ? AND c.parent_id IS NULL";
         Optional<Row> target = around == null ? Optional.empty() : findAroundTarget(postId, around);
-        Row targetRoot = target.map(t -> t.parentId() == null ? t : rowById(t.parentId()).orElse(null)).orElse(null);
+        Row targetRoot = target.map(this::rootOf).orElse(null);
         List<Row> roots;
         boolean hasNext;
         String prevCursor = null;
@@ -100,6 +100,9 @@ public class CommentQuery {
         }
         String next = hasNext && !roots.isEmpty()
                 ? new FeedCursor(roots.get(roots.size() - 1).createdAt(), roots.get(roots.size() - 1).id()).encode() : null;
+        if (properties.nested()) {
+            return new CommentPage(withTree(viewer, postAuthorId, roots), next, prevCursor);
+        }
         Long expandRoot = target.isPresent() && target.get().parentId() != null ? target.get().parentId() : null;
         Long expandTo = expandRoot == null ? null : target.get().id();
         return new CommentPage(withReplies(viewer, postAuthorId, roots, expandRoot, expandTo), next, prevCursor);
@@ -131,6 +134,52 @@ public class CommentQuery {
         Row r = rowById(commentId).orElseThrow(com.team.blog.shared.error.NotFoundException::new);
         PostReadAccess.ReadablePost post = postReadAccess.requireReadable(viewer, r.postId());
         return view(viewer, post.authorId(), r, r.parentId() == null ? 0 : null, r.parentId() == null ? List.of() : null, null);
+    }
+
+    /** 최상위 댓글(공통 구조에서는 바로 위가 최상위, 028 구조에서는 위로 끝까지). */
+    private Row rootOf(Row r) {
+        Row cur = r;
+        while (cur != null && cur.parentId() != null) {
+            cur = rowById(cur.parentId()).orElse(null);
+        }
+        return cur;
+    }
+
+    /**
+     * 028 강성찬 개인 확장: 페이지의 최상위 댓글 아래 대화 전체를 한 번에 읽어 나무로 만든다(SQL 1번, 페이지당 최대 2,000개).
+     * 펼침·접기(3단계까지 펼침, 각 단계 처음 3개)는 화면이 정한다.
+     */
+    private List<CommentView> withTree(Optional<CurrentUser> viewer, long postAuthorId, List<Row> roots) {
+        if (roots.isEmpty()) {
+            return List.of();
+        }
+        Long[] ids = roots.stream().map(Row::id).toArray(Long[]::new);
+        Map<Long, List<Row>> children = new LinkedHashMap<>();
+        jdbc.query(con -> {
+            var ps = con.prepareStatement("""
+                    WITH RECURSIVE t(id) AS (
+                      SELECT c.id FROM comment c WHERE c.parent_id = ANY(?)
+                      UNION ALL SELECT c.id FROM comment c JOIN t ON c.parent_id = t.id)
+                    """ + SELECT + " WHERE c.id IN (SELECT id FROM t LIMIT 2000) ORDER BY c.created_at, c.id");
+            ps.setArray(1, con.createArrayOf("bigint", ids));
+            return ps;
+        }, rs -> {
+            Row r = row(rs);
+            children.computeIfAbsent(r.parentId(), k -> new ArrayList<>()).add(r);
+        });
+        List<CommentView> out = new ArrayList<>();
+        for (Row root : roots) {
+            out.add(tree(viewer, postAuthorId, root, children));
+        }
+        return out;
+    }
+
+    private CommentView tree(Optional<CurrentUser> viewer, long postAuthorId, Row r, Map<Long, List<Row>> children) {
+        List<CommentView> kids = new ArrayList<>();
+        for (Row c : children.getOrDefault(r.id(), List.of())) {
+            kids.add(tree(viewer, postAuthorId, c, children));
+        }
+        return view(viewer, postAuthorId, r, kids.size(), kids, null);
     }
 
     private Optional<Row> rowById(long id) {

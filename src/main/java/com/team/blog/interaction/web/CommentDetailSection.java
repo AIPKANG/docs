@@ -25,9 +25,12 @@ public class CommentDetailSection implements PostDetailSection {
     private final CommentQuery commentQuery;
     private final Clock clock;
     private final com.team.blog.shared.security.AccountGuard accountGuard;
+    private final com.team.blog.interaction.application.CommentProperties commentProperties;
 
     public CommentDetailSection(CommentQuery commentQuery, Clock clock,
-                                com.team.blog.shared.security.AccountGuard accountGuard) {
+                                com.team.blog.shared.security.AccountGuard accountGuard,
+                                com.team.blog.interaction.application.CommentProperties commentProperties) {
+        this.commentProperties = commentProperties;
         this.commentQuery = commentQuery;
         this.clock = clock;
         this.accountGuard = accountGuard;
@@ -51,12 +54,7 @@ public class CommentDetailSection implements PostDetailSection {
             page = commentQuery.pageOfReadable(viewer, post.id(), post.authorId(), null, null, null);
         }
         Map<Long, String> dates = new HashMap<>();
-        page.items().forEach(c -> {
-            dates.put(c.id(), CardDates.label(c.createdAt(), clock.instant()));
-            if (c.replies() != null) {
-                c.replies().forEach(r -> dates.put(r.id(), CardDates.label(r.createdAt(), clock.instant())));
-            }
-        });
+        page.items().forEach(c -> putDates(dates, c));
         String writeState = "GUEST";
         if (viewer.isPresent()) {
             try {
@@ -72,7 +70,16 @@ public class CommentDetailSection implements PostDetailSection {
         model.addAttribute("commentWriteState", writeState);
         model.addAttribute("comments", page);
         model.addAttribute("commentDates", dates);
+        model.addAttribute("commentNested", commentProperties.nested()); // 028 강성찬 개인 확장
         model.addAttribute("commentTarget", around);
         model.addAttribute("commentContinued", params.get("commentCursor") != null);
+    }
+
+    /** 답글 깊이와 상관없이 화면에 나오는 모든 댓글의 날짜(028). */
+    private void putDates(Map<Long, String> dates, com.team.blog.interaction.application.CommentView c) {
+        dates.put(c.id(), CardDates.label(c.createdAt(), clock.instant()));
+        if (c.replies() != null) {
+            c.replies().forEach(r -> putDates(dates, r));
+        }
     }
 }

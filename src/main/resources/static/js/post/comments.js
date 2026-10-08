@@ -156,6 +156,8 @@
     // 특정 댓글로 들어왔으면 스크롤 + 잠깐 강조(FR-020)
     var target = section.dataset.commentTarget && document.getElementById('comment-' + section.dataset.commentTarget);
     if (target) {
+      // 028: 접힌 답글 안이면 펼친다
+      for (var d = target.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) { d.open = true; }
       target.scrollIntoView({ block: 'center' });
       target.classList.add('highlight');
       setTimeout(function () { target.classList.remove('highlight'); }, 2500);

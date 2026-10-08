@@ -89,7 +89,9 @@
                        th:href="@{${post.url()}}">이전 댓글 보기</a></p>
                 <p th:if="${comments.items().isEmpty() and !commentContinued}" class="help">첫 댓글을 남겨 보세요</p>
                 <ol class="comment-list" id="comment-list">
-                    <li th:each="c : ${comments.items()}" class="comment-thread">
+                    <li th:each="c : ${comments.items()}" th:if="${commentNested}" class="comment-thread"><th:block
+                        th:replace="~{fragments/comment :: node(${c}, 1)}"></th:block></li>
+                    <li th:each="c : ${comments.items()}" th:unless="${commentNested}" class="comment-thread">
                         <div th:replace="~{fragments/comment :: comment(${c}, ${commentDates.get(c.id())})}"></div>
                         <ol class="reply-list">
                             <li th:each="r : ${c.replies()}">

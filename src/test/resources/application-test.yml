@@ -19,6 +19,9 @@ blog:
   markdown:
     rerender:
       enabled: false
+  # 공통 댓글 테스트(014)는 공통 구조(답글 1단계)로 돈다. 028 개인 확장(무제한)은 NestedRepliesIT가 따로 켠다
+  comment:
+    max-depth: 1
   like:
     reconcile-enabled: false
   view:

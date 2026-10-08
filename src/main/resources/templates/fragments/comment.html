@@ -32,5 +32,30 @@
         <p class="field-error comment-error" role="alert" hidden></p>
     </th:block>
 </div>
+<!--
+  028 강성찬 개인 확장: 답글 무제한 깊이. thread = 같은 단계의 답글 목록(처음 3개, 나머지는 "답글 N개 더보기"로 접음),
+  node = 댓글 하나와 그 아래. 3단계까지 펼치고 4단계부터는 접는다(21 §13). 스크립트 없이 <details>로 펼친다.
+-->
+<th:block th:fragment="thread(items, level)">
+    <li th:each="item, st : ${items}" th:if="${st.index < 3}"><th:block th:replace="~{fragments/comment :: node(${item}, ${level})}"></th:block></li>
+    <li th:if="${items.size() > 3}" class="replies-rest">
+        <details>
+            <summary th:text="${'답글 ' + (items.size() - 3) + '개 더보기'}">답글 더보기</summary>
+            <ol class="reply-list">
+                <li th:each="item, st : ${items}" th:if="${st.index >= 3}"><th:block th:replace="~{fragments/comment :: node(${item}, ${level})}"></th:block></li>
+            </ol>
+        </details>
+    </li>
+</th:block>
+<th:block th:fragment="node(n, nodeLevel)">
+    <div th:replace="~{fragments/comment :: comment(${n}, ${commentDates.get(n.id())})}"></div>
+    <th:block th:if="${n.replies() != null and !n.replies().isEmpty()}" th:with="kids=${n.replies()}, next=${nodeLevel + 1}, count=${n.replyCount()}">
+        <ol th:if="${nodeLevel < 3}" class="reply-list"><th:block th:replace="~{fragments/comment :: thread(${kids}, ${next})}"></th:block></ol>
+        <details th:unless="${nodeLevel < 3}" class="replies-fold">
+            <summary th:text="${'답글 ' + count + '개 더보기'}">답글 더보기</summary>
+            <ol class="reply-list"><th:block th:replace="~{fragments/comment :: thread(${kids}, ${next})}"></th:block></ol>
+        </details>
+    </th:block>
+</th:block>
 </body>
 </html>

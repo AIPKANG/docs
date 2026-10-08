@@ -36,22 +36,22 @@ public final class InteractionPurgeSteps {
         public void purge(long memberId) {
             Timestamp now = Timestamp.from(clock.instant());
             List<Long> posts = jdbc.queryForList("SELECT DISTINCT post_id FROM comment WHERE author_id = ?", Long.class, memberId);
-            // 답글(잎)부터 지운다
-            jdbc.update("DELETE FROM comment WHERE author_id = ? AND parent_id IS NOT NULL", memberId);
-            // 최상위: 답글이 남아 있으면 자리만, 아니면 삭제
+            // 아래 답글이 있으면 자리만 남기고, 없으면 지운다(답글 깊이와 상관없이 — 028에서 답글 아래 답글이 있을 수 있어
+            // 행을 지우면 남의 답글까지 함께 지워지므로 잎만 지운다)
             jdbc.update("""
                     UPDATE comment c SET content = '', deleted_at = COALESCE(c.deleted_at, ?)
-                    WHERE c.author_id = ? AND c.parent_id IS NULL AND EXISTS (SELECT 1 FROM comment r WHERE r.parent_id = c.id)
+                    WHERE c.author_id = ? AND EXISTS (SELECT 1 FROM comment r WHERE r.parent_id = c.id)
                     """, now, memberId);
             jdbc.update("""
-                    DELETE FROM comment c WHERE c.author_id = ? AND c.parent_id IS NULL
-                      AND NOT EXISTS (SELECT 1 FROM comment r WHERE r.parent_id = c.id)
+                    DELETE FROM comment c WHERE c.author_id = ? AND NOT EXISTS (SELECT 1 FROM comment r WHERE r.parent_id = c.id)
                     """, memberId);
-            // 답글이 모두 사라진 남의 자리(삭제된 최상위)도 정리
-            jdbc.update("""
-                    DELETE FROM comment c WHERE c.deleted_at IS NOT NULL AND c.parent_id IS NULL AND c.post_id = ANY (?)
+            // 아래 답글이 모두 사라진 자리(삭제된 댓글)를 위로 올라가며 정리
+            while (jdbc.update("""
+                    DELETE FROM comment c WHERE c.deleted_at IS NOT NULL AND c.post_id = ANY (?)
                       AND NOT EXISTS (SELECT 1 FROM comment r WHERE r.parent_id = c.id)
-                    """, (Object) posts.toArray(new Long[0]));
+                    """, (Object) posts.toArray(new Long[0])) > 0) {
+                // 한 단계씩 위로
+            }
             recount(posts);
         }
 

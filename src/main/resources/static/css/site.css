@@ -458,3 +458,7 @@ html, body { overflow-x: clip; }
 .friend-form { display: inline-flex; gap: 6px; align-items: center; margin: 0 0 0 6px; }
 .friend-badge { color: var(--color-brand); font-weight: 600; font-size: .9em; }
 .friends-page section { margin: 24px 0; }
+/* 028 답글 무제한 깊이(강성찬 개인 확장): 들여쓰기는 3단계 폭까지만 늘고 그 뒤로는 같은 폭 */
+.reply-list .reply-list .reply-list .reply-list { margin-left: 0; }
+.replies-rest, .replies-fold { margin: 4px 0; }
+.replies-rest > details > summary, .replies-fold > summary { cursor: pointer; color: var(--color-brand); font-size: .9em; padding: 4px 0; }

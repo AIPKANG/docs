@@ -246,6 +246,8 @@ blog:
     create-per-minute: 10
     edit-per-minute: 20
     dedupe-window: 10s
+    # 028 강성찬 개인 확장(21 §13): 답글 무제한 깊이(0). 공통으로 되돌리려면 1
+    max-depth: 0
   # 015-like: 매일 좋아요 수 보정
   like:
     reconcile-enabled: true
