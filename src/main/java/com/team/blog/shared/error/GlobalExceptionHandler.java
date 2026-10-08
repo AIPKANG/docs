@@ -114,7 +114,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProfileValidationException.class)
     public ResponseEntity<ErrorResponse> profileValidation(ProfileValidationException e) {
         java.util.List<ErrorResponse.Item> items = e.getErrors().stream()
-                .map(error -> new ErrorResponse.Item(error.field(), error.code(), fieldMessage(error), error.nextAllowedAt()))
+                .map(error -> new ErrorResponse.Item(error.field(), error.code(), fieldMessage(error), error.nextAllowedAt(),
+                        error.value()))
                 .toList();
         HttpStatus status = e.isConflictOnly() ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
         return json(status, error(ProfileValidationException.CODE).withErrors(items));

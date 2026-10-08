@@ -105,7 +105,7 @@
       var button = box.querySelector('.more-button');
       if (button) { button.textContent = '불러오는 중…'; button.setAttribute('aria-disabled', 'true'); button.style.pointerEvents = 'none'; }
       errorBox.hidden = true;
-      fetch(api + '?cursor=' + encodeURIComponent(next), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+      fetch(api + (api.indexOf('?') >= 0 ? '&' : '?') + 'cursor=' + encodeURIComponent(next), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
         .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
         .then(function (page) { append(page.items || []); next = page.nextCursor; render(); })
         .catch(function () {

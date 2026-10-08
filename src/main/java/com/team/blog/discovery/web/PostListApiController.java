@@ -15,10 +15,13 @@ public class PostListApiController {
 
     private final PostListQuery listQuery;
     private final BlogOwnerResolver blogOwnerResolver;
+    private final com.team.blog.post.application.TagListingQuery tagListingQuery;
 
-    public PostListApiController(PostListQuery listQuery, BlogOwnerResolver blogOwnerResolver) {
+    public PostListApiController(PostListQuery listQuery, BlogOwnerResolver blogOwnerResolver,
+                                 com.team.blog.post.application.TagListingQuery tagListingQuery) {
         this.listQuery = listQuery;
         this.blogOwnerResolver = blogOwnerResolver;
+        this.tagListingQuery = tagListingQuery;
     }
 
     @GetMapping("/api/posts")
@@ -28,8 +31,21 @@ public class PostListApiController {
 
     @GetMapping("/api/members/{handle}/posts")
     public CardPage blog(@PathVariable("handle") String handle,
-                         @RequestParam(value = "cursor", required = false) String cursor) {
+                         @RequestParam(value = "cursor", required = false) String cursor,
+                         @RequestParam(value = "tag", required = false) String tag) {
         long ownerId = blogOwnerResolver.resolve(handle).orElseThrow(NotFoundException::new).memberId();
-        return listQuery.blog(ownerId, cursor);
+        if (tag == null || tag.isEmpty()) {
+            return listQuery.blog(ownerId, cursor);
+        }
+        return com.team.blog.tag.domain.TagNormalizer.lookupName(tag).flatMap(tagListingQuery::tagId)
+                .map(id -> listQuery.blogByTag(ownerId, id, cursor))
+                .orElse(new CardPage(java.util.List.of(), null));
+    }
+
+    /** 013 FR-025: 블로그 태그 줄. */
+    @GetMapping("/api/members/{handle}/tags")
+    public java.util.List<com.team.blog.post.application.TagListingQuery.TagCount> blogTags(@PathVariable("handle") String handle) {
+        long ownerId = blogOwnerResolver.resolve(handle).orElseThrow(NotFoundException::new).memberId();
+        return tagListingQuery.blogTags(ownerId, 100);
     }
 }

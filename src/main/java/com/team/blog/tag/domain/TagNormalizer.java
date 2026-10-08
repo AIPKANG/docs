@@ -45,6 +45,19 @@ public class TagNormalizer {
         return name;
     }
 
+    /**
+     * 주소·자동완성·필터용(013 FR-001·FR-017·FR-021): ①~⑧ 규칙으로 정리한 이름, 형식에 맞지 않으면 빈 값.
+     * 금칙어 검사는 하지 않는다(찾기만 하므로).
+     */
+    public static java.util.Optional<String> lookupName(String raw) {
+        String name = shape(raw);
+        if (name.isEmpty() || !ALLOWED.matcher(name).matches() || !HAS_WORD.matcher(name).find()
+                || name.codePointCount(0, name.length()) > MAX_LENGTH) {
+            return java.util.Optional.empty();
+        }
+        return java.util.Optional.of(name);
+    }
+
     /** ①~⑦(검사 전 모양 만들기). 화면 미리 보여주기와 같은 규칙. */
     public static String shape(String raw) {
         if (raw == null) {

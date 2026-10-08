@@ -15,8 +15,24 @@
             <p class="help" th:text="${'공개 글 ' + publicCount}">공개 글 24</p>
         </div>
     </header>
+    <!-- 013 블로그 태그 줄(처음 10개 + 태그 더 보기)과 필터 -->
+    <nav class="blog-tags" th:unless="${blogTags.isEmpty()}" aria-label="이 블로그의 태그">
+        <th:block th:each="t, st : ${blogTags}" th:if="${st.index < 10}">
+            <a class="tag" th:href="@{'/@' + ${owner.handle()}(tag=${t.name()})}" th:text="${'#' + t.name() + ' ' + t.postCount()}">#태그 1</a>
+        </th:block>
+        <details th:if="${blogTags.size() > 10}">
+            <summary>태그 더 보기</summary>
+            <th:block th:each="t, st : ${blogTags}" th:if="${st.index >= 10}">
+                <a class="tag" th:href="@{'/@' + ${owner.handle()}(tag=${t.name()})}" th:text="${'#' + t.name() + ' ' + t.postCount()}">#태그 1</a>
+            </th:block>
+        </details>
+    </nav>
+    <p th:if="${filterTag != null}" class="tag-filter">
+        <span th:text="${'#' + filterTag + ' 글'}">#태그 글</span>
+        <a th:href="${'/@' + owner.handle()}">필터 해제</a>
+    </p>
     <p th:if="${continued}"><a th:href="${'/@' + owner.handle()}">처음부터 보기</a></p>
-    <th:block th:if="${cards.isEmpty() and !continued}">
+    <th:block th:if="${cards.isEmpty() and !continued and filterTag == null}">
         <p class="empty-state" th:unless="${isOwner}">아직 공개한 글이 없어요</p>
         <div class="empty-state" th:if="${isOwner}">첫 글을 써 보세요
             <form method="post" action="/write" class="inline-form">

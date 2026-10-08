@@ -25,7 +25,11 @@ public record ErrorResponse(String code, String message, String suggestion, Inst
 
     /** 칸별 오류 항목(11 §5). */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record Item(String field, String code, String message, Instant nextAllowedAt) {
+    public record Item(String field, String code, String message, Instant nextAllowedAt, String value) {
+
+        public Item(String field, String code, String message, Instant nextAllowedAt) {
+            this(field, code, message, nextAllowedAt, null);
+        }
     }
 
     public ErrorResponse(String code, String message, String suggestion, Instant nextAllowedAt) {

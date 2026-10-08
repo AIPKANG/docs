@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>태그</title>
+</head>
+<body>
+<main>
+    <h1>태그</h1>
+    <p th:if="${tags.isEmpty()}" class="empty-state">아직 공개된 글에 쓰인 태그가 없어요</p>
+    <ul class="tag-cloud">
+        <li th:each="tag : ${tags}"><a class="tag" th:href="@{/tags/{name}(name=${tag.name()})}"
+               th:text="${'#' + tag.name() + ' ' + tag.postCount()}">#태그 1</a></li>
+    </ul>
+</main>
+</body>
+</html>

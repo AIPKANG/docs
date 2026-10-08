@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${'#' + tagName}">#태그</title>
+</head>
+<body>
+<main class="list-page">
+    <h1 class="tag-head"><span th:text="${'#' + tagName}">#태그</span> <span class="help" th:text="${'· 공개 글 ' + publicCount}">· 공개 글 0</span></h1>
+    <p th:if="${continued}"><a th:href="${tagPath}">처음부터 보기</a></p>
+    <p th:if="${cards.isEmpty() and !continued}" class="empty-state">아직 이 태그로 공개된 글이 없어요</p>
+    <div class="card-grid" id="card-grid">
+        <th:block th:each="card : ${cards}">
+            <article th:replace="~{fragments/post-card :: card(${card}, ${cardDates.get(card.id())}, true)}"></article>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/post-card :: more(${nextCursor}, ${listApi}, true, ${!cards.isEmpty()})}"></div>
+    <script src="/js/post/list-more.js" defer></script>
+</main>
+</body>
+</html>

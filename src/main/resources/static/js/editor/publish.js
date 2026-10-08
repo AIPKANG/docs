@@ -45,6 +45,28 @@
       tags.forEach(function (tag, i) {
         var chip = document.createElement('span');
         chip.className = 'tag-chip';
+        chip.tabIndex = 0;
+        chip.draggable = true;
+        chip.setAttribute('aria-label', tag + ' 태그, Alt와 방향키로 순서 바꾸기');
+        chip.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', String(i)); });
+        chip.addEventListener('dragover', function (e) { e.preventDefault(); });
+        chip.addEventListener('drop', function (e) {
+          e.preventDefault();
+          var from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          if (isNaN(from) || from === i) { return; }
+          var moved = tags.splice(from, 1)[0];
+          tags.splice(i, 0, moved);
+          renderChips();
+        });
+        chip.addEventListener('keydown', function (e) {
+          if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) { return; }
+          e.preventDefault();
+          var to = e.key === 'ArrowLeft' ? i - 1 : i + 1;
+          if (to < 0 || to >= tags.length) { return; }
+          var t = tags[i]; tags[i] = tags[to]; tags[to] = t;
+          renderChips();
+          chips.children[to].focus();
+        });
         if (errorIndexes && errorIndexes[i]) { chip.dataset.error = 'true'; }
         chip.appendChild(document.createTextNode('#' + tag + ' '));
         var remove = document.createElement('button');
@@ -69,10 +91,49 @@
     }
 
     input.addEventListener('keydown', function (e) {
+      if (composing) { return; }
       if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
       else if (e.key === 'Backspace' && input.value === '' && tags.length) { tags.pop(); renderChips(); }
     });
-    input.addEventListener('blur', function () { if (input.value.trim()) { addTag(); } });
+    input.addEventListener('blur', function () { setTimeout(function () { if (input.value.trim()) { addTag(); } closeSuggest(); }, 150); });
+
+    /* 013 자동완성: 0.3초 멈추면, 한글 조합 중에는 부르지 않는다. 내 태그 먼저. */
+    var suggestBox = document.createElement('ul');
+    suggestBox.className = 'tag-suggest';
+    suggestBox.setAttribute('role', 'listbox');
+    suggestBox.hidden = true;
+    input.parentNode.insertBefore(suggestBox, input.nextSibling);
+    var composing = false, suggestTimer = null;
+    function closeSuggest() { suggestBox.hidden = true; suggestBox.textContent = ''; }
+    input.addEventListener('compositionstart', function () { composing = true; });
+    input.addEventListener('compositionend', function () { composing = false; scheduleSuggest(); });
+    input.addEventListener('input', function () { if (!composing) { scheduleSuggest(); } });
+    function scheduleSuggest() {
+      clearTimeout(suggestTimer);
+      suggestTimer = setTimeout(function () {
+        var q = shape(input.value.split(',').pop());
+        if (!q) { closeSuggest(); return; }
+        fetch('/api/tags/suggest?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+          .then(function (res) { return res.ok ? res.json() : []; })
+          .then(function (items) {
+            suggestBox.textContent = '';
+            items.forEach(function (item) {
+              var li = document.createElement('li');
+              li.setAttribute('role', 'option');
+              li.textContent = '#' + item.name + ' ' + item.postCount + (item.mine ? ' · 내 태그' : '');
+              li.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                if (tags.indexOf(item.name) < 0) { tags.push(item.name); }
+                input.value = '';
+                renderChips();
+                closeSuggest();
+              });
+              suggestBox.appendChild(li);
+            });
+            suggestBox.hidden = items.length === 0;
+          }).catch(closeSuggest);
+      }, 300);
+    }
 
     /* 008 FR-029·FR-030: 대체글이 빈 사진 안내와 사진별 입력칸(본문 ![대체글](주소)에 반영, 발행은 막지 않음) */
     var altSection = document.getElementById('alt-section');

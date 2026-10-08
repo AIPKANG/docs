@@ -65,7 +65,7 @@ public class PublishValidator {
             try {
                 tags.add(tagNormalizer.normalize(rawTags.get(i)));
             } catch (TagRejectedException e) {
-                errors.add(FieldError.of("tags[" + i + "]", e.getCode()));
+                errors.add(FieldError.withValue("tags[" + i + "]", e.getCode(), rawTags.get(i)));
             }
         }
         if (tags.size() > properties.maxTags()) {

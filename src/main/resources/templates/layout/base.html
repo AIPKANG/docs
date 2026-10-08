@@ -147,6 +147,15 @@
         .row-main, .row-actions { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
         .row-actions form { margin: 0; }
         .untitled { color: #6e7781; }
+        /* 013 태그 */
+        .tag-suggest { list-style: none; margin: 4px 0; padding: 0; border: 1px solid #d0d7de; max-width: 320px; }
+        .tag-suggest li { padding: 4px 8px; cursor: pointer; }
+        .tag-suggest li:hover { background: #f6f8fa; }
+        .tag-chip:focus { outline: 2px solid #0969da; }
+        .tag-cloud { list-style: none; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+        .blog-tags { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+        .blog-tags details { display: contents; }
+        .tag-filter { display: flex; gap: 12px; align-items: center; }
         .manage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .post-rows { list-style: none; padding: 0; }
         .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
@@ -164,6 +173,7 @@
                 <button type="submit">새 글</button>
             </form>
             <a href="/manage/posts">내 글</a>
+            <a href="/tags">태그</a>
             <a href="/settings">설정</a>
             <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -171,6 +181,7 @@
             </form>
         </th:block>
         <th:block th:unless="${currentMemberId != null}">
+            <a href="/tags">태그</a>
             <a href="/login">로그인</a>
             <a href="/signup">가입하기</a>
         </th:block>
