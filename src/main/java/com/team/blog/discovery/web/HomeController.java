@@ -27,8 +27,11 @@ public class HomeController {
     private final PostListQuery listQuery;
     private final TrendingService trendingService;
     private final Clock clock;
+    private final com.team.blog.discovery.application.NewcomerQuery newcomerQuery;
 
-    public HomeController(PostListQuery listQuery, TrendingService trendingService, Clock clock) {
+    public HomeController(PostListQuery listQuery, TrendingService trendingService, Clock clock,
+                          com.team.blog.discovery.application.NewcomerQuery newcomerQuery) {
+        this.newcomerQuery = newcomerQuery;
         this.listQuery = listQuery;
         this.trendingService = trendingService;
         this.clock = clock;
@@ -55,6 +58,10 @@ public class HomeController {
         model.addAttribute("listApi", trending ? "/api/posts/trending" : "/api/posts");
         model.addAttribute("moreLinkBase", trending ? "?tab=trending&cursor=" : "?cursor=");
         model.addAttribute("heroPhoto", HERO_PHOTO);
+        // 036 강성찬 개인 확장: 새로 온 작가(최신 탭 첫 화면)
+        if (newcomerQuery.enabled() && !trending && (cursor == null || cursor.isEmpty())) {
+            model.addAttribute("newcomers", newcomerQuery.recent());
+        }
         return "home";
     }
 

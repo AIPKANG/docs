@@ -521,3 +521,11 @@ main.notes-page .note-list { background: var(--color-surface); border: 1px solid
 .teaser-box h2 { margin: 0 0 4px; font-size: 1em; }
 .teaser-form { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
 .teaser-form input { flex: 1; min-width: 0; }
+/* 036 새로 온 작가(강성찬 개인 확장) */
+.newcomers { margin: 0 0 24px; }
+.newcomers h2 { font-size: 1.05em; margin: 0 0 10px; display: flex; gap: 8px; align-items: baseline; }
+.newcomer-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.newcomer { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.newcomer-who { display: inline-flex; gap: 8px; align-items: center; color: var(--color-text); text-decoration: none; font-weight: 700; }
+.newcomer-post { color: var(--color-text-muted); font-size: .9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

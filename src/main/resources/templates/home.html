@@ -49,6 +49,18 @@
             <a th:unless="${currentMemberId != null}" href="/login">로그인</a>
         </div>
     </th:block>
+    <!-- 036 강성찬 개인 확장: 새로 온 작가와 그 첫 글 -->
+    <section th:if="${newcomers != null and !newcomers.isEmpty()}" class="newcomers" aria-labelledby="newcomers-heading">
+        <h2 id="newcomers-heading">새로 온 작가 <span class="help">첫 글을 반겨 주세요</span></h2>
+        <ul class="newcomer-list">
+            <li th:each="n : ${newcomers}" class="newcomer">
+                <a th:href="${'/@' + n.handle()}" class="newcomer-who">
+                    <th:block th:replace="~{fragments/avatar :: avatar(${n.avatar()}, 36)}"></th:block>
+                    <span th:text="${n.nickname()}">닉네임</span></a>
+                <a th:href="${n.url()}" class="newcomer-post" th:text="${'첫 글 · ' + n.title()}">첫 글</a>
+            </li>
+        </ul>
+    </section>
     <div class="card-grid" id="card-grid">
         <th:block th:each="card : ${cards}">
             <article th:replace="~{fragments/post-card :: card(${card}, ${cardDates.get(card.id())}, true)}"></article>
