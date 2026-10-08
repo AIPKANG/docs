@@ -6,9 +6,25 @@ body { margin: 0; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", 
 main { max-width: 760px; margin: 0 auto; padding: 24px 16px; }
 img { max-width: 100%; height: auto; }
 a { color: var(--color-brand); }
-.site-header { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px;
+.site-header { position: relative; max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px;
                justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--color-border); }
 .site-header nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.site-nav { margin-left: auto; }
+.site-menu { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.header-quick { display: flex; gap: 10px; align-items: center; }
+.menu-toggle { background: none; border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-text);
+    font: inherit; line-height: 1.6; padding: 0 8px; cursor: pointer; }
+/* 좁은 화면 + 스크립트 있음: 메뉴를 ☰ 안으로 접는다 */
+@media (max-width: 640px) {
+    .js .site-header { flex-wrap: nowrap; }
+    .js .site-nav { flex-wrap: nowrap; }
+    .js .site-menu { display: none; }
+    .js .site-nav[data-open] .site-menu { display: flex; flex-direction: column; align-items: stretch; position: absolute; top: 100%;
+        left: 0; right: 0; z-index: 20; background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+        padding: 8px 16px 12px; gap: 4px; }
+    .js .site-nav[data-open] .site-menu > a, .js .site-nav[data-open] .site-menu button { padding: 8px 0; text-align: left; }
+    .js .header-search input { width: 7em; }
+}
 .site-header form { margin: 0; }
 .auth-form .field { margin: 16px 0; }
 .auth-form input[type=email], .auth-form input[type=text], .auth-form input[type=password] { width: 100%; max-width: 420px; padding: 8px; }

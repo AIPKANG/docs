@@ -4,6 +4,8 @@
  */
 (function () {
   'use strict';
+  // 스크립트가 있음을 CSS에 알린다(좁은 화면 메뉴 접기 등)
+  document.documentElement.classList.add('js');
   try {
     var saved = window.localStorage.getItem('blog-theme');
     if (saved === 'light' || saved === 'dark') {

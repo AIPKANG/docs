@@ -38,34 +38,41 @@
         <label for="header-q" class="visually-hidden">검색</label>
         <input id="header-q" type="search" name="q" maxlength="50" placeholder="검색">
     </form>
-    <nav>
-        <th:block th:if="${currentMemberId != null}">
-            <form method="post" action="/write">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                <button type="submit">새 글</button>
-            </form>
-            <a href="/feed">피드</a>
-            <a href="/manage/posts">내 글</a>
-            <a href="/tags">태그</a>
-            <span class="notif-bell-wrap">
+    <nav class="site-nav" aria-label="주요 메뉴">
+        <!-- 좁은 화면에서는 ☰ 안으로 접힌다(스크립트가 없으면 지금처럼 모두 펼친다) -->
+        <div id="site-menu" class="site-menu">
+            <th:block th:if="${currentMemberId != null}">
+                <form method="post" action="/write">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">새 글</button>
+                </form>
+                <a href="/feed">피드</a>
+                <a href="/manage/posts">내 글</a>
+                <a href="/tags">태그</a>
+                <a href="/settings">설정</a>
+                <a href="/admin/reports" th:if="${currentIsAdmin}">관리</a>
+                <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">로그아웃</button>
+                </form>
+            </th:block>
+            <th:block th:unless="${currentMemberId != null}">
+                <a href="/tags">태그</a>
+                <a href="/login">로그인</a>
+                <a href="/signup">가입하기</a>
+            </th:block>
+        </div>
+        <!-- 항상 보이는 것: 알림 종, 테마 전환(024, 맨 오른쪽), 좁은 화면의 메뉴 버튼 -->
+        <span class="header-quick">
+            <span class="notif-bell-wrap" th:if="${currentMemberId != null}">
                 <a href="/notifications" id="notif-bell" class="notif-bell" aria-label="알림"
                    aria-haspopup="true" aria-expanded="false">🔔<span id="notif-badge" class="notif-badge" hidden></span></a>
                 <div id="notif-panel" class="notif-panel" hidden></div>
             </span>
-            <a href="/settings">설정</a>
-            <a href="/admin/reports" th:if="${currentIsAdmin}">관리</a>
-            <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                <button type="submit">로그아웃</button>
-            </form>
-        </th:block>
-        <th:block th:unless="${currentMemberId != null}">
-            <a href="/tags">태그</a>
-            <a href="/login">로그인</a>
-            <a href="/signup">가입하기</a>
-        </th:block>
-        <!-- 024 테마 전환: 메뉴 맨 끝(헤더 맨 오른쪽), 스크립트가 없으면 숨김 -->
-        <button type="button" id="theme-toggle" class="theme-toggle" hidden aria-label="테마 바꾸기">🖥</button>
+            <button type="button" id="theme-toggle" class="theme-toggle" hidden aria-label="테마 바꾸기">🖥</button>
+            <button type="button" id="menu-toggle" class="menu-toggle" hidden aria-expanded="false" aria-controls="site-menu"
+                    aria-label="메뉴 열기">☰</button>
+        </span>
     </nav>
 </header>
 <div hidden id="logout-cleanup" th:if="${logoutCleanupMemberId != null}" th:attr="data-member-id=${logoutCleanupMemberId}"></div>
@@ -74,6 +81,7 @@
 <footer class="site-footer"><a href="/privacy">개인정보 처리방침</a></footer>
 <script src="/js/auth/auth-logout.js" defer></script>
 <script src="/js/theme-toggle.js" defer></script>
+<script src="/js/menu.js" defer></script>
 <script th:if="${currentMemberId != null}" src="/js/notification/bell.js" defer></script>
 </body>
 </html>
