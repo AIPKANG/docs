@@ -172,6 +172,34 @@ class PermissionMatrixIT extends IntegrationTestBase {
         assertThat(run(delete("/api/posts/" + own + "/permanent").with(csrf()), TestAuth.member(unverified)).getStatus()).isEqualTo(204);
     }
 
+    // ----- 표 3: 댓글(014) -----
+
+    private long commentBy(long post, long who, String content) {
+        return jdbc.queryForObject("INSERT INTO comment (post_id, author_id, content) VALUES (?, ?, ?) RETURNING id",
+                Long.class, post, who, content);
+    }
+
+    @Test
+    void table3Comments() throws Exception {
+        long post = posts.published(author, "댓글 글", "본문", 1, T);
+        long priv = posts.published(author, "비공개", "본문", 1, T);
+        jdbc.update("UPDATE post SET visibility = 'PRIVATE' WHERE id = ?", priv);
+        // 보기: 글을 볼 수 있으면
+        row("댓글 보기(공개 글)", id -> get("/api/posts/" + id + "/comments"), () -> post, 200, 200, 200, 200, 200);
+        row("댓글 보기(비공개 글)", id -> get("/api/posts/" + id + "/comments"), () -> priv, 404, 404, 404, 200, 404);
+        // 쓰기·답글: 비회원 401, 인증 전 403, 회원·작성자·관리자 ✅
+        row("쓰기", id -> post("/api/posts/" + id + "/comments").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"댓글 " + UUID.randomUUID() + "\"}"), () -> post, 401, 403, 201, 201, 201);
+        // 수정: 댓글 작성자만(글 주인·관리자도 404). 대상은 "회원"이 쓴 댓글
+        row("수정", id -> patch("/api/comments/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"고침\"}"), () -> commentBy(post, other, "회원 댓글"), 401, 403, 200, 404, 404);
+        // 삭제: 본인 것만, 인증 전도 본인 것은 가능 — 남의 것은 404
+        row("삭제", id -> delete("/api/comments/" + id).with(csrf()), () -> commentBy(post, other, "회원 댓글"),
+                401, 404, 204, 404, 404);
+        long own = commentBy(post, unverified, "인증 전 회원 댓글");
+        assertThat(run(delete("/api/comments/" + own).with(csrf()), TestAuth.member(unverified)).getStatus()).isEqualTo(204);
+    }
+
     // ----- 판정 순서(42 §3) -----
 
     @Test

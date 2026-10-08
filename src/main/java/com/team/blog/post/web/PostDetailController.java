@@ -36,18 +36,21 @@ public class PostDetailController {
     private final CurrentUserProvider currentUserProvider;
     private final MarkdownProperties markdownProperties;
     private final Clock clock;
+    private final java.util.List<PostDetailSection> sections;
 
     public PostDetailController(PostDetailQuery detailQuery, CurrentUserProvider currentUserProvider,
-                                MarkdownProperties markdownProperties, Clock clock) {
+                                MarkdownProperties markdownProperties, Clock clock, java.util.List<PostDetailSection> sections) {
         this.detailQuery = detailQuery;
         this.currentUserProvider = currentUserProvider;
         this.markdownProperties = markdownProperties;
         this.clock = clock;
+        this.sections = sections;
     }
 
     @GetMapping("/@{handle}/posts/{postId}")
     public Object detail(@PathVariable("handle") String handle, @PathVariable("postId") String postId, Model model,
-                         HttpServletResponse response) {
+                         HttpServletResponse response,
+                         @org.springframework.web.bind.annotation.RequestParam java.util.Map<String, String> params) {
         long id = parseId(postId);
         Optional<CurrentUser> viewer = currentUserProvider.current();
         PostDetail post = detailQuery.find(viewer, id).orElseThrow(NotFoundException::new);
@@ -85,6 +88,9 @@ public class PostDetailController {
                     post.editedAt() == null ? null : post.editedAt().toString()));
         } else {
             model.addAttribute("pageNoindex", true);
+        }
+        for (PostDetailSection section : sections) {
+            section.contribute(model, post, viewer, params);
         }
         model.addAttribute("recordView", post.isPublic() && authenticatedRole(viewer) && !isAuthor);
         return "post/detail";

@@ -237,3 +237,11 @@ blog:
       enabled: true
       cron: "0 10 5 * * *"
       batch-size: 100
+  # 014-comment: 21 §12
+  comment:
+    max-length: 1000
+    page-size: 20
+    preview-replies: 3
+    create-per-minute: 10
+    edit-per-minute: 20
+    dedupe-window: 10s

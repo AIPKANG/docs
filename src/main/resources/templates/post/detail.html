@@ -64,13 +64,45 @@
                 </p>
             </div>
         </aside>
-        <!-- 댓글(014)이 이 자리를 채운다 -->
-        <section id="comments" class="comments" aria-label="댓글" th:attr="data-comment-count=${post.commentCount()}">
+        <!-- 댓글(014): 첫 20개를 화면과 함께, 스크립트 없이도 더 보기·작성 -->
+        <section id="comments" class="comments" aria-label="댓글"
+                 th:attr="data-comment-count=${post.commentCount()},data-post-id=${post.id()},data-comment-target=${commentTarget}">
             <h2 th:text="${'댓글 ' + post.commentCount()}">댓글 0</h2>
+            <th:block th:if="${comments != null}">
+                <p th:if="${comments.prevCursor() != null}"><a class="comments-prev" th:attr="data-before=${comments.prevCursor()}"
+                       th:href="@{${post.url()}}">이전 댓글 보기</a></p>
+                <p th:if="${comments.items().isEmpty() and !commentContinued}" class="help">첫 댓글을 남겨 보세요</p>
+                <ol class="comment-list" id="comment-list">
+                    <li th:each="c : ${comments.items()}" class="comment-thread">
+                        <div th:replace="~{fragments/comment :: comment(${c}, ${commentDates.get(c.id())})}"></div>
+                        <ol class="reply-list">
+                            <li th:each="r : ${c.replies()}">
+                                <div th:replace="~{fragments/comment :: comment(${r}, ${commentDates.get(r.id())})}"></div>
+                            </li>
+                        </ol>
+                        <button type="button" th:if="${c.repliesNextCursor() != null}" class="replies-more"
+                                th:attr="data-root-id=${c.id()},data-cursor=${c.repliesNextCursor()}"
+                                th:text="${'답글 ' + (c.replyCount() - c.replies().size()) + '개 더 보기'}">답글 더 보기</button>
+                    </li>
+                </ol>
+                <p th:if="${comments.nextCursor() != null}"><a class="comments-more" th:attr="data-cursor=${comments.nextCursor()}"
+                       th:href="@{${post.url() + '#comments'}(commentCursor=${comments.nextCursor()})}">댓글 더 보기</a></p>
+                <!-- 입력창(표 10): 회원 / 인증 전 안내 / 비회원 로그인 -->
+                <form th:if="${commentWriteState == 'OK'}" id="comment-form" method="post" th:action="@{${post.url() + '/comments'}}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <label for="comment-content" class="visually-hidden">댓글</label>
+                    <textarea id="comment-content" name="content" maxlength="1000" placeholder="댓글을 남겨 보세요" required></textarea>
+                    <button type="submit">댓글 쓰기</button>
+                    <p class="field-error" id="comment-form-error" role="alert" hidden></p>
+                </form>
+                <p th:if="${commentWriteState == 'UNVERIFIED'}" class="notice">이메일 인증을 마치면 댓글을 쓸 수 있어요.</p>
+                <p th:if="${commentWriteState == 'GUEST'}"><a th:href="${loginRedirect}">로그인하고 댓글 쓰기</a></p>
+            </th:block>
         </section>
     </article>
     <script src="/js/gif-play.js" defer></script>
     <script src="/js/post/post-detail.js" defer></script>
+    <script src="/js/post/comments.js" defer></script>
 </main>
 </body>
 </html>

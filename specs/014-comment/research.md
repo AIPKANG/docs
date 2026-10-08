@@ -29,3 +29,9 @@
 |---|---|---|
 | U-1 | 신고 버튼 동작 | 022 |
 | U-2 | 알림 | 017이 `CommentCreated`·`CommentDeleted` 구독 |
+
+## 구현 메모 (/speckit-implement, 2026-10-08)
+- **I-1.** 글 상세는 post 모듈의 확장점 `PostDetailSection`으로 댓글 영역을 받는다(post가 interaction을 직접 부르지 않음, 헌법 I). 상세는 이미 읽기 판정을 했으므로 `pageOfReadable`로 다시 판정하지 않는다(010 쿼리 수 유지).
+- **I-2.** 10초 중복 방지는 `SET NX "0"`으로 자리를 먼저 잡고 만든 뒤 번호로 바꾼다(동시에 두 번 눌러도 하나). 요청 횟수 검사가 먼저라 중복 요청도 1분 10개에 센다(FR-003 순서).
+- **I-3.** 수정 시각은 `GREATEST(앱 시각, created_at + 1µs)` — 앱과 DB 시계가 어긋나도 `ck_comment_edited`를 지키고 "수정됨"이 붙는다(매트릭스 테스트에서 발견).
+- **I-4.** 012 `PermissionMatrixIT`에 표 3(댓글 보기·쓰기·수정·삭제) 행을 더했다. 전체 테스트 545+개 통과.

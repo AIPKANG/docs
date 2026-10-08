@@ -216,6 +216,13 @@ public class GlobalExceptionHandler {
                 .body(error(DailyUploadLimitException.CODE));
     }
 
+    // ----- 014: 댓글 -----
+
+    @ExceptionHandler(CommentHiddenException.class)
+    public ResponseEntity<ErrorResponse> commentHidden() {
+        return json(HttpStatus.CONFLICT, error(CommentHiddenException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

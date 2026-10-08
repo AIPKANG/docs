@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  댓글 하나(014 FR-013~FR-017). c = interaction.application.CommentView, date = 표시 시각.
+  상태가 탈퇴·삭제·남이 보는 숨김이면 내용·작성자가 없다(서버가 보내지 않음). 내용은 글자로만(th:text + pre-line).
+-->
+<div th:fragment="comment(c, date)" class="comment" th:id="${'comment-' + c.id()}"
+     th:attr="data-comment-id=${c.id()},data-root-id=${c.parentId() != null ? c.parentId() : c.id()}">
+    <th:block th:switch="${c.state()}">
+        <p th:case="'WITHDRAWN_AUTHOR'" class="comment-gone"><span class="avatar avatar-default avatar-c7" aria-hidden="true" style="width:24px;height:24px;font-size:12px">?</span> 탈퇴한 사용자 · 탈퇴한 사용자의 댓글이에요</p>
+        <p th:case="'DELETED'" class="comment-gone">삭제된 댓글이에요</p>
+        <p th:case="'HIDDEN'" th:if="${!c.mine()}" class="comment-gone">운영 정책에 따라 숨겨진 댓글이에요</p>
+    </th:block>
+    <th:block th:if="${c.author() != null}">
+        <p class="comment-head">
+            <a th:href="${'/@' + c.author().handle()}" class="comment-author">
+                <th:block th:replace="~{fragments/avatar :: avatar(${c.author().avatar()}, 24)}"></th:block>
+                <span th:text="${c.author().nickname()}">닉네임</span> <span class="help" th:text="${'@' + c.author().handle()}">@주소</span></a>
+            <span class="badge" th:if="${c.author().isPostAuthor()}">작성자</span>
+            <time class="help" th:attr="datetime=${c.createdAt()}" th:text="${date}">3시간 전</time><span class="help" th:if="${c.edited()}"> · 수정됨</span>
+        </p>
+        <p th:if="${c.state() == 'HIDDEN'}" class="warning">운영 정책에 따라 숨겨졌어요 (나만 보여요)</p>
+        <p th:if="${c.replyTo() != null}" class="reply-to" th:text="${'@' + c.replyTo().nickname() + '에게'}">@닉네임에게</p>
+        <p class="comment-content" th:text="${c.content()}">내용</p>
+        <p class="comment-actions">
+            <button type="button" th:if="${c.canReply()}" class="comment-reply">답글</button>
+            <button type="button" th:if="${c.canEdit()}" class="comment-edit">수정</button>
+            <button type="button" th:if="${c.canDelete()}" class="comment-delete">삭제</button>
+            <button type="button" th:if="${c.canReport()}" class="comment-report" th:attr="data-report-comment-id=${c.id()}">신고</button>
+        </p>
+        <p class="field-error comment-error" role="alert" hidden></p>
+    </th:block>
+</div>
+</body>
+</html>
