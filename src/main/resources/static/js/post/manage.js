@@ -80,8 +80,8 @@
           var badge = row.querySelector('[data-visibility-badge]');
           if (badge) {
             badge.dataset.visibility = data.visibility;
-            badge.children[0].textContent = data.visibility === 'PRIVATE' ? '🔒' : (data.visibility === 'FRIENDS' ? '👥' : '🌐');
-            badge.children[1].textContent = data.visibility === 'PRIVATE' ? '비공개' : (data.visibility === 'FRIENDS' ? '친구 공개' : '공개');
+            badge.children[0].textContent = data.visibility === 'PRIVATE' ? '🔒' : (data.visibility === 'FRIENDS' ? '👥' : (data.visibility === 'LINK' ? '🔗' : '🌐'));
+            badge.children[1].textContent = data.visibility === 'PRIVATE' ? '비공개' : (data.visibility === 'FRIENDS' ? '친구 공개' : (data.visibility === 'LINK' ? '링크 공개' : '공개'));
           }
         }).catch(function (err) {
           button.disabled = false;

@@ -27,10 +27,12 @@ public class PublishValidator {
 
     private final TagNormalizer tagNormalizer;
     private final PostProperties properties;
+    private final PostAccessPolicy accessPolicy;
 
-    public PublishValidator(TagNormalizer tagNormalizer, PostProperties properties) {
+    public PublishValidator(TagNormalizer tagNormalizer, PostProperties properties, PostAccessPolicy accessPolicy) {
         this.tagNormalizer = tagNormalizer;
         this.properties = properties;
+        this.accessPolicy = accessPolicy;
     }
 
     /** 검사를 통과한 값. */
@@ -73,7 +75,8 @@ public class PublishValidator {
         }
 
         String visibility = command.visibility();
-        if (!"PUBLIC".equals(visibility) && !"PRIVATE".equals(visibility)) {
+        // 공개 범위 규칙 Bean이 있는 값만(공통 PUBLIC·PRIVATE, 개인 확장 FRIENDS·LINK)
+        if (visibility == null || !accessPolicy.supportedVisibilities().contains(visibility)) {
             errors.add(FieldError.of("visibility", "INVALID_VISIBILITY"));
         }
 

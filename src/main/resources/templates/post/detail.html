@@ -11,6 +11,16 @@
             <!-- 상태 배지·안내: 작성자에게만(010 FR-018~FR-020) -->
             <p th:if="${viewerIsAuthor and post.isPrivate()}"><span class="badge">🔒 비공개</span> 나만 볼 수 있는 글이에요.</p>
             <p th:if="${viewerIsAuthor and post.visibility() == 'FRIENDS'}"><span class="badge">👥 친구 공개</span> 나와 친구만 볼 수 있는 글이에요.</p>
+            <!-- 029 강성찬 개인 확장: 링크 공개 주소(글쓴이만) -->
+            <div th:if="${shareLinkUrl != null}" id="share-link" class="notice share-link">
+                <p><span class="badge">🔗 링크 공개</span> 이 주소를 아는 사람만 볼 수 있어요. 목록·검색에는 나오지 않아요.</p>
+                <p><label for="share-link-url" class="visually-hidden">공유 주소</label>
+                    <input id="share-link-url" type="text" readonly th:value="${shareLinkUrl}"></p>
+                <form method="post" th:action="@{/posts/{id}/share-link(id=${post.id()})}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-sm">새 링크 만들기 (예전 주소는 막혀요)</button>
+                </form>
+            </div>
             <div th:if="${viewerIsAuthor and post.editing()}" class="notice" id="editing-notice">
                 <span class="badge badge-editing">수정 중</span>
                 <span th:text="${'수정 중인 내용이 있어요(' + editingSavedAt + ' 저장)'}">수정 중인 내용이 있어요</span>
@@ -36,6 +46,7 @@
                     <select id="visibility-select">
                         <option value="PUBLIC" th:selected="${post.visibility() == 'PUBLIC'}">🌐 전체 공개</option>
                         <option value="FRIENDS" th:selected="${post.visibility() == 'FRIENDS'}">👥 친구 공개</option>
+                        <option value="LINK" th:selected="${post.visibility() == 'LINK'}">🔗 링크 공개</option>
                         <option value="PRIVATE" th:selected="${post.visibility() == 'PRIVATE'}">🔒 나만 보기</option>
                     </select>
                 </label>

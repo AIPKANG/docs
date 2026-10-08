@@ -50,7 +50,7 @@ public class PostManageQuery {
             case PUBLISHED -> {
                 sql.append(" AND p.status = 'PUBLISHED' AND p.deleted_at IS NULL");
                 String v = visibility == null ? null : visibility.toUpperCase(java.util.Locale.ROOT);
-                if ("PUBLIC".equals(v) || "PRIVATE".equals(v) || "FRIENDS".equals(v)) { // FRIENDS: 025 강성찬 개인 확장
+                if ("PUBLIC".equals(v) || "PRIVATE".equals(v) || "FRIENDS".equals(v) || "LINK".equals(v)) { // FRIENDS·LINK: 025·029 강성찬 개인 확장
                     sql.append(" AND p.visibility = ?");
                     args.add(v);
                 }

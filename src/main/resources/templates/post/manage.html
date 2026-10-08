@@ -26,6 +26,7 @@
         <a th:href="@{/manage/posts(tab='published')}" th:attr="aria-current=${visibility == '' ? 'page' : null}">전체</a>
         <a th:href="@{/manage/posts(tab='published',visibility='public')}" th:attr="aria-current=${visibility == 'public' ? 'page' : null}">공개</a>
         <a th:href="@{/manage/posts(tab='published',visibility='friends')}" th:attr="aria-current=${visibility == 'friends' ? 'page' : null}">친구 공개</a>
+        <a th:href="@{/manage/posts(tab='published',visibility='link')}" th:attr="aria-current=${visibility == 'link' ? 'page' : null}">링크 공개</a>
         <a th:href="@{/manage/posts(tab='published',visibility='private')}" th:attr="aria-current=${visibility == 'private' ? 'page' : null}">비공개</a>
     </nav>
     <p th:if="${tab == 'trash'}" class="notice">휴지통의 글은 30일 뒤 자동으로 완전히 삭제돼요</p>
@@ -44,7 +45,7 @@
                 <!-- 발행 글 -->
                 <th:block th:if="${tab == 'published'}">
                     <span class="visibility-icon" data-visibility-badge th:attr="data-visibility=${row.visibility()}">
-                        <span aria-hidden="true" th:text="${row.visibility() == 'PRIVATE' ? '🔒' : (row.visibility() == 'FRIENDS' ? '👥' : '🌐')}">🌐</span><span class="visually-hidden" th:text="${row.visibility() == 'PRIVATE' ? '비공개' : (row.visibility() == 'FRIENDS' ? '친구 공개' : '공개')}">공개</span></span>
+                        <span aria-hidden="true" th:text="${row.visibility() == 'PRIVATE' ? '🔒' : (row.visibility() == 'FRIENDS' ? '👥' : (row.visibility() == 'LINK' ? '🔗' : '🌐'))}">🌐</span><span class="visually-hidden" th:text="${row.visibility() == 'PRIVATE' ? '비공개' : (row.visibility() == 'FRIENDS' ? '친구 공개' : (row.visibility() == 'LINK' ? '링크 공개' : '공개'))}">공개</span></span>
                     <a th:href="${row.url()}" th:text="${row.title()}">제목</a>
                     <span class="badge badge-editing" th:if="${row.editing()}">수정 중</span>
                     <span class="badge" th:if="${row.hidden()}" title="운영 정책에 따라 숨겨졌어요">숨김</span>

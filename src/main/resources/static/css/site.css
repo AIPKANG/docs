@@ -462,3 +462,6 @@ html, body { overflow-x: clip; }
 .reply-list .reply-list .reply-list .reply-list { margin-left: 0; }
 .replies-rest, .replies-fold { margin: 4px 0; }
 .replies-rest > details > summary, .replies-fold > summary { cursor: pointer; color: var(--color-brand); font-size: .9em; padding: 4px 0; }
+/* 029 링크 공개(강성찬 개인 확장) */
+.share-link input { width: 100%; font-size: .9em; }
+.share-link p { margin: 6px 0; }
