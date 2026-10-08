@@ -266,6 +266,20 @@ blog:
   follow:
     per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
     page-size: 20
+  # 019-trending: 32 §2~§4
+  trending:
+    window: 7d
+    like-weight: 3
+    commenter-weight: 2
+    view-weight: 0.1
+    hour-offset: 2
+    gravity: 1.5
+    per-author: 3
+    top: 100
+    page-size: 9
+    snapshot-ttl: 30m
+    refresh-enabled: true
+    refresh-interval: 10m
   # 017-notification: 25 §4~§7
   notification:
     async: true

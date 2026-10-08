@@ -84,7 +84,7 @@
     function render() {
       Array.prototype.forEach.call(box.querySelectorAll('.more-button, .list-end'), function (n) { n.remove(); });
       if (next) {
-        var more = el('a', 'more-button', '더 보기'); more.href = '?cursor=' + next; more.dataset.cursor = next;
+        var more = el('a', 'more-button', '더 보기'); more.href = (box.dataset.linkBase || '?cursor=') + next; more.dataset.cursor = next;
         more.addEventListener('click', load); box.insertBefore(more, errorBox);
       } else if (grid.children.length) {
         box.insertBefore(el('p', 'help list-end', '모든 글을 다 봤어요'), errorBox);
@@ -106,7 +106,12 @@
       if (button) { button.textContent = '불러오는 중…'; button.setAttribute('aria-disabled', 'true'); button.style.pointerEvents = 'none'; }
       errorBox.hidden = true;
       fetch(api + (api.indexOf('?') >= 0 ? '&' : '?') + 'cursor=' + encodeURIComponent(next), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
-        .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+        .then(function (res) {
+          // 019: 보던 트렌딩 순위가 사라짐 → 안내와 함께 처음부터
+          if (res.status === 410 && box.dataset.expiredUrl) { location.href = box.dataset.expiredUrl; return { items: [], nextCursor: null }; }
+          if (!res.ok) { throw new Error(String(res.status)); }
+          return res.json();
+        })
         .then(function (page) { append(page.items || []); next = page.nextCursor; render(); })
         .catch(function () {
           if (button) { button.textContent = '더 보기'; button.removeAttribute('aria-disabled'); button.style.pointerEvents = ''; }

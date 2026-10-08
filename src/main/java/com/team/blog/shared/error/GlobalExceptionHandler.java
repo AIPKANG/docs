@@ -230,6 +230,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
     }
 
+    @ExceptionHandler(SnapshotExpiredException.class)
+    public ResponseEntity<ErrorResponse> snapshotExpired() {
+        return json(HttpStatus.GONE, error(SnapshotExpiredException.CODE));
+    }
+
     @ExceptionHandler(CannotFollowSelfException.class)
     public ResponseEntity<ErrorResponse> cannotFollowSelf() {
         return json(HttpStatus.BAD_REQUEST, error(CannotFollowSelfException.CODE));

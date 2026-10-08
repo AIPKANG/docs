@@ -90,6 +90,24 @@ public class PostListQuery {
         return new CardPage(List.copyOf(items), new FeedCursor(last.firstPublicAt(), last.id()).encode());
     }
 
+    /**
+     * 019 트렌딩: 주어진 글 중 지금 공용 목록 조건(+관리자 숨김 아님)을 만족하는 카드만, SQL 1번. 순서는 호출자가 정한다.
+     */
+    public java.util.Map<Long, PostCard> cardsByIds(java.util.Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return java.util.Map.of();
+        }
+        List<PostCard> rows = jdbc.query("""
+                SELECT p.id, p.title, p.excerpt, p.thumbnail_url, p.first_public_at, p.comment_count, p.like_count,
+                       m.handle, m.nickname, m.profile_image_url
+                FROM post p JOIN member m ON m.id = p.author_id
+                WHERE """ + " " + accessPolicy.publicListingCondition("p", "m") + " AND p.hidden_at IS NULL AND p.id = ANY (?)",
+                PostListQuery::card, (Object) ids.toArray(new Long[0]));
+        java.util.Map<Long, PostCard> result = new java.util.HashMap<>();
+        rows.forEach(c -> result.put(c.id(), c));
+        return result;
+    }
+
     private static PostCard card(ResultSet rs, int rowNum) throws SQLException {
         String handle = rs.getString("handle");
         long id = rs.getLong("id");

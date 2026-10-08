@@ -23,6 +23,8 @@ blog:
     reconcile-enabled: false
   view:
     flush-enabled: false
+  trending:
+    refresh-enabled: false
   notification:
     async: false
     cleanup-enabled: false

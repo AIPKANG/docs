@@ -25,6 +25,13 @@
 </article>
 
 <!-- [더 보기] 영역: JS가 없으면 ?cursor= 링크로 다음 9개 -->
+<!-- 019: 링크 모양({@code linkBase})과 순위가 사라졌을 때 갈 주소({@code expiredUrl})를 받는 판 -->
+<div th:fragment="moreWith(nextCursor, listApi, showAuthor, hasCards, linkBase, expiredUrl)" class="list-more"
+     th:attr="data-list-api=${listApi},data-show-author=${showAuthor},data-link-base=${linkBase},data-expired-url=${expiredUrl}">
+    <a th:if="${nextCursor != null}" class="more-button" th:href="${linkBase + nextCursor}" th:attr="data-cursor=${nextCursor}">더 보기</a>
+    <p th:if="${nextCursor == null and hasCards}" class="help list-end">모든 글을 다 봤어요</p>
+    <p class="list-error" role="alert" hidden>불러오지 못했어요 <button type="button" class="list-retry">다시 시도</button></p>
+</div>
 <div th:fragment="more(nextCursor, listApi, showAuthor, hasCards)" class="list-more" th:attr="data-list-api=${listApi},data-show-author=${showAuthor}">
     <a th:if="${nextCursor != null}" class="more-button" th:href="${'?cursor=' + nextCursor}" th:attr="data-cursor=${nextCursor}">더 보기</a>
     <p th:if="${nextCursor == null and hasCards}" class="help list-end">모든 글을 다 봤어요</p>
