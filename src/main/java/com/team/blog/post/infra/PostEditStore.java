@@ -1,6 +1,5 @@
 package com.team.blog.post.infra;
 
-import com.team.blog.post.application.MyPostRow;
 import com.team.blog.post.application.PostEditRow;
 import com.team.blog.post.domain.PostStatus;
 import java.sql.ResultSet;
@@ -175,22 +174,6 @@ public class PostEditStore {
 
     public void deleteWorkingCopy(long postId) {
         jdbc.update("DELETE FROM post_draft WHERE post_id = ?", postId);
-    }
-
-    /** 내 글(휴지통 밖), 최근 수정 순. {@code editing}은 DB 작업본 기준 — 버퍼 기준 보정은 호출자가 한다. */
-    public List<MyPostRow> listByAuthor(long authorId, int limit) {
-        return jdbc.query("""
-                SELECT p.id, p.title, p.status, p.visibility, p.updated_at, p.edit_version, d.edit_version AS d_version
-                FROM post p LEFT JOIN post_draft d ON d.post_id = p.id
-                WHERE p.author_id = ? AND p.deleted_at IS NULL
-                ORDER BY p.updated_at DESC, p.id DESC LIMIT ?
-                """, (rs, n) -> {
-            PostStatus st = PostStatus.valueOf(rs.getString("status"));
-            long dVersion = rs.getLong("d_version");
-            boolean editing = st == PostStatus.PUBLISHED && !rs.wasNull() && dVersion > rs.getLong("edit_version");
-            return new MyPostRow(rs.getLong("id"), rs.getString("title"), st, editing, instant(rs, "updated_at"),
-                    rs.getString("visibility"));
-        }, authorId, limit);
     }
 
     /** 빈 임시글 정리 후보(04 §2-5): 제목·본문이 공백·탭·줄바꿈뿐, 만든 지·마지막 수정 후 모두 {@code cutoff} 이전. */

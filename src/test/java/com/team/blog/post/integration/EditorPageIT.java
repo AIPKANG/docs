@@ -54,11 +54,14 @@ class EditorPageIT extends IntegrationTestBase {
         long trashed = posts.draft(me, "휴지통 글", "", 0);
         posts.trash(trashed);
 
+        // 011: 기본 탭은 임시글, 발행 글은 [발행 글] 탭
         String html = mockMvc.perform(get("/manage/posts").with(TestAuth.member(me)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertThat(html).contains("(제목 없음)").contains("&lt;i&gt;임시&lt;/i&gt;").contains("발행 글")
-                .contains("임시저장").contains("수정 중")
+        assertThat(html).contains("(제목 없음)").contains("&lt;i&gt;임시&lt;/i&gt;").contains("임시글 2")
                 .doesNotContain("남의 임시글").doesNotContain("휴지통 글");
+        String publishedTab = mockMvc.perform(get("/manage/posts").param("tab", "published").with(TestAuth.member(me)))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(publishedTab).contains("발행 글").contains("수정 중");
         assertThat(html).contains("action=\"/write\"").contains("href=\"/manage/posts\"");
         mockMvc.perform(get("/manage/posts")).andExpect(status().isSeeOther());
     }

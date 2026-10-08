@@ -17,7 +17,16 @@ public record PostProperties(@DefaultValue("100") int titleMaxLength,
                              @DefaultValue Publish publish,
                              @DefaultValue Autosave autosave,
                              @DefaultValue Editor editor,
-                             @DefaultValue EmptyDraftCleanup emptyDraftCleanup) {
+                             @DefaultValue EmptyDraftCleanup emptyDraftCleanup,
+                             @DefaultValue Trash trash,
+                             @DefaultValue("20") int managePageSize) {
+
+    /** 휴지통(011, 13 §2-5). */
+    public record Trash(@DefaultValue("30d") Duration retention,
+                        @DefaultValue("true") boolean purgeEnabled,
+                        @DefaultValue("0 20 5 * * *") String purgeCron,
+                        @DefaultValue("100") int purgeBatchSize) {
+    }
 
     /**
      * 서버 버퍼·영구 반영.

@@ -214,6 +214,13 @@ blog:
       server-save-max-interval: 30s
       retry-max: 60s
       backup-ttl: 7d
+    # 011: 휴지통 30일 뒤 자동 완전 삭제, 내 글 관리 20개씩
+    trash:
+      retention: 30d
+      purge-enabled: true
+      purge-cron: "0 20 5 * * *"
+      purge-batch-size: 100
+    manage-page-size: 20
     empty-draft-cleanup:
       enabled: true
       cron: "0 40 4 * * *"

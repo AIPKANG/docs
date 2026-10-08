@@ -68,7 +68,8 @@ class WorkingCopyIT extends IntegrationTestBase {
         long me = writer(members, "bufonly");
         long postId = posts.published(me, "발행 제목", "", 2, PUBLISHED_AT);
         mockMvc.perform(autosave(postId, "버퍼에만", "", 2).with(TestAuth.member(me))).andExpect(status().isOk());
-        String html = mockMvc.perform(get("/manage/posts").with(TestAuth.member(me)))
+        flusher.flushBatch(500); // 011: 내 글 관리의 "수정 중"은 작업본 행 기준(41 §5)
+        String html = mockMvc.perform(get("/manage/posts").param("tab", "published").with(TestAuth.member(me)))
                 .andReturn().getResponse().getContentAsString();
         assertThat(html).contains("수정 중");
     }
