@@ -161,6 +161,16 @@ public class NotificationQuery {
                     message = UNAVAILABLE;
                 }
             }
+            case FIRST_PUBLIC -> {
+                if (readable) {
+                    post = new NotificationItem.PostRef(title, postUrl, null);
+                    url = postUrl;
+                    message = actorName + "님이 친구에게만 보여 주던 「" + title + "」을(를) 모두에게 공개했어요";
+                } else {
+                    post = new NotificationItem.PostRef(null, null, true);
+                    message = UNAVAILABLE;
+                }
+            }
             case NEW_POST -> {
                 if (readable) {
                     post = new NotificationItem.PostRef(title, postUrl, null);

@@ -81,7 +81,12 @@ public class NotificationListeners {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void on(PostVisibilityChanged e) {
         if (e.firstPublic()) {
-            dispatcher.submit("new post " + e.postId(), () -> writer.newPost(e.postId(), e.authorId()));
+            dispatcher.submit("new post " + e.postId(), () -> {
+                if ("FRIENDS".equals(e.from())) {
+                    writer.firstPublicCheer(e.postId(), e.authorId()); // 026 강성찬 개인 확장
+                }
+                writer.newPost(e.postId(), e.authorId());
+            });
         }
     }
 

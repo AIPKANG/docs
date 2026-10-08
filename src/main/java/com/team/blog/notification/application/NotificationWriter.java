@@ -204,7 +204,30 @@ public class NotificationWriter {
                 FROM follow f JOIN member r ON r.id = f.follower_id
                 WHERE f.followee_id = ? AND r.withdrawn_at IS NULL
                   AND NOT EXISTS (SELECT 1 FROM notification_mute nm WHERE nm.member_id = f.follower_id AND nm.type = 'NEW_POST')
-                """, postId, authorId, now, now, authorId);
+                  AND NOT EXISTS (SELECT 1 FROM notification n WHERE n.receiver_id = f.follower_id AND n.post_id = ?
+                                  AND n.type = 'FIRST_PUBLIC')
+                """, postId, authorId, now, now, authorId, postId);
+    }
+
+    /**
+     * 첫 공개 응원(026, 강성찬 개인 확장): 친구 공개였던 글이 처음 전체 공개되면 글쓴이의 친구에게 1건씩. "새 글" 알림을 끈 친구는 받지 않고,
+     * 같은 글의 새 글 알림은 이것이 대신한다({@link #newPost}보다 먼저 부른다).
+     */
+    public int firstPublicCheer(long postId, long authorId) {
+        if (member(authorId).map(MemberState::withdrawn).orElse(true)) {
+            return 0;
+        }
+        Timestamp now = now();
+        return jdbc.update("""
+                INSERT INTO notification (receiver_id, type, post_id, last_actor_id, actor_count, created_at, updated_at)
+                SELECT r.id, 'FIRST_PUBLIC', p.id, ?, 1, ?, ?
+                FROM post p
+                JOIN friendship fr ON fr.status = 'ACCEPTED' AND ? IN (fr.member_a_id, fr.member_b_id)
+                JOIN member r ON r.id = CASE WHEN fr.member_a_id = ? THEN fr.member_b_id ELSE fr.member_a_id END
+                WHERE p.id = ? AND p.author_id = ? AND p.status = 'PUBLISHED' AND p.visibility = 'PUBLIC'
+                  AND p.deleted_at IS NULL AND p.hidden_at IS NULL AND r.withdrawn_at IS NULL
+                  AND NOT EXISTS (SELECT 1 FROM notification_mute nm WHERE nm.member_id = r.id AND nm.type = 'NEW_POST')
+                """, authorId, now, now, authorId, authorId, postId, authorId);
     }
 
     /** 댓글이 지워지거나(자리만 남음 포함) 숨겨지면 그 댓글로 생긴 댓글·답글 알림 삭제(FR-014). */

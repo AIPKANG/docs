@@ -22,6 +22,11 @@
     if (select) {
       var previous = select.value;
       select.addEventListener('change', function () {
+        // 026 강성찬 개인 확장: 넓히는 쪽(→ 전체 공개)만 확인(41 §4)
+        if (select.value === 'PUBLIC' && previous !== 'PUBLIC' && !window.confirm('모든 사람이 볼 수 있게 돼요. 공개할까요?')) {
+          select.value = previous;
+          return;
+        }
         fetch('/api/posts/' + postId + '/visibility', { method: 'PATCH', headers: csrfHeaders(), credentials: 'same-origin',
           body: JSON.stringify({ visibility: select.value }) })
           .then(function (res) {

@@ -69,6 +69,8 @@
       button.addEventListener('click', function () {
         var row = rowOf(button);
         var to = button.dataset.visibility !== 'PUBLIC' ? 'PUBLIC' : 'PRIVATE'; // 친구 공개(025)도 공개 쪽으로
+        // 026 강성찬 개인 확장: 넓히는 쪽(→ 전체 공개)만 확인(41 §4)
+        if (to === 'PUBLIC' && !window.confirm('모든 사람이 볼 수 있게 돼요. 공개할까요?')) { return; }
         button.disabled = true;
         call('PATCH', '/api/posts/' + button.dataset.postId + '/visibility', { visibility: to }).then(function (data) {
           button.disabled = false;
