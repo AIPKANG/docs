@@ -190,6 +190,11 @@
         .notif-unread .notif-message { font-weight: 700; }
         .notif-dot { color: #0969da; margin-right: 4px; }
         .notif-time { display: block; color: #6e7781; font-size: .85em; }
+        /* 022 운영 */
+        .warning { background: #fff8c5; border: 1px solid #d4a72c; padding: 6px 10px; border-radius: 6px; }
+        .snapshot { white-space: pre-wrap; overflow-wrap: anywhere; background: #f6f8fa; padding: 8px; border-radius: 6px; }
+        #report-form label { display: block; }
+        #report-form textarea { width: 100%; }
         /* 020 검색 */
         .header-search { margin: 0; }
         .header-search input { width: 9em; }
@@ -227,6 +232,7 @@
                 <div id="notif-panel" class="notif-panel" hidden></div>
             </span>
             <a href="/settings">설정</a>
+            <a href="/admin/reports" th:if="${currentIsAdmin}">관리</a>
             <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit">로그아웃</button>

@@ -230,6 +230,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
     }
 
+    @ExceptionHandler(CannotReportOwnException.class)
+    public ResponseEntity<ErrorResponse> cannotReportOwn(CannotReportOwnException e) {
+        return json(HttpStatus.BAD_REQUEST, error(e.getCode()));
+    }
+
     @ExceptionHandler(AiSuggestException.class)
     public ResponseEntity<ErrorResponse> aiSuggest(AiSuggestException e) {
         return json(HttpStatus.valueOf(e.status()), error(e.getCode()));

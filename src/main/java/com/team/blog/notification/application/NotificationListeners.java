@@ -2,6 +2,8 @@ package com.team.blog.notification.application;
 
 import com.team.blog.shared.event.CommentCreated;
 import com.team.blog.shared.event.CommentDeleted;
+import com.team.blog.shared.event.ContentHidden;
+import com.team.blog.shared.event.ReportsResolved;
 import com.team.blog.shared.event.MemberFollowed;
 import com.team.blog.shared.event.MemberUnfollowed;
 import com.team.blog.shared.event.PostLiked;
@@ -15,7 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * 업무 사건 → 알림(25 §4, 20 §4). 커밋 뒤에만 받고(롤백이면 없음), 처리는 {@link NotificationDispatcher}가 요청과 떼어 한다.
- * 사건에는 식별자만 있어 받는 사람·글 상태는 처리할 때 다시 읽는다. 신고·숨김(022) 사건은 그 기능이 여기에 더한다.
+ * 사건에는 식별자만 있어 받는 사람·글 상태는 처리할 때 다시 읽는다. 신고 결과·숨김(022)은 운영 알림(끌 수 없음, 행동한 사람 없음)이다.
  */
 @Component
 public class NotificationListeners {
@@ -92,5 +94,23 @@ public class NotificationListeners {
     public void on(MemberUnfollowed e) {
         dispatcher.submit("unfollow " + e.followeeId(), () -> writer.removeFromGroup(e.followeeId(),
                 NotificationWriter.FOLLOW_GROUP, e.followerId()));
+    }
+
+    /** 022: 숨김 → 작성자에게 1건(신고자·관리자 정보 없음). 댓글이면 그 댓글로 생긴 댓글·답글 알림을 지운다. */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(ContentHidden e) {
+        dispatcher.submit("hidden " + e.postId(), () -> {
+            if (e.commentId() != null) {
+                writer.deleteForComment(e.commentId());
+            }
+            writer.operational(e.authorId(), NotificationType.CONTENT_HIDDEN, e.postId(), e.commentId(), null, null);
+        });
+    }
+
+    /** 022: 신고마다(=신고자마다) 처리 결과 1건. */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(ReportsResolved e) {
+        dispatcher.submit("reports resolved", () -> e.reports().forEach(r ->
+                writer.operational(r.reporterId(), NotificationType.REPORT_RESOLVED, null, null, r.reportId(), e.result())));
     }
 }

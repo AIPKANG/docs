@@ -13,7 +13,12 @@ import java.util.List;
 public record PostDetail(long id, long authorId, PostStatus status, String visibility, String title, String contentHtml,
                          String excerpt, Instant publishedAt, Instant firstPublicAt, Instant editedAt, long viewCount,
                          int likeCount, int commentCount, List<String> tags, Author author, boolean editing,
-                         Instant editingSavedAt) {
+                         Instant editingSavedAt, String hiddenReason) {
+
+    /** 관리자가 숨긴 글(022). 이 값이 있는 상세는 작성자만 본다. */
+    public boolean hidden() {
+        return hiddenReason != null;
+    }
 
     public record Author(String handle, String nickname, String profileImageUrl, String bio) {
 

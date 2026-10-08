@@ -266,6 +266,14 @@ blog:
   follow:
     per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
     page-size: 20
+  # 022-report-hide: 43 §2·§6
+  moderation:
+    reports-per-minute: 5
+    reports-per-day: 50
+    snapshot-chars: 2000
+    snapshot-retention: 30d
+    cleanup-enabled: true
+    cleanup-cron: "0 40 4 * * *"
   # 021-ai-tag-suggest: 34 §2~§5. 키는 환경 변수로만(GEMINI_API_KEY), 비어 있으면 Gemini를 건너뛰고 자체 AI만
   ai:
     tag-suggest:

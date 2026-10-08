@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * 글 읽기 판정을 한곳에(헌법 III, 42 §3·§5-1, 006 R-1).
- * 휴지통(조회에서 제외) → 작성자가 탈퇴 유예·익명이면 아무도 못 봄 → 작성자 본인은 봄 → 임시글은 작성자만 → 공개 범위 규칙.
- * 관리자 예외는 없다. 관리자 숨김(022)은 여기에 단계를 더한다. 목록은 {@link #publicListingCondition}만 쓴다.
+ * 휴지통(조회에서 제외) → 작성자가 탈퇴 유예·익명이면 아무도 못 봄 → 작성자 본인은 봄 → 관리자 숨김이면 아무도 못 봄(022)
+ * → 임시글은 작성자만 → 공개 범위 규칙. 관리자 예외는 없다. 목록은 {@link #publicListingCondition}만 쓴다.
  */
 @Component
 public class PostAccessPolicy {
@@ -36,6 +36,9 @@ public class PostAccessPolicy {
         boolean author = viewer.map(v -> v.memberId() == post.authorId()).orElse(false);
         if (author) {
             return true;
+        }
+        if (post.hidden()) {
+            return false;
         }
         if (post.status() != PostStatus.PUBLISHED) {
             return false;
@@ -64,7 +67,7 @@ public class PostAccessPolicy {
         if (visibility.isEmpty()) {
             visibility = "FALSE";
         }
-        return postAlias + ".status = 'PUBLISHED' AND " + postAlias + ".deleted_at IS NULL AND "
-                + memberAlias + ".withdrawn_at IS NULL AND (" + visibility + ")";
+        return postAlias + ".status = 'PUBLISHED' AND " + postAlias + ".deleted_at IS NULL AND " + postAlias
+                + ".hidden_at IS NULL AND " + memberAlias + ".withdrawn_at IS NULL AND (" + visibility + ")";
     }
 }

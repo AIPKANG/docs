@@ -15,6 +15,12 @@ public class LayoutModelAdvice {
         this.currentUserProvider = currentUserProvider;
     }
 
+    /** 022: 머리말 [관리] 링크. */
+    @ModelAttribute("currentIsAdmin")
+    public boolean currentIsAdmin() {
+        return currentUserProvider.current().map(u -> "ADMIN".equals(u.role())).orElse(false);
+    }
+
     @ModelAttribute("currentMemberId")
     public Long currentMemberId() {
         return currentUserProvider.current().map(CurrentUser::memberId).orElse(null);

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>회원 관리</title>
+</head>
+<body>
+<main class="list-page">
+    <h1>회원 관리</h1>
+    <p><a href="/admin/reports">신고 관리</a></p>
+    <form method="get" action="/admin/members" class="search-form">
+        <label for="member-q" class="visually-hidden">닉네임·주소</label>
+        <input id="member-q" type="search" name="q" th:value="${q}" placeholder="닉네임·주소">
+        <button type="submit">찾기</button>
+    </form>
+    <ul class="post-rows">
+        <li th:each="m : ${members}" class="post-row">
+            <div class="row-main">
+                <span th:text="${m.nickname()}">닉네임</span> <a th:href="${'/@' + m.handle()}" th:text="${'@' + m.handle()}">@주소</a>
+                <span class="badge" th:if="${m.role() == 'ADMIN'}">관리자</span>
+                <span class="badge" th:if="${m.suspended()}"
+                      th:text="${m.suspendedLabel()}">정지</span>
+            </div>
+            <div class="row-actions" th:if="${m.role() != 'ADMIN'}">
+                <form method="post" th:action="@{/admin/members/{id}/suspend(id=${m.id()})}" th:unless="${m.suspended()}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <select name="period" aria-label="정지 기간">
+                        <option value="1">1일</option>
+                        <option value="7">7일</option>
+                        <option value="30">30일</option>
+                        <option value="PERMANENT">영구</option>
+                    </select>
+                    <input type="text" name="reason" maxlength="200" required placeholder="정지 사유" aria-label="정지 사유">
+                    <button type="submit">정지</button>
+                </form>
+                <form method="post" th:action="@{/admin/members/{id}/lift(id=${m.id()})}" th:if="${m.suspended()}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">정지 해제</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+</main>
+</body>
+</html>

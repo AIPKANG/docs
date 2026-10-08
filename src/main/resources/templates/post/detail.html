@@ -16,6 +16,9 @@
                 <a th:href="@{/write/{id}(id=${post.id()})}">이어서 수정</a>
                 <button type="button" id="discard-editing">변경 취소</button>
             </div>
+            <!-- 022: 숨긴 글은 작성자만 본다 -->
+            <p th:if="${post.hidden()}" class="warning" role="status"
+               th:text="${'운영 정책에 따라 숨겨진 글이에요 (사유: ' + hiddenReasonLabel + '). 다른 사람에게는 보이지 않아요'}">숨겨진 글</p>
             <h1 th:text="${post.title()}">제목</h1>
             <p class="post-meta">
                 <a class="author-link" th:href="${'/@' + post.author().handle()}">
@@ -111,6 +114,28 @@
             </th:block>
         </section>
     </article>
+    <!-- 022 신고 창: 사유 하나, 기타는 설명 필수(200자) -->
+    <dialog id="report-dialog" aria-labelledby="report-heading" th:if="${canReact}">
+        <form method="dialog" id="report-form">
+            <h2 id="report-heading">신고하기</h2>
+            <fieldset>
+                <legend>사유</legend>
+                <label><input type="radio" name="reason" value="SPAM" required> 스팸·광고</label>
+                <label><input type="radio" name="reason" value="ABUSE"> 욕설·혐오</label>
+                <label><input type="radio" name="reason" value="SEXUAL"> 음란·선정</label>
+                <label><input type="radio" name="reason" value="PRIVACY"> 개인정보 노출</label>
+                <label><input type="radio" name="reason" value="COPYRIGHT"> 저작권 침해</label>
+                <label><input type="radio" name="reason" value="OTHER"> 기타</label>
+            </fieldset>
+            <label for="report-detail">설명(기타는 필수)</label>
+            <textarea id="report-detail" name="detail" maxlength="200" rows="3"></textarea>
+            <p class="field-error" id="report-error" role="alert"></p>
+            <button type="submit" value="send">신고</button>
+            <button type="button" id="report-cancel">취소</button>
+        </form>
+    </dialog>
+    <p class="help" id="report-status" role="status" th:if="${canReact}"></p>
+    <script src="/js/post/report.js" defer th:if="${canReact}"></script>
     <script src="/js/gif-play.js" defer></script>
     <script src="/js/post/post-detail.js" defer></script>
     <script src="/js/post/comments.js" defer></script>

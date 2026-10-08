@@ -121,7 +121,7 @@ public class NotificationQuery {
             boolean hidden = rs.getTimestamp("p_hidden") != null;
             long authorId = rs.getLong("author_id");
             PostFacts facts = new PostFacts(postId, authorId, PostStatus.valueOf(rs.getString("status")),
-                    rs.getString("visibility"), authorWithdrawn);
+                    rs.getString("visibility"), authorWithdrawn, false);
             boolean canRead = !deleted && PostStatus.PUBLISHED.name().equals(rs.getString("status"))
                     && accessPolicy.canRead(Optional.of(user), facts);
             readable = canRead && !hidden;

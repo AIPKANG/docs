@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>신고 관리</title>
+</head>
+<body>
+<main class="list-page">
+    <h1>신고 관리</h1>
+    <p><a href="/admin/members">회원 관리</a></p>
+    <nav class="manage-tabs" aria-label="신고 탭">
+        <a href="/admin/reports" th:attr="aria-current=${tab == 'pending' ? 'page' : null}">대기</a>
+        <a href="/admin/reports?tab=done" th:attr="aria-current=${tab == 'done' ? 'page' : null}">처리됨</a>
+    </nav>
+    <p th:if="${cases.isEmpty()}" class="empty-state" th:text="${tab == 'pending' ? '대기 중인 신고가 없어요' : '처리한 신고가 없어요'}">없음</p>
+    <ul class="post-rows">
+        <li th:each="c : ${cases}" class="post-row">
+            <div class="row-main">
+                <span class="badge" th:text="${c.targetType() == 'POST' ? '글' : '댓글'}">글</span>
+                <a th:href="@{/admin/reports/{id}(id=${c.id()})}"
+                   th:text="${c.snapshotTitle() != null ? c.snapshotTitle() : (c.snapshotContent() != null ? #strings.abbreviate(c.snapshotContent(), 60) : '(내용 없음)')}">제목</a>
+                <span class="help" th:text="${'신고 ' + c.reportCount() + '건'}">신고 3건</span>
+                <span class="badge" th:if="${tab == 'done'}"
+                      th:text="${c.status() == 'HIDDEN' ? '숨김' : (c.status() == 'REJECTED' ? '반려' : '대상 없음')}">숨김</span>
+            </div>
+            <div class="row-actions" th:if="${tab == 'done' and c.status() == 'HIDDEN' and c.targetHidden()}">
+                <form method="post" th:action="@{/admin/reports/{id}/unhide(id=${c.id()})}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">숨김 해제</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+</main>
+</body>
+</html>

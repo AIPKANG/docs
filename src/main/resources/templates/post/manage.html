@@ -46,7 +46,7 @@
                         <span aria-hidden="true" th:text="${row.visibility() == 'PRIVATE' ? '🔒' : '🌐'}">🌐</span><span class="visually-hidden" th:text="${row.visibility() == 'PRIVATE' ? '비공개' : '공개'}">공개</span></span>
                     <a th:href="${row.url()}" th:text="${row.title()}">제목</a>
                     <span class="badge badge-editing" th:if="${row.editing()}">수정 중</span>
-                    <span class="badge" th:if="${row.hidden()}">운영 정책에 따라 숨겨짐</span>
+                    <span class="badge" th:if="${row.hidden()}" title="운영 정책에 따라 숨겨졌어요">숨김</span>
                     <span class="help"><span th:text="${dates.get(row.id())}">발행일</span><span th:if="${row.editedAt() != null}"
                           th:text="${' · 수정됨 ' + @koreanDateFormatter.format(row.editedAt())}"></span>
                         · <span th:text="${'조회 ' + views.get(row.id())}">조회</span> · <span th:text="${'♥ ' + row.likeCount()}">♥</span>

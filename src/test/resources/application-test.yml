@@ -25,6 +25,8 @@ blog:
     flush-enabled: false
   trending:
     refresh-enabled: false
+  moderation:
+    cleanup-enabled: false
   notification:
     async: false
     cleanup-enabled: false

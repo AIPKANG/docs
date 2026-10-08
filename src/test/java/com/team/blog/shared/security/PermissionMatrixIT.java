@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * 012 권한 매트릭스(42 §5·§9·§10, FR-032): 구현된 기능의 표 1·2·7·8 모든 칸. 표 3~6·9는 해당 기능이 행을 더한다.
- * 017은 §10-3 알림 행("작성자" 칸 = 받은 사람 본인)을, 018은 §10-1 팔로우 행("작성자" 칸 = 대상 본인)을 더했다.
+ * 017은 §10-3 알림 행("작성자" 칸 = 받은 사람 본인)을, 018은 §10-1 팔로우 행("작성자" 칸 = 대상 본인)을, 022는 표 5·6(신고·관리자)을 더했다.
  * 행위자: 비회원, 인증 전 회원, 회원(남), 작성자, 관리자(남). 404는 없는 글과 본문이 같아야 한다.
  */
 class PermissionMatrixIT extends IntegrationTestBase {
@@ -245,6 +245,20 @@ class PermissionMatrixIT extends IntegrationTestBase {
         row("팔로워 목록", id -> get("/api/members/mxauthor/followers"), () -> 0, 200, 200, 200, 200, 200);
         row("팔로잉 목록", id -> get("/api/members/mxauthor/following"), () -> 0, 200, 200, 200, 200, 200);
         row("피드", id -> get("/api/feed"), () -> 0, 401, 200, 200, 200, 200);
+    }
+
+    // ----- 표 5·6: 신고·관리자(022) -----
+
+    @Test
+    void table5And6ReportAndAdmin() throws Exception {
+        row("글 신고", id -> post("/api/reports").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"targetType\":\"POST\",\"targetId\":" + id + ",\"reason\":\"SPAM\"}"),
+                () -> posts.published(author, "신고 대상", "본문", 1, T), 401, 403, 201, 400, 201);
+        long hidden = posts.published(author, "숨긴 글", "본문", 1, T);
+        jdbc.update("UPDATE post SET hidden_at = now() WHERE id = ?", hidden);
+        row("숨긴 글 상세", id -> get("/@mxauthor/posts/" + id), () -> hidden, 404, 404, 404, 200, 404);
+        row("신고 관리 화면", id -> get("/admin/reports"), () -> 0, 303, 404, 404, 404, 200);
+        row("회원 관리 화면", id -> get("/admin/members"), () -> 0, 303, 404, 404, 404, 200);
     }
 
     // ----- 판정 순서(42 §3) -----

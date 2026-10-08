@@ -43,7 +43,7 @@ public class PostReadAccess {
                 .stream().findFirst().orElseThrow(NotFoundException::new);
         if (row.status() != PostStatus.PUBLISHED
                 || !accessPolicy.canRead(viewer, new PostFacts(postId, row.authorId(), row.status(), row.visibility(),
-                        row.authorWithdrawn()))) {
+                        row.authorWithdrawn(), row.hidden()))) {
             throw new NotFoundException();
         }
         return new ReadablePost(postId, row.authorId(), row.visibility(), row.hidden());

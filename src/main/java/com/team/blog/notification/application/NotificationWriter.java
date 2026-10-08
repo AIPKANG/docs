@@ -77,7 +77,7 @@ public class NotificationWriter {
                 rs.getBoolean("w"), rs.getBoolean("h")), postId).stream().findFirst()
                 .filter(r -> !r.hidden() && "PUBLISHED".equals(r.status()))
                 .filter(r -> accessPolicy.canRead(Optional.of(viewer), new PostFacts(postId, r.authorId(),
-                        PostStatus.valueOf(r.status()), r.visibility(), r.authorWithdrawn())))
+                        PostStatus.valueOf(r.status()), r.visibility(), r.authorWithdrawn(), r.hidden())))
                 .isPresent();
     }
 

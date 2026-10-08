@@ -56,7 +56,7 @@ class ManagePostsIT extends IntegrationTestBase {
         String published = mockMvc.perform(get("/manage/posts").param("tab", "published").with(TestAuth.member(me)))
                 .andReturn().getResponse().getContentAsString();
         assertThat(published).contains("공개 발행").contains("비공개 발행").contains("수정 중").contains("이어서 수정")
-                .contains("변경 취소").contains("운영 정책에 따라 숨겨짐").contains("조회 1.2만").contains("수정됨")
+                .contains("변경 취소").contains(">숨김</span>").contains("조회 1.2만").contains("수정됨")
                 .contains(">공개<").contains(">비공개<").doesNotContain("버린 글");
         String onlyPrivate = mockMvc.perform(get("/manage/posts").param("tab", "published").param("visibility", "private")
                 .with(TestAuth.member(me))).andReturn().getResponse().getContentAsString();

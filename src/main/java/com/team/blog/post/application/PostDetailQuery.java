@@ -40,7 +40,8 @@ public class PostDetailQuery {
         Optional<Row> row = jdbc.query("""
                 SELECT p.id, p.author_id, p.status, p.visibility, p.title, p.content_html, p.excerpt, p.published_at,
                        p.first_public_at, p.edited_at, p.view_count, p.like_count, p.comment_count,
-                       m.handle, m.nickname, m.profile_image_url, m.bio, m.withdrawn_at
+                       m.handle, m.nickname, m.profile_image_url, m.bio, m.withdrawn_at,
+                       CASE WHEN p.hidden_at IS NULL THEN NULL ELSE COALESCE(p.hidden_reason, 'OTHER') END AS hidden_reason
                 FROM post p JOIN member m ON m.id = p.author_id
                 WHERE p.id = ? AND p.deleted_at IS NULL
                 """, (rs, n) -> new Row(map(rs), rs.getTimestamp("withdrawn_at") != null), postId).stream().findFirst();
@@ -48,7 +49,8 @@ public class PostDetailQuery {
             return Optional.empty();
         }
         PostDetail d = row.get().detail();
-        PostFacts facts = new PostFacts(d.id(), d.authorId(), d.status(), d.visibility(), row.get().authorWithdrawn());
+        PostFacts facts = new PostFacts(d.id(), d.authorId(), d.status(), d.visibility(), row.get().authorWithdrawn(),
+                d.hidden());
         if (!accessPolicy.canRead(viewer, facts)) {
             return Optional.empty();
         }
@@ -58,7 +60,7 @@ public class PostDetailQuery {
                 ? editFacade.editingSavedAt(postId) : Optional.empty();
         return Optional.of(new PostDetail(d.id(), d.authorId(), d.status(), d.visibility(), d.title(), d.contentHtml(),
                 d.excerpt(), d.publishedAt(), d.firstPublicAt(), d.editedAt(), d.viewCount(), d.likeCount(),
-                d.commentCount(), tags, d.author(), editingSavedAt.isPresent(), editingSavedAt.orElse(null)));
+                d.commentCount(), tags, d.author(), editingSavedAt.isPresent(), editingSavedAt.orElse(null), d.hiddenReason()));
     }
 
     private static PostDetail map(ResultSet rs) throws SQLException {
@@ -69,7 +71,7 @@ public class PostDetailQuery {
                 rs.getInt("comment_count"), List.of(),
                 new PostDetail.Author(rs.getString("handle"), rs.getString("nickname"), rs.getString("profile_image_url"),
                         rs.getString("bio")),
-                false, null);
+                false, null, rs.getString("hidden_reason"));
     }
 
     private static Instant instant(Timestamp ts) {

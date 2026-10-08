@@ -1,0 +1,2 @@
+# Data Model: 신고·숨김·정지 (022)
+새 마이그레이션 없음. V1 `report_case`(대상별 묶음·복사본·상태 PENDING/HIDDEN/REJECTED/CLOSED_NO_TARGET·처리자), `report`(신고자·사유·설명, 묶음+신고자 유일), `post/comment.hidden_at·hidden_by·hidden_reason`, `member_suspension`, `member.status`. 사건 `ContentHidden(postId, commentId?, authorId)`, `ReportsResolved([reportId, reporterId], result)`. 오류 `CANNOT_REPORT_OWN`, `CANNOT_MODERATE_OWN`, `VALIDATION_FAILED`(사유·설명·정지 값). Redis `rate:report:minute|day:{회원}`. 설정 `blog.moderation.*`.
