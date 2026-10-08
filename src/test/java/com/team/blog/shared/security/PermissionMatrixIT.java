@@ -200,6 +200,18 @@ class PermissionMatrixIT extends IntegrationTestBase {
         assertThat(run(delete("/api/comments/" + own).with(csrf()), TestAuth.member(unverified)).getStatus()).isEqualTo(204);
     }
 
+    // ----- 표 4: 좋아요(015) -----
+
+    @Test
+    void table4Likes() throws Exception {
+        long post = posts.published(author, "좋아요 글", "본문", 1, T);
+        long priv = posts.published(author, "비공개", "본문", 1, T);
+        jdbc.update("UPDATE post SET visibility = 'PRIVATE' WHERE id = ?", priv);
+        row("누르기", id -> put("/api/posts/" + id + "/like").with(csrf()), () -> post, 401, 403, 200, 400, 200);
+        row("취소", id -> delete("/api/posts/" + id + "/like").with(csrf()), () -> post, 401, 403, 200, 400, 200);
+        row("볼 수 없는 글", id -> put("/api/posts/" + id + "/like").with(csrf()), () -> priv, 401, 403, 404, 400, 404);
+    }
+
     // ----- 판정 순서(42 §3) -----
 
     @Test

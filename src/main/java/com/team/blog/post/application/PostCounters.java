@@ -19,6 +19,20 @@ public class PostCounters {
         }
     }
 
+    public int likeCount(long postId) {
+        Integer n = jdbc.queryForObject("SELECT like_count FROM post WHERE id = ?", Integer.class, postId);
+        return n == null ? 0 : n;
+    }
+
+    /** 좋아요 수를 실제 기록 수와 맞춘다(015 FR-010). 고친 글 수. */
+    public int reconcileLikes() {
+        return jdbc.update("""
+                UPDATE post p SET like_count = c.n
+                FROM (SELECT p2.id, count(l.post_id) AS n FROM post p2 LEFT JOIN post_like l ON l.post_id = p2.id GROUP BY p2.id) c
+                WHERE c.id = p.id AND p.like_count <> c.n
+                """);
+    }
+
     public void adjustLikes(long postId, int delta) {
         if (delta != 0) {
             jdbc.update("UPDATE post SET like_count = GREATEST(0, like_count + ?) WHERE id = ?", delta, postId);

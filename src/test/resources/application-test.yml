@@ -19,6 +19,8 @@ blog:
   markdown:
     rerender:
       enabled: false
+  like:
+    reconcile-enabled: false
 spring:
   jpa:
     properties:

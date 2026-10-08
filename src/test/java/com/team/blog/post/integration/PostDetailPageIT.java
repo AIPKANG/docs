@@ -67,10 +67,10 @@ class PostDetailPageIT extends IntegrationTestBase {
                 .contains("<meta property=\"og:image\" content=\"http://localhost:9000/blog-images/images/2026/10/a.webp\">")
                 .contains("<meta property=\"article:published_time\" content=\"2026-10-01T00:00:00Z\">")
                 .doesNotContain("article:modified_time").doesNotContain("noindex")
-                .contains("조회 1.2만").contains("♥ 7").contains("댓글 3").contains("2026.10.01")
+                .contains("조회 1.2만").contains("class=\"like-number\">7<").contains("댓글 3").contains("2026.10.01")
                 .contains("href=\"/@detailmeta\"").contains("블로그 가기")
                 .contains("href=\"/login?redirect=/@detailmeta/posts/" + id + "\"")
-                .doesNotContain("class=\"like-button\"").doesNotContain("id=\"visibility-select\"")
+                .contains("class=\"like-button\"").doesNotContain("id=\"visibility-select\"")
                 .contains("data-view-post-id=\"" + id + "\"");
         String description = html.substring(html.indexOf("<meta name=\"description\" content=\"") + 34);
         assertThat(description.substring(0, description.indexOf('"')).codePointCount(0, description.indexOf('"'))).isEqualTo(160);

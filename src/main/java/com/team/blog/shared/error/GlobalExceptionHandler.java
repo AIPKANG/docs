@@ -223,6 +223,13 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.CONFLICT, error(CommentHiddenException.CODE));
     }
 
+    // ----- 015: 좋아요 -----
+
+    @ExceptionHandler(CannotLikeOwnPostException.class)
+    public ResponseEntity<ErrorResponse> cannotLikeOwnPost() {
+        return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
+    }
+
     // ----- 도우미 -----
 
     protected static ResponseEntity<Void> seeOther(String location) {

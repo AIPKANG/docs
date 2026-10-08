@@ -245,3 +245,7 @@ blog:
     create-per-minute: 10
     edit-per-minute: 20
     dedupe-window: 10s
+  # 015-like: 매일 좋아요 수 보정
+  like:
+    reconcile-enabled: true
+    reconcile-cron: "0 50 4 * * *"
