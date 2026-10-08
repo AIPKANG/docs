@@ -21,6 +21,8 @@ blog:
       enabled: false
   like:
     reconcile-enabled: false
+  view:
+    flush-enabled: false
 spring:
   jpa:
     properties:

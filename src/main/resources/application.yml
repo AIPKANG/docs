@@ -249,3 +249,14 @@ blog:
   like:
     reconcile-enabled: true
     reconcile-cron: "0 50 4 * * *"
+  # 016-view-count: 31 §2-2·§3 (강성찬 원안은 30m·5)
+  view:
+    dedupe-window: 24h
+    max-per-window: 1
+    notice: 같은 사람은 하루에 한 번만 세요
+    bot-user-agents: [bot, crawler, spider, preview, facebookexternalhit, Slackbot, kakaotalk-scrap, Discordbot, HeadlessChrome]
+    per-minute: 60
+    flush-enabled: true
+    flush-interval: 1m
+    daily-retention: 90d
+    retention-cron: "0 0 5 * * *"

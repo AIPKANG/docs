@@ -56,7 +56,8 @@
                     <span class="like-number" th:text="${likeLabel}">12</span>
                 </button>
             </form>
-            <span class="view-count" th:text="${'조회 ' + viewCount}">조회 1,234</span>
+            <span class="view-count" th:text="${'조회 ' + viewCount}" th:attr="title=${viewNotice}">조회 1,234</span>
+            <span class="help view-notice" th:if="${viewNotice != null}" th:text="${viewNotice}">같은 사람은 하루에 한 번만 세요</span>
             <button type="button" th:if="${canReact}" class="report-button" th:attr="data-report-post-id=${post.id()}">신고</button>
             <span class="like-message help" role="status" hidden></span>
         </p>
@@ -114,6 +115,7 @@
     <script src="/js/post/post-detail.js" defer></script>
     <script src="/js/post/comments.js" defer></script>
     <script src="/js/post/like.js" defer></script>
+    <script th:if="${recordView}" src="/js/post/post-view.js" defer></script>
 </main>
 </body>
 </html>

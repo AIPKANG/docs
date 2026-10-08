@@ -49,7 +49,7 @@ public class PostDetailController {
 
     @GetMapping("/@{handle}/posts/{postId}")
     public Object detail(@PathVariable("handle") String handle, @PathVariable("postId") String postId, Model model,
-                         HttpServletResponse response,
+                         HttpServletResponse response, jakarta.servlet.http.HttpServletRequest request,
                          @org.springframework.web.bind.annotation.RequestParam java.util.Map<String, String> params) {
         long id = parseId(postId);
         Optional<CurrentUser> viewer = currentUserProvider.current();
@@ -66,6 +66,9 @@ public class PostDetailController {
             return redirect;
         }
         response.setHeader("Cache-Control", post.isPublic() ? "private, no-cache" : "private, no-store");
+        if (viewer.isEmpty() && post.isPublic()) {
+            com.team.blog.shared.web.VisitorCookie.ensure(request, response); // 016: 비회원 방문자 쿠키
+        }
 
         boolean authenticated = viewer.isPresent();
         model.addAttribute("post", post);

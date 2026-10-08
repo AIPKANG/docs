@@ -1,0 +1,2 @@
+# Data Model: 조회수 (016)
+새 마이그레이션 없음. `post.view_count`, `post_view_daily(post_id, view_date, views)`. Redis `view:seen:{글}:{방문자}`(기간 TTL), `view:pending:{KST 날짜}` Hash(글 → 수), `view:processing:{날짜}:{ms}`(반영 중), `rate:view:visitor:{방문자}`(1분 60). 쿠키 `vid`. 설정 `blog.view.*`(dedupe-window 24h, max-per-window 1, notice, bot-user-agents, per-minute 60, flush-interval 1m, daily-retention 90d, retention-cron).
