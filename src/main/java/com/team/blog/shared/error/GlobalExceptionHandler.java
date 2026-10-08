@@ -230,6 +230,11 @@ public class GlobalExceptionHandler {
         return json(HttpStatus.BAD_REQUEST, error(CannotLikeOwnPostException.CODE));
     }
 
+    @ExceptionHandler(AiSuggestException.class)
+    public ResponseEntity<ErrorResponse> aiSuggest(AiSuggestException e) {
+        return json(HttpStatus.valueOf(e.status()), error(e.getCode()));
+    }
+
     @ExceptionHandler(SnapshotExpiredException.class)
     public ResponseEntity<ErrorResponse> snapshotExpired() {
         return json(HttpStatus.GONE, error(SnapshotExpiredException.CODE));

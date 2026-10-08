@@ -29,6 +29,11 @@ blog:
     async: false
     cleanup-enabled: false
 spring:
+  # 테스트 컨텍스트가 여러 개(속성이 다른 시험) 떠도 PostgreSQL 연결 한도를 넘지 않게
+  datasource:
+    hikari:
+      maximum-pool-size: 6
+      minimum-idle: 0
   jpa:
     properties:
       hibernate:

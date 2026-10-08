@@ -80,6 +80,14 @@
       count.textContent = tags.length + ' / ' + maxTags + '   Enter나 쉼표로 추가';
     }
 
+    // 021 AI 태그 추천이 칩을 읽고 더할 수 있게(누른 것만 더한다)
+    window.blogEditorTags = {
+      list: function () { return tags.slice(); },
+      max: maxTags,
+      visibility: function () { var r = panel.querySelector('input[name="visibility"]:checked'); return r ? r.value : 'PUBLIC'; },
+      add: function (t) { if (t && tags.indexOf(t) < 0 && tags.length < maxTags) { tags.push(t); renderChips(); } }
+    };
+
     function addTag() {
       var parts = input.value.split(',');
       parts.forEach(function (p) {

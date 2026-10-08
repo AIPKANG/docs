@@ -266,6 +266,33 @@ blog:
   follow:
     per-ip-per-minute: ${blog.rate-limit.per-ip-per-minute}
     page-size: 20
+  # 021-ai-tag-suggest: 34 §2~§5. 키는 환경 변수로만(GEMINI_API_KEY), 비어 있으면 Gemini를 건너뛰고 자체 AI만
+  ai:
+    tag-suggest:
+      enabled: ${AI_TAG_SUGGEST_ENABLED:true}
+      gemini:
+        api-key: ${GEMINI_API_KEY:}
+        model: ${GEMINI_MODEL:gemini-flash-lite-latest}
+        base-url: https://generativelanguage.googleapis.com
+        timeout: 10s
+        max-chars: 8000
+        daily-limit: 450
+        reset-zone: America/Los_Angeles
+      ollama:
+        base-url: ${OLLAMA_BASE_URL:http://ollama:11434}
+        model: ${OLLAMA_MODEL:qwen2.5:1.5b}
+        timeout: 30s
+        max-chars: 2000
+        max-concurrency: 1
+      per-user-daily: 20
+      min-chars: 100
+      max-suggestions: 5
+      popular-count: 50
+      prompt-version: 1
+      exact-cache-ttl: 30d
+      similar-cache-ttl: 7d
+      similarity: 0.9
+      cooldown: 60s
   # 020-search: 33 §4·§5
   search:
     recent-window: 3000

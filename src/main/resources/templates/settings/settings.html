@@ -148,6 +148,13 @@
         </form>
     </section>
 
+    <!-- 021 AI 전송 동의 철회(FR-010) -->
+    <section aria-labelledby="ai-heading">
+        <h2 id="ai-heading">AI 태그 추천</h2>
+        <p class="help" id="ai-consent-state" aria-live="polite">불러오는 중…</p>
+        <button type="button" id="ai-consent-withdraw" hidden>동의 철회</button>
+    </section>
+
     <!-- 회원 탈퇴 진입점(FR-029, 처리는 023) -->
     <section aria-labelledby="withdraw-heading">
         <h2 id="withdraw-heading">회원 탈퇴</h2>
@@ -160,6 +167,7 @@
     <script src="/js/profile/image-cropper.js" defer></script>
     <script src="/js/profile/settings.js" defer></script>
     <script src="/js/account/storage-usage.js" defer></script>
+    <script src="/js/account/ai-consent.js" defer></script>
 </main>
 </body>
 </html>

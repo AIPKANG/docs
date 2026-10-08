@@ -58,7 +58,30 @@
             <div class="tag-chips" id="tag-chips"></div>
             <input type="text" id="tag-input" placeholder="Enter나 쉼표로 추가" autocomplete="off">
             <p class="help" id="tag-count"></p>
+            <!-- 021 AI 태그 추천: 누를 때만 요청, 누른 후보만 태그로 -->
+            <div id="ai-tags" class="ai-tags" hidden>
+                <button type="button" id="ai-suggest">✨ AI 태그 추천</button>
+                <span class="help" id="ai-remaining"></span>
+                <p class="help" id="ai-public-only" hidden>공개 글에서만 태그 추천을 받을 수 있어요</p>
+                <div id="ai-result" hidden>
+                    <span>추천:</span> <span id="ai-candidates"></span>
+                    <button type="button" id="ai-refresh">다시 추천</button>
+                    <p class="help">본문 앞부분을 보고 추천했어요 · AI 제안이에요<span id="ai-truncated" hidden> · 글이 길어 앞부분만 보냈어요</span></p>
+                </div>
+                <p class="help" id="ai-status" role="status"></p>
+            </div>
         </div>
+        <dialog id="ai-consent-dialog" aria-labelledby="ai-consent-heading">
+            <h2 id="ai-consent-heading">AI 태그 추천을 쓰기 전에</h2>
+            <ul>
+                <li>글 제목과 본문 앞부분이 외부 AI 서비스(Google Gemini, 무료 등급)로 전송됩니다.</li>
+                <li>무료 등급에서는 Google이 보낸 내용과 응답을 서비스 개선에 사용하고, 사람이 읽고 검토할 수 있습니다.</li>
+                <li>외부 AI를 쓸 수 없을 때는 우리 서버의 자체 AI로 처리하며, 이때는 외부로 전송되지 않습니다.</li>
+                <li>개인정보·비밀번호·회사 기밀이 든 글에는 쓰지 마세요.</li>
+            </ul>
+            <button type="button" id="ai-consent-agree">동의하고 추천받기</button>
+            <button type="button" id="ai-consent-cancel">취소</button>
+        </dialog>
         <!-- 008 대체글 권유(FR-029·FR-030): 막지 않고 안내만 -->
         <div id="alt-section" hidden>
             <p id="alt-summary" class="help"></p>
@@ -103,6 +126,7 @@
     <script src="/js/editor/editor.js" defer></script>
     <script src="/js/editor/preview.js" defer></script>
     <script src="/js/editor/publish.js" defer></script>
+    <script src="/js/editor/ai-tags.js" defer></script>
     <script src="/js/editor/image-upload.js" defer></script>
     <script src="/js/gif-play.js" defer></script>
 </main>
