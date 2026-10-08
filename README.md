@@ -50,7 +50,7 @@ docker compose up -d        # PostgreSQL·Redis·Mailpit·사진 저장소(MinIO
 ## 테스트
 
 ```bash
-./gradlew test              # 통합 테스트 604개(Testcontainers로 PostgreSQL·Redis·Mailpit·MinIO를 띄움)
+./gradlew test              # 통합 테스트 606개(Testcontainers로 PostgreSQL·Redis·Mailpit·MinIO를 띄움)
 node src/test/js/diff.test.mjs   # 편집 비교 창 diff 자체 검사(선택)
 ```
 
