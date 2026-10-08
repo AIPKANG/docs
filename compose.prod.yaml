@@ -1,13 +1,32 @@
 # 운영 서버용 덧붙임: `docker compose -f compose.yaml -f compose.prod.yaml --profile app up -d --build`
 # 사진은 앱 서버 디스크(app-data 볼륨)에 둔다. DB·Redis는 바깥으로 열지 않고 Nginx만 80·443을 연다.
 # MinIO(storage)와 개발용 Mailpit은 띄우지 않는다. 사진 저장소를 MinIO로 확장할 때는 DEPLOY.md "사진 저장소 확장".
+# 로그는 컨테이너마다 10MB × 5개까지만 남긴다(디스크가 로그로 차지 않게). 보기: deploy/logs.sh
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   postgres:
     ports: !reset []
     restart: unless-stopped
+    logging: *logging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d blog"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
   redis:
     ports: !reset []
     restart: unless-stopped
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
   storage:
     profiles: ["s3"]
   mailpit:
@@ -15,11 +34,20 @@ services:
   app:
     ports: !reset []
     restart: unless-stopped
+    logging: *logging
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   nginx:
     profiles: ["app"]
     image: nginx:1.29
-    depends_on: [app]
+    depends_on:
+      app:
+        condition: service_healthy
     restart: unless-stopped
+    logging: *logging
     ports:
       - "80:80"
       - "443:443"

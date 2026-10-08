@@ -43,6 +43,7 @@ services:
   app:
     profiles: ["app"]
     build: .
+    image: ${APP_IMAGE:-team-blog:local}
     depends_on: [postgres, redis]
     ports:
       - "${APP_PORT:-8080}:8080"

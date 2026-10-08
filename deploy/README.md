@@ -9,6 +9,7 @@
 4. `~/blog/deploy/first-deploy.sh` — http로 Nginx → 인증서 발급 → 전체 HTTPS 기동.
 5. Google·GitHub OAuth 앱에 콜백 `https://블로그도메인/login/oauth2/code/google|github` 추가.
 6. 새 버전: `~/blog/deploy/update.sh`. 인증서 갱신: crontab에 `0 4 * * 1 ~/blog/deploy/renew-cert.sh`.
+7. 백업: crontab에 `30 3 * * * ~/blog/deploy/backup.sh >> ~/backups/backup.log 2>&1`. 복구는 `deploy/restore.sh`, 로그·상태는 `deploy/logs.sh`(`DEPLOY.md` 4절).
 
 DB·Redis 포트는 바깥에 열지 않는다(Nginx만 80·443). 사진은 `app-data` 볼륨에 있으니 DB와 함께 백업한다.
 서버를 여러 대로 늘릴 때는 먼저 사진 저장소를 MinIO로 옮긴다(`DEPLOY.md` "사진 저장소 확장").

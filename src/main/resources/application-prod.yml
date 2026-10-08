@@ -36,3 +36,10 @@ blog:
     access-key: ${STORAGE_ACCESS_KEY:}
     secret-key: ${STORAGE_SECRET_KEY:}
     create-bucket: false
+
+# 사진 디스크(볼륨)의 남은 공간도 상태 확인에 넣는다(10MB 아래면 DOWN)
+management:
+  health:
+    diskspace:
+      path: ${STORAGE_LOCAL_DIR:/app/data}
+      threshold: 10MB

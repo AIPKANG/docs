@@ -344,3 +344,22 @@ blog:
     page-size: 20
     poll-seconds: 30
     preview-length: 50
+
+# 운영 상태 확인: /actuator/health(전체), /actuator/health/liveness·readiness(컨테이너·로드밸런서용)만 연다.
+# 상세(DB 주소 등)는 보여 주지 않고, 메일 서버는 매번 부르지 않는다.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState, db, redis
+  health:
+    mail:
+      enabled: false

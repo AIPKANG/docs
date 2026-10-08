@@ -21,10 +21,16 @@
 - 관리자 지정: `UPDATE member SET role = 'ADMIN' WHERE handle = '주소';`
 - 백업: DB(`pg_dump`)와 함께 `app-data` 볼륨(사진)도 백업한다.
 
-## 4. 예약 작업
+## 4. 운영 점검·백업
+- **상태 확인**: `/actuator/health`(누구나, UP/DOWN만), `/actuator/health/liveness`·`/readiness`(DB·Redis 포함). 앱 컨테이너는 30초마다 스스로 검사하고, Nginx는 앱이 healthy가 된 뒤에 뜬다. 운영에서는 사진 디스크 남은 공간도 본다.
+- **로그**: 컨테이너마다 10MB × 5개까지 남긴다. `deploy/logs.sh [24h]` — 컨테이너 상태, 최근 경고·오류, 상태 확인을 한 번에.
+- **백업**: `deploy/backup.sh` — DB(`pg_dump` custom 형식)와 사진 볼륨을 `~/backups`에 날짜별로, 14일 보관. crontab에 `30 3 * * * ~/blog/deploy/backup.sh >> ~/backups/backup.log 2>&1`. 서버 밖(외부 저장소)으로도 복사해 둔다.
+- **복구**: `deploy/restore.sh ~/backups/db-….dump [~/backups/images-….tar.gz]` — 확인 문구(yes) 뒤 앱을 멈추고 DB를 백업 시점으로 덮어쓰고 사진을 풀어 넣은 뒤 다시 띄운다. 로컬에서 "백업 → 글·사진 지우기 → 복구 → 글·사진 다시 보임"을 확인했다(2026-10-08).
+
+## 5. 예약 작업
 여러 대로 늘려도 Redis 잠금으로 한 대만 실행한다: 자동 저장 반영(1분), 조회수 반영(1분), 트렌딩(10분), 빈 임시글·휴지통·사진·알림·신고·탈퇴 정리(매일 새벽, 한국 시간).
 
-## 5. 확장
+## 6. 확장
 - **서버 키우기**: 사양만 올린다.
 - **DB·Redis 떼어 내기**: 관리형 서비스로 옮기고 `.env`에 `DB_URL`(jdbc 주소)·`DB_USERNAME`·`DB_PASSWORD`·`REDIS_HOST`를 넣는다. 코드 변경 없음.
 - **앱 서버 여러 대**: 세션·예약 작업은 이미 Redis로 공유된다. 단, **사진이 디스크에 있는 동안은 앱 서버를 한 대로 유지**하고, 늘리기 전에 아래 "사진 저장소 확장"을 먼저 한다.
