@@ -1,5 +1,6 @@
 # 운영 서버용 덧붙임: `docker compose -f compose.yaml -f compose.prod.yaml --profile app up -d --build`
-# DB·Redis·저장소는 바깥으로 열지 않고, Nginx만 80·443을 연다. 개발용 Mailpit은 띄우지 않는다.
+# 사진은 앱 서버 디스크(app-data 볼륨)에 둔다. DB·Redis는 바깥으로 열지 않고 Nginx만 80·443을 연다.
+# MinIO(storage)와 개발용 Mailpit은 띄우지 않는다. 사진 저장소를 MinIO로 확장할 때는 DEPLOY.md "사진 저장소 확장".
 services:
   postgres:
     ports: !reset []
@@ -8,34 +9,22 @@ services:
     ports: !reset []
     restart: unless-stopped
   storage:
-    ports: !reset []
-    restart: unless-stopped
-    environment:
-      MINIO_API_CORS_ALLOW_ORIGIN: ${APP_BASE_URL}
+    profiles: ["s3"]
   mailpit:
     profiles: ["dev"]
   app:
     ports: !reset []
     restart: unless-stopped
-    environment:
-      # 같은 서버의 MinIO를 쓰므로 앱 키 = 루트 계정, 버킷·공개 읽기 정책은 앱이 처음에 만든다
-      STORAGE_ACCESS_KEY: ${STORAGE_ROOT_USER}
-      STORAGE_SECRET_KEY: ${STORAGE_ROOT_PASSWORD}
-      BLOG_STORAGE_CREATE_BUCKET: "true"
-      STORAGE_ENDPOINT: http://storage:9000
-      STORAGE_PRESIGN_ENDPOINT: ${STORAGE_PUBLIC_URL}
-      STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_URL}
   nginx:
     profiles: ["app"]
     image: nginx:1.29
-    depends_on: [app, storage]
+    depends_on: [app]
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     environment:
       SITE_DOMAIN: ${SITE_DOMAIN}
-      STORAGE_DOMAIN: ${STORAGE_DOMAIN}
     volumes:
       - ${NGINX_TEMPLATES:-./deploy/nginx/templates}:/etc/nginx/templates:ro
       - certbot-www:/var/www/certbot:ro

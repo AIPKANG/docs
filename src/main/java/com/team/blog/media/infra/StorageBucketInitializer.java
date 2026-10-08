@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
@@ -17,7 +16,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
  * 운영(NHN MinIO)은 버킷·정책·앱 전용 키를 미리 만들어 두고 이 작업을 끈다. 앱 전용 키 발급은 008 범위다.
  */
 @Component
-@ConditionalOnProperty(name = "blog.storage.create-bucket", havingValue = "true")
+@org.springframework.boot.autoconfigure.condition.ConditionalOnExpression("${blog.storage.create-bucket:false} and '${blog.storage.type:s3}' == 's3'")
 public class StorageBucketInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(StorageBucketInitializer.class);

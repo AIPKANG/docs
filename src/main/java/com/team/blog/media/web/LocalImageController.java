@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 대체 저장소의 업로드·내려받기(008 research R-6). 업로드는 서명으로만 허가한다(로그인·CSRF 대신, 저장소 사전 서명 PUT과 같은 모양).
+ * 서버 디스크 저장소의 업로드·내려받기(008 research R-6, 운영 첫 저장 방식). 업로드는 서명으로만 허가한다(로그인·CSRF 대신, 저장소 사전 서명 PUT과 같은 모양).
  * 내려받기는 {@code images/} 아래 파일만, 1년 변경 없는 캐시.
  */
 @RestController
@@ -50,14 +50,15 @@ public class LocalImageController {
     }
 
     @GetMapping(LocalImageStorage.PUBLIC_PATH + "images/**")
-    public ResponseEntity<byte[]> download(HttpServletRequest request) throws IOException {
+    public ResponseEntity<org.springframework.core.io.Resource> download(HttpServletRequest request) throws IOException {
         String key = request.getRequestURI().substring(request.getContextPath().length() + LocalImageStorage.PUBLIC_PATH.length());
         Path file = storage.root().resolve(key).normalize();
         if (!file.startsWith(storage.root()) || !Files.isRegularFile(file) || key.endsWith(".type")) {
             return ResponseEntity.notFound().build();
         }
         MediaType type = storage.contentTypeOf(key).map(MediaType::parseMediaType).orElse(MediaType.APPLICATION_OCTET_STREAM);
+        // 파일 전체를 메모리에 올리지 않고 흘려보낸다
         return ResponseEntity.ok().contentType(type).header("Cache-Control", ImageStorage.CACHE_CONTROL)
-                .body(Files.readAllBytes(file));
+                .contentLength(Files.size(file)).body(new org.springframework.core.io.FileSystemResource(file));
     }
 }

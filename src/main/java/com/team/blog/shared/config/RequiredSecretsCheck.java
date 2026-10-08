@@ -23,12 +23,17 @@ public class RequiredSecretsCheck implements InitializingBean {
             "spring.security.oauth2.client.registration.github.client-id",
             "spring.security.oauth2.client.registration.github.client-secret",
             "blog.auth.mail.from",
-            "blog.auth.mail.link-base-url",
-            // 003-profile: 사진 저장소(NHN MinIO)
+            "blog.auth.mail.link-base-url");
+
+    /** 사진 저장소가 S3 호환(MinIO)일 때만 필요한 값. */
+    static final List<String> REQUIRED_S3 = List.of(
             "blog.storage.endpoint",
             "blog.storage.public-base-url",
             "blog.storage.access-key",
             "blog.storage.secret-key");
+
+    /** 사진을 서버 디스크에 둘 때(운영 기본) 필요한 값: 업로드 주소 서명 키. 재시작해도 같은 키여야 한다. */
+    static final List<String> REQUIRED_LOCAL = List.of("blog.storage.local-secret");
 
     private final Environment environment;
 
@@ -41,14 +46,16 @@ public class RequiredSecretsCheck implements InitializingBean {
         List<String> missing = missing(environment);
         if (!missing.isEmpty()) {
             throw new IllegalStateException("운영 프로필에 필요한 설정이 비어 있어요(환경 변수 MAIL_USERNAME, MAIL_PASSWORD, "
-                    + "GOOGLE_CLIENT_ID/SECRET, GITHUB_CLIENT_ID/SECRET, APP_BASE_URL, STORAGE_ENDPOINT, STORAGE_PUBLIC_BASE_URL, "
-                    + "STORAGE_ACCESS_KEY, STORAGE_SECRET_KEY 확인): " + missing);
+                    + "GOOGLE_CLIENT_ID/SECRET, GITHUB_CLIENT_ID/SECRET, APP_BASE_URL, 사진 저장소가 디스크면 STORAGE_LOCAL_SECRET, "
+                    + "S3면 STORAGE_ENDPOINT·STORAGE_PUBLIC_BASE_URL·STORAGE_ACCESS_KEY·STORAGE_SECRET_KEY 확인): " + missing);
         }
     }
 
     static List<String> missing(Environment environment) {
         List<String> missing = new ArrayList<>();
-        for (String key : REQUIRED) {
+        List<String> keys = new ArrayList<>(REQUIRED);
+        keys.addAll("local".equals(environment.getProperty("blog.storage.type")) ? REQUIRED_LOCAL : REQUIRED_S3);
+        for (String key : keys) {
             String value;
             try {
                 value = environment.getProperty(key);

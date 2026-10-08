@@ -26,9 +26,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * 대체 저장소(008 research R-6, 04 §4-1 {@code LocalImageStorage}): 저장소를 띄울 수 없는 개발 환경에서 파일을 로컬 디렉터리에
- * 둔다. 업로드 주소는 우리 서버 {@code PUT /api/images/local-upload}(HMAC 서명·5분), 공개 주소는 {@code /media/{key}}.
- * 운영에서는 쓰지 않는다.
+ * 서버 디스크 저장소(008 research R-6, 04 §4-1 {@code LocalImageStorage}): 파일을 서버 디렉터리(운영은 Docker 볼륨)에 둔다.
+ * 업로드 주소는 우리 서버 {@code PUT /api/images/local-upload}(HMAC 서명·5분), 공개 주소는 상대 주소 {@code /media/{key}}라
+ * 도메인이 바뀌어도 그대로다. 운영의 첫 저장 방식이고, 앱 서버를 여러 대로 늘릴 때 S3 호환 저장소(MinIO)로 옮긴다(DEPLOY.md).
+ * 서명 키({@code STORAGE_LOCAL_SECRET})가 없으면 실행마다 무작위 키를 쓴다(개발용, 운영은 필수값 검사가 막는다).
  */
 @Component
 @ConditionalOnProperty(name = "blog.storage.type", havingValue = "local")

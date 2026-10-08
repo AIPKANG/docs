@@ -17,9 +17,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
  * S3 호환 저장소 클라이언트(04 §4-1: {@code endpointOverride} + {@code forcePathStyle(true)}, research R-5).
- * 사전 서명은 {@link S3Presigner}(항상 SigV4). 요청 체크섬은 필요할 때만 계산해 사전 서명 PUT에 체크섬 헤더가 서명되지 않게 한다.
+ * 사진을 서버 디스크에 두면({@code blog.storage.type=local}) 만들지 않는다. 사전 서명은 {@link S3Presigner}(항상 SigV4). 요청 체크섬은 필요할 때만 계산해 사전 서명 PUT에 체크섬 헤더가 서명되지 않게 한다.
  */
 @Configuration(proxyBeanMethods = false)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "blog.storage.type", havingValue = "s3", matchIfMissing = true)
 public class StorageConfig {
 
     @Bean(destroyMethod = "close")

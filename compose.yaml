@@ -43,7 +43,7 @@ services:
   app:
     profiles: ["app"]
     build: .
-    depends_on: [postgres, redis, storage]
+    depends_on: [postgres, redis]
     ports:
       - "${APP_PORT:-8080}:8080"
     environment:
@@ -61,15 +61,21 @@ services:
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
-      # 앱은 저장소를 내부 주소로 부르고, 브라우저 업로드 서명과 사진 주소는 바깥 주소로
+      # 사진: 기본은 앱 서버 디스크(app-data 볼륨). STORAGE_TYPE=s3로 바꾸면 아래 MinIO 값을 쓴다(DEPLOY.md)
+      STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      STORAGE_LOCAL_DIR: /app/data
+      STORAGE_LOCAL_SECRET: ${STORAGE_LOCAL_SECRET:-}
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://storage:9000}
       STORAGE_PRESIGN_ENDPOINT: ${STORAGE_PRESIGN_ENDPOINT:-http://localhost:9000}
       STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_BASE_URL:-http://localhost:9000}
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-blogminio}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-blogminio-dev-secret}
       BLOG_STORAGE_CREATE_BUCKET: ${STORAGE_CREATE_BUCKET:-false}
+    volumes:
+      - app-data:/app/data
 
 volumes:
+  app-data:
   postgres-data:
   redis-data:
   storage-data:

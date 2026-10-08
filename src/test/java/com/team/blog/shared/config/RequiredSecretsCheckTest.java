@@ -24,7 +24,18 @@ class RequiredSecretsCheckTest {
     void allPresentPasses() {
         MockEnvironment env = new MockEnvironment();
         RequiredSecretsCheck.REQUIRED.forEach(k -> env.setProperty(k, "value"));
+        RequiredSecretsCheck.REQUIRED_S3.forEach(k -> env.setProperty(k, "value"));
         new RequiredSecretsCheck(env).afterPropertiesSet();
+        assertThat(RequiredSecretsCheck.missing(env)).isEmpty();
+    }
+
+    /** 사진을 디스크에 두면 S3 키 대신 업로드 서명 키만 필요하다. */
+    @Test
+    void localStorageNeedsOnlyUploadSecret() {
+        MockEnvironment env = new MockEnvironment().withProperty("blog.storage.type", "local");
+        RequiredSecretsCheck.REQUIRED.forEach(k -> env.setProperty(k, "value"));
+        assertThat(RequiredSecretsCheck.missing(env)).containsExactly("blog.storage.local-secret");
+        env.setProperty("blog.storage.local-secret", "s3cret");
         assertThat(RequiredSecretsCheck.missing(env)).isEmpty();
     }
 }
