@@ -16,6 +16,7 @@
         <button type="button" id="conflict-compare">비교하기</button>
     </div>
     <p id="editor-notice" class="notice" role="status" hidden></p>
+    <p id="image-notice" class="notice" role="status" hidden></p>
 
     <div class="field">
         <label for="post-title" class="visually-hidden">제목</label>
@@ -35,6 +36,8 @@
     <div class="editor-bar">
         <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
         <div class="editor-actions">
+            <button type="button" id="image-pick">사진</button>
+            <input type="file" id="image-file" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden>
             <button type="button" id="preview-toggle" aria-controls="preview-panel" aria-expanded="false">미리보기</button>
             <button type="button" id="discard-working-copy" th:if="${published}">변경 취소</button>
             <button type="button" id="manual-save">저장</button>
@@ -55,6 +58,11 @@
             <div class="tag-chips" id="tag-chips"></div>
             <input type="text" id="tag-input" placeholder="Enter나 쉼표로 추가" autocomplete="off">
             <p class="help" id="tag-count"></p>
+        </div>
+        <!-- 008 대체글 권유(FR-029·FR-030): 막지 않고 안내만 -->
+        <div id="alt-section" hidden>
+            <p id="alt-summary" class="help"></p>
+            <div id="alt-fields"></div>
         </div>
         <ul id="publish-errors" class="field-error" role="alert"></ul>
         <button type="button" id="publish-cancel">취소</button>
@@ -95,6 +103,8 @@
     <script src="/js/editor/editor.js" defer></script>
     <script src="/js/editor/preview.js" defer></script>
     <script src="/js/editor/publish.js" defer></script>
+    <script src="/js/editor/image-upload.js" defer></script>
+    <script src="/js/gif-play.js" defer></script>
 </main>
 </body>
 </html>

@@ -74,10 +74,49 @@
     });
     input.addEventListener('blur', function () { if (input.value.trim()) { addTag(); } });
 
+    /* 008 FR-029·FR-030: 대체글이 빈 사진 안내와 사진별 입력칸(본문 ![대체글](주소)에 반영, 발행은 막지 않음) */
+    var altSection = document.getElementById('alt-section');
+    var altSummary = document.getElementById('alt-summary');
+    var altFields = document.getElementById('alt-fields');
+    var contentInput = document.getElementById('post-content');
+    function renderAlts() {
+      if (!altSection) { return; }
+      var re = /!\[\]\(([^)\s]+)\)/g, m, urls = [];
+      while ((m = re.exec(contentInput.value)) !== null) {
+        if (m[1].indexOf('local:') !== 0 && urls.indexOf(m[1]) < 0) { urls.push(m[1]); }
+      }
+      altFields.textContent = '';
+      altSection.hidden = urls.length === 0;
+      altSummary.textContent = '대체글이 없는 사진이 ' + urls.length + '장 있어요. 화면 낭독기를 쓰는 분을 위해 사진을 설명해 주세요(없어도 발행돼요).';
+      urls.forEach(function (url, i) {
+        var row = document.createElement('div');
+        row.className = 'alt-field';
+        var img = document.createElement('img');
+        img.src = url; img.alt = ''; img.width = 48; img.height = 48; img.style.objectFit = 'cover';
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.setAttribute('aria-label', '사진 ' + (i + 1) + ' 대체글');
+        var hint = document.createElement('span');
+        hint.className = 'help';
+        input.addEventListener('input', function () {
+          hint.textContent = input.value.length > 125 ? '125자가 넘어요. 짧게 줄이면 듣기 편해요.' : '';
+        });
+        input.addEventListener('change', function () {
+          var alt = input.value.replace(/[\[\]\n]/g, ' ').trim();
+          if (!alt) { return; }
+          contentInput.value = contentInput.value.split('![](' + url + ')').join('![' + alt + '](' + url + ')');
+          contentInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        row.appendChild(img); row.appendChild(input); row.appendChild(hint);
+        altFields.appendChild(row);
+      });
+    }
+
     openButton.addEventListener('click', function () {
       if (editor.isConflict()) { editor.openCompare(); return; }
       panel.hidden = !panel.hidden;
       openButton.setAttribute('aria-expanded', String(!panel.hidden));
+      if (!panel.hidden) { renderAlts(); }
     });
     document.getElementById('publish-cancel').addEventListener('click', function () {
       panel.hidden = true;

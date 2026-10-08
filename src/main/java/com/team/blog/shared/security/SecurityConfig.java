@@ -87,7 +87,9 @@ public class SecurityConfig {
         csrfTokenRepository.setHeaderName(CSRF_HEADER);
 
         http
-                .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository))
+                // 008: 대체 저장소 업로드는 서명 주소로만 허가한다(저장소 사전 서명 PUT과 같은 모양, CSRF 토큰 없음)
+                .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository)
+                        .ignoringRequestMatchers("/api/images/local-upload"))
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .sessionManagement(session -> session.sessionFixation(fixation -> fixation.changeSessionId()))
                 .headers(headers -> headers

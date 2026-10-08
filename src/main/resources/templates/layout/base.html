@@ -91,6 +91,13 @@
         .tag-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .tag-chip { border: 1px solid #d0d7de; border-radius: 999px; padding: 0 6px; }
         .tag-chip[data-error] { border-color: #cf222e; }
+        /* 008 본문 GIF: 정지 장면 + ▶ 표시(class 없이 — 정화 허용 목록을 바꾸지 않음, 23 §5-2) */
+        .post-body a[href$=".gif"] { position: relative; display: inline-block; }
+        .post-body a[href$=".gif"]::after { content: "▶ GIF"; position: absolute; left: 8px; bottom: 8px;
+            background: rgba(0,0,0,.65); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: .8em; }
+        .post-body a[href$=".gif"][aria-pressed="true"]::after { content: "❚❚ 정지"; }
+        .alt-field { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
+        .alt-field input { flex: 1 1 200px; min-width: 0; padding: 4px; }
         .manage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .post-rows { list-style: none; padding: 0; }
         .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
