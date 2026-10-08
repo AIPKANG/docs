@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>통계</title>
+</head>
+<body>
+<main class="stats-page">
+    <h1>통계</h1>
+    <p class="help">나만 볼 수 있어요. 조회수는 같은 사람의 반복 방문·내 방문·검색 로봇을 빼고 센 값이에요. <a href="/manage/posts">내 글로</a></p>
+    <ul class="stats-totals">
+        <li><span class="stats-number" th:text="${stats.totals().posts()}">0</span><span>발행 글</span></li>
+        <li><span class="stats-number" th:text="${stats.totals().views()}">0</span><span>전체 조회</span></li>
+        <li><span class="stats-number" th:text="${stats.totals().likes()}">0</span><span>좋아요</span></li>
+        <li><span class="stats-number" th:text="${stats.totals().comments()}">0</span><span>댓글</span></li>
+        <li><span class="stats-number" th:text="${stats.totals().followers()}">0</span><span>팔로워</span></li>
+    </ul>
+
+    <section aria-labelledby="days-heading" class="stats-card">
+        <h2 id="days-heading" th:text="${'최근 30일 조회 ' + stats.recentViews()}">최근 30일 조회 0</h2>
+        <div class="stats-bars" aria-hidden="true">
+            <span th:each="d : ${stats.days()}" class="stats-bar" th:title="${d.label() + ' · ' + d.views() + '회'}">
+                <span class="stats-bar-fill" th:style="${'height:' + d.percent() + '%'}"></span>
+            </span>
+        </div>
+        <div class="stats-axis" aria-hidden="true">
+            <span th:text="${stats.days()[0].label()}">9.10</span><span th:text="${stats.days()[stats.days().size() - 1].label()}">10.9</span>
+        </div>
+        <details>
+            <summary>날짜별 숫자 보기</summary>
+            <table class="stats-table">
+                <thead><tr><th scope="col">날짜</th><th scope="col">조회</th></tr></thead>
+                <tbody><tr th:each="d : ${stats.days()}"><td th:text="${d.label()}">10.9</td><td th:text="${d.views()}">0</td></tr></tbody>
+            </table>
+        </details>
+    </section>
+
+    <section aria-labelledby="top-heading" class="stats-card">
+        <h2 id="top-heading">30일 동안 많이 읽힌 글</h2>
+        <p th:if="${stats.top().isEmpty()}" class="help">아직 집계된 조회가 없어요</p>
+        <ol class="stats-top">
+            <li th:each="p : ${stats.top()}"><a th:href="${p.url()}" th:text="${p.title()}">제목</a>
+                <span class="help" th:text="${p.views() + '회'}">0회</span></li>
+        </ol>
+    </section>
+</main>
+</body>
+</html>

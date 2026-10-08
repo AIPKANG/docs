@@ -479,3 +479,19 @@ html, body { overflow-x: clip; }
 .grass-day { width: 11px; height: 11px; border-radius: 3px; background: var(--color-grass-0); }
 .grass-1 { background: var(--color-grass-1); } .grass-2 { background: var(--color-grass-2); }
 .grass-3 { background: var(--color-grass-3); } .grass-4 { background: var(--color-grass-4); }
+/* 032 작성자 통계(강성찬 개인 확장): 막대 높이는 서버가 정한 % (style 속성, 색은 역할) */
+main.stats-page { max-width: 900px; }
+.stats-totals { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+.stats-totals li { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 2px; }
+.stats-number { font-size: 1.6em; font-weight: 800; }
+.stats-totals li span:last-child { color: var(--color-text-muted); font-size: .9em; }
+.stats-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 18px; padding: 16px 20px; margin: 20px 0; }
+.stats-card h2 { margin: 0 0 12px; font-size: 1.1em; }
+.stats-bars { display: flex; align-items: flex-end; gap: 3px; height: 140px; }
+.stats-bar { flex: 1; height: 100%; display: flex; align-items: flex-end; background: var(--color-surface-muted); border-radius: 4px; }
+.stats-bar-fill { width: 100%; background: var(--color-brand-fill); border-radius: 4px; }
+.stats-axis { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: .85em; margin-top: 4px; }
+.stats-table { border-collapse: collapse; margin-top: 8px; }
+.stats-table th, .stats-table td { padding: 2px 12px; text-align: right; border-bottom: 1px solid var(--color-border); }
+.stats-top li { margin: 6px 0; }

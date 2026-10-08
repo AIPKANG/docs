@@ -21,6 +21,8 @@
            th:text="${'발행 글 ' + counts.get('published')}">발행 글 0</a>
         <a th:href="@{/manage/posts(tab='trash')}" th:attr="aria-current=${tab == 'trash' ? 'page' : null}"
            th:text="${'휴지통 ' + counts.get('trash')}">휴지통 0</a>
+        <!-- 032 강성찬 개인 확장: 작성자 통계 -->
+        <a href="/manage/stats">통계</a>
     </nav>
     <nav th:if="${tab == 'published'}" class="manage-filter" aria-label="공개 범위 필터">
         <a th:href="@{/manage/posts(tab='published')}" th:attr="aria-current=${visibility == '' ? 'page' : null}">전체</a>
