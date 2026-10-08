@@ -26,7 +26,6 @@
     return node;
   }
 
-  var COLORS = ['#0B5CAD', '#1A7F37', '#8250DF', '#BF3989', '#9A6700', '#CF222E', '#0E7490', '#57606A'];
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) { h = (31 * h + s.charCodeAt(i)) | 0; } return h; }
 
   function avatar(author) {
@@ -34,9 +33,11 @@
       var img = el('img', 'avatar'); img.src = author.profileImageUrl; img.alt = ''; img.width = 24; img.height = 24;
       return img;
     }
-    var span = el('span', 'avatar avatar-default', (author.nickname || '?').charAt(0).toUpperCase());
+    // 024: 색은 색 역할 클래스(avatar-c0~c7)로
+    var span = el('span', 'avatar avatar-default avatar-c' + (((hash(author.handle || '') % 8) + 8) % 8),
+      (author.nickname || '?').charAt(0).toUpperCase());
     span.setAttribute('aria-hidden', 'true');
-    span.style.cssText = 'width:24px;height:24px;font-size:12px;background:' + COLORS[((hash(author.handle || '') % 8) + 8) % 8];
+    span.style.width = '24px'; span.style.height = '24px'; span.style.fontSize = '12px';
     return span;
   }
 

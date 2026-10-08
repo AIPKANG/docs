@@ -1,0 +1,112 @@
+/*
+ * 공통 색 역할(024 FR-015~FR-020, 45). 화면은 이 이름만 쓰고 색 값은 여기에만 둔다. 이름은 세 팀원이 같이 쓰고 값만 바꿀 수 있다.
+ * 테마 결정: <html data-theme="light|dark">가 있으면 그것, 없으면(시스템 설정·스크립트 꺼짐) 기기 설정(prefers-color-scheme).
+ * 테마가 바뀔 때 색 애니메이션은 넣지 않는다(FR-013). 이미지·프로필 사진은 다크에서도 그대로 둔다(FR-019).
+ * 공통 목록 밖 역할(--color-brand-soft, --color-highlight, --color-warning-*, --color-success-*, --color-danger-*,
+ * --color-surface-muted, --color-overlay, --color-shadow, --color-on-fill)은 이 서비스의 확장이다.
+ */
+:root {
+    color-scheme: light dark;
+    --color-bg: #FFFFFF;
+    --color-surface: #FFFFFF;
+    --color-text: #212529;
+    --color-text-muted: #6C757D;
+    --color-border: #DEE2E6;
+    --color-brand: #0B63C4;
+    --color-brand-fill: #0B63C4;
+    --color-danger: #C92A2A;
+    --color-thumb-empty: #F1F3F5;
+    --color-code-bg: #F8F9FA;
+    --color-focus: #1C7ED6;
+    --color-brand-soft: #E7F5FF;
+    --color-highlight: #FFF3BF;
+    --color-warning-border: #C29100;
+    --color-warning-text: #7D4E00;
+    --color-success: #2B8A3E;
+    --color-success-soft: #EBFBEE;
+    --color-success-strong: #8CE99A;
+    --color-danger-soft: #FFF5F5;
+    --color-danger-strong: #FFA8A8;
+    --color-danger-fill: #C92A2A;
+    --color-surface-muted: #F8F9FA;
+    --color-overlay: rgba(0, 0, 0, .65);
+    --color-shadow: rgba(0, 0, 0, .1);
+    --color-on-fill: #FFFFFF;
+    /* 기본 프로필 아이콘 8색: 흰 글자와 4.5:1 이상, 라이트·다크 같음(FR-020) */
+    --avatar-c0: #0B5CAD;
+    --avatar-c1: #1A7F37;
+    --avatar-c2: #8250DF;
+    --avatar-c3: #BF3989;
+    --avatar-c4: #9A6700;
+    --avatar-c5: #CF222E;
+    --avatar-c6: #0E7490;
+    --avatar-c7: #57606A;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-bg: #121212;
+        --color-surface: #1E1E1E;
+        --color-text: #E9ECEF;
+        --color-text-muted: #ADB5BD;
+        --color-border: #343A40;
+        --color-brand: #74C0FC;
+        --color-brand-fill: #1971C2;
+        --color-danger: #FF6B6B;
+        --color-thumb-empty: #2B2F33;
+        --color-code-bg: #1A1B1E;
+        --color-focus: #74C0FC;
+        --color-brand-soft: #1B2B3A;
+        --color-highlight: #3D3200;
+        --color-warning-border: #8F6D00;
+        --color-warning-text: #FFD43B;
+        --color-success: #69DB7C;
+        --color-success-soft: #12301A;
+        --color-success-strong: #2B6A3A;
+        --color-danger-soft: #3B1A1A;
+        --color-danger-strong: #7A2E2E;
+        --color-danger-fill: #E03131;
+        --color-surface-muted: #25262B;
+        --color-overlay: rgba(0, 0, 0, .7);
+        --color-shadow: rgba(0, 0, 0, .5);
+    }
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg: #121212;
+    --color-surface: #1E1E1E;
+    --color-text: #E9ECEF;
+    --color-text-muted: #ADB5BD;
+    --color-border: #343A40;
+    --color-brand: #74C0FC;
+    --color-brand-fill: #1971C2;
+    --color-danger: #FF6B6B;
+    --color-thumb-empty: #2B2F33;
+    --color-code-bg: #1A1B1E;
+    --color-focus: #74C0FC;
+    --color-brand-soft: #1B2B3A;
+    --color-highlight: #3D3200;
+    --color-warning-border: #8F6D00;
+    --color-warning-text: #FFD43B;
+    --color-success: #69DB7C;
+    --color-success-soft: #12301A;
+    --color-success-strong: #2B6A3A;
+    --color-danger-soft: #3B1A1A;
+    --color-danger-strong: #7A2E2E;
+    --color-danger-fill: #E03131;
+    --color-surface-muted: #25262B;
+    --color-overlay: rgba(0, 0, 0, .7);
+    --color-shadow: rgba(0, 0, 0, .5);
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+}
+
+/* 포커스는 색 역할로(키보드 사용자) */
+:focus-visible { outline-color: var(--color-focus); }
+
+/* 테마 전환 버튼: 스크립트가 있을 때만 보인다(FR-011) */
+.theme-toggle { background: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0 8px; color: var(--color-text);
+    cursor: pointer; font: inherit; line-height: 1.8; }
