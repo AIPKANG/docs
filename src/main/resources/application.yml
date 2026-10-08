@@ -146,7 +146,8 @@ blog:
       exceptions-location: classpath:policy/banned-words-exceptions.txt
   # 003-profile: 사진 저장소(MinIO·S3 호환, research R-5). 키는 환경 변수로만(헌법 IV)
   storage:
-    endpoint: http://localhost:${STORAGE_PORT:9000}
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:${STORAGE_PORT:9000}}
+    presign-endpoint: ${STORAGE_PRESIGN_ENDPOINT:}
     public-base-url: ${STORAGE_PUBLIC_BASE_URL:${blog.storage.endpoint}}
     bucket: blog-images
     region: us-east-1

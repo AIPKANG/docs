@@ -15,6 +15,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param region        SigV4 서명 리전
  * @param accessKey     접근 키(환경 변수)
  * @param secretKey     비밀 키(환경 변수)
+ * @param presignEndpoint 업로드 서명에 쓸 공개 S3 주소(비면 endpoint)
  * @param presignTtl    업로드 주소 유효 시간(04 §4-1: 5분)
  * @param createBucket  시작할 때 버킷·익명 읽기 정책을 만들지(개발·테스트만)
  * @param type          {@code s3}(기본) 또는 {@code local}(저장소를 띄울 수 없는 환경, 008 research R-6)
@@ -33,7 +34,13 @@ public record StorageProperties(
         @DefaultValue("false") boolean createBucket,
         @DefaultValue("s3") String type,
         @DefaultValue("./build/local-images") String localDir,
-        String localSecret) {
+        String localSecret,
+        String presignEndpoint) {
+
+    /** 브라우저가 직접 올릴 때 쓰는 서명 주소. 앱이 저장소를 내부 주소로 부르는 배포(컨테이너 등)에서만 따로 둔다. 비면 endpoint. */
+    public String presignEndpointOrDefault() {
+        return presignEndpoint == null || presignEndpoint.isBlank() ? endpoint : presignEndpoint;
+    }
 
     public boolean isLocal() {
         return "local".equals(type);

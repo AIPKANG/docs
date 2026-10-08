@@ -38,6 +38,37 @@ services:
     volumes:
       - storage-data:/data
 
+  # 앱(운영 프로필) — `docker compose --profile app up -d --build`로만 뜬다. 개발할 때는 bootRun을 쓴다.
+  # 값은 .env에서 읽는다(.env.example 참고). 로컬에서 전체를 시험할 때는 저장소·DB·Redis도 이 compose 것을 쓴다.
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on: [postgres, redis, storage]
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/blog
+      DB_USERNAME: ${DB_USERNAME:-blog}
+      DB_PASSWORD: ${DB_PASSWORD:-blog}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      # 앱은 저장소를 내부 주소로 부르고, 브라우저 업로드 서명과 사진 주소는 바깥 주소로
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://storage:9000}
+      STORAGE_PRESIGN_ENDPOINT: ${STORAGE_PRESIGN_ENDPOINT:-http://localhost:9000}
+      STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_BASE_URL:-http://localhost:9000}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-blogminio}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-blogminio-dev-secret}
+      BLOG_STORAGE_CREATE_BUCKET: ${STORAGE_CREATE_BUCKET:-false}
+
 volumes:
   postgres-data:
   redis-data:

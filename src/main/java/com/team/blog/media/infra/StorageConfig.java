@@ -37,7 +37,7 @@ public class StorageConfig {
     @Bean(destroyMethod = "close")
     public S3Presigner s3Presigner(StorageProperties properties) {
         return S3Presigner.builder()
-                .endpointOverride(URI.create(properties.endpoint()))
+                .endpointOverride(URI.create(properties.presignEndpointOrDefault()))
                 .region(Region.of(properties.region()))
                 .credentialsProvider(credentials(properties))
                 .serviceConfiguration(S3Configuration.builder()

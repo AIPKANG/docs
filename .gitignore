@@ -15,3 +15,4 @@ target/
 Thumbs.db
 *.tmp
 *.swp
+!.env.example
