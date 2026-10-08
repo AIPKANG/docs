@@ -11,12 +11,13 @@ import org.springframework.stereotype.Service;
 
 /**
  * 홈·개인 블로그 목록(009, 10 §4·§7). 006의 공용 목록 조건만 쓰고, 목록 한 번에 SQL 1번(글 + 작성자 JOIN, 카드 칸만, 카드 머리의 첫 태그는 하위 조회)이다.
- * 9개를 보여주려고 10개를 읽어 다음 글이 있는지 판단한다. 정렬·커서는 {@code (first_public_at, id)}.
+ * {@link #PAGE_SIZE}개를 보여주려고 하나 더 읽어 다음 글이 있는지 판단한다. 정렬·커서는 {@code (first_public_at, id)}.
  */
 @Service
 public class PostListQuery {
 
-    public static final int PAGE_SIZE = 9;
+    /** 한 번에 보여 줄 카드 수. 공통은 9(10 §9), 시안(10-08)의 한 줄 4개에 맞춰 12(강성찬 개인 확장, 3·4·2·1열 모두 빈칸 없음). */
+    public static final int PAGE_SIZE = 12;
 
     private final JdbcTemplate jdbc;
     private final PostAccessPolicy accessPolicy;

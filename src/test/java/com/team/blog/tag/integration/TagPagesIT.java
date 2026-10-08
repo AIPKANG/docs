@@ -139,19 +139,19 @@ class TagPagesIT extends IntegrationTestBase {
     @Test
     void blogTagRowAndFilter() throws Exception {
         long a = writer("tagblog");
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 15; i++) {
             tagged(a, "글 " + i, T.plus(Duration.ofMinutes(i)), "t" + i, "common");
         }
         tagged(a, "jpa 글", T, "jpa");
         String html = mockMvc.perform(get("/@tagblog")).andReturn().getResponse().getContentAsString();
-        assertThat(html).contains("#common 12").contains("태그 더 보기");
+        assertThat(html).contains("#common 15").contains("태그 더 보기");
         String filtered = mockMvc.perform(get("/@tagblog").param("tag", "jpa")).andReturn().getResponse().getContentAsString();
         assertThat(filtered).contains("jpa 글").doesNotContain("글 3<").contains("필터 해제");
         mockMvc.perform(get("/@tagblog").param("tag", "JPA")).andExpect(status().isMovedPermanently())
                 .andExpect(header().string("Location", "/@tagblog?tag=jpa"));
         mockMvc.perform(get("/api/members/tagblog/tags")).andExpect(jsonPath("$[0].name").value("common"));
         mockMvc.perform(get("/api/members/tagblog/posts").param("tag", "common"))
-                .andExpect(jsonPath("$.items.length()").value(9)).andExpect(jsonPath("$.nextCursor").exists());
+                .andExpect(jsonPath("$.items.length()").value(12)).andExpect(jsonPath("$.nextCursor").exists());
     }
 
     @Test

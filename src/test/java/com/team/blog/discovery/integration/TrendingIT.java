@@ -96,26 +96,26 @@ class TrendingIT extends IntegrationTestBase {
     void snapshotPagingKeepsOrderSkipsHiddenAndExpires() throws Exception {
         clock.set(NOW);
         List<Long> ids = new ArrayList<>();
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 15; i++) {
             ids.add(post(member("trpage" + i), "트렌딩" + i, Duration.ofHours(1 + i), 1, 0));
         }
         String first = mockMvc.perform(get("/api/posts/trending")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.length()").value(9)).andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("$.items.length()").value(12)).andReturn().getResponse().getContentAsString();
         Set<Long> seen = new HashSet<>();
         collect(first, seen);
         String cursor = first.replaceAll("^.*\"nextCursor\":\"([^\"]+)\".*$", "$1");
         // 순위가 새로 계산돼도(뒤집힘) 보던 순위 그대로, 아직 안 본 글 하나는 비공개가 됨
-        jdbc.update("UPDATE post SET like_count = 100 WHERE id = ?", ids.get(11));
+        jdbc.update("UPDATE post SET like_count = 100 WHERE id = ?", ids.get(14));
         clock.set(NOW.plusSeconds(600));
         trending.refresh();
-        jdbc.update("UPDATE post SET visibility = 'PRIVATE' WHERE id = ?", ids.get(10));
+        jdbc.update("UPDATE post SET visibility = 'PRIVATE' WHERE id = ?", ids.get(13));
         String second = mockMvc.perform(get("/api/posts/trending?cursor=" + cursor)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.items.length()").value(2)).andExpect(jsonPath("$.nextCursor").doesNotExist())
                 .andReturn().getResponse().getContentAsString();
         collect(second, seen);
-        assertThat(seen).hasSize(11).doesNotContain(ids.get(10));
+        assertThat(seen).hasSize(14).doesNotContain(ids.get(13));
         // 새 순위는 뒤집힌 글이 맨 앞
-        mockMvc.perform(get("/api/posts/trending")).andExpect(jsonPath("$.items[0].id").value(ids.get(11)));
+        mockMvc.perform(get("/api/posts/trending")).andExpect(jsonPath("$.items[0].id").value(ids.get(14)));
         // 사라진 순위는 410, 모양이 틀린 커서는 400
         redis.delete("trending:" + cursor.substring(0, cursor.indexOf(':')));
         mockMvc.perform(get("/api/posts/trending?cursor=" + cursor)).andExpect(status().isGone())

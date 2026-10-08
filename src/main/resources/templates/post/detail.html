@@ -113,7 +113,10 @@
                     <button type="submit">댓글 쓰기</button>
                     <p class="field-error" id="comment-form-error" role="alert" hidden></p>
                 </form>
-                <p th:if="${commentWriteState == 'UNVERIFIED'}" class="notice">이메일 인증을 마치면 댓글을 쓸 수 있어요.</p>
+                <form th:if="${commentWriteState == 'UNVERIFIED'}" method="post" action="/auth/verify/resend" class="notice">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    이메일 인증을 마치면 댓글을 쓸 수 있어요. <button type="submit" class="btn-text btn-sm">인증 메일 다시 보내기</button>
+                </form>
                 <p th:if="${commentWriteState == 'GUEST'}"><a th:href="${loginRedirect}">로그인하고 댓글 쓰기</a></p>
                 <p th:if="${commentWriteState == 'HIDDEN_POST'}" class="help">숨겨진 글에는 댓글을 쓸 수 없어요.</p>
             </th:block>
@@ -141,8 +144,9 @@
     </dialog>
     <p class="help" id="report-status" role="status" th:if="${canReact}"></p>
     <script src="/js/post/report.js" defer th:if="${canReact}"></script>
+    <th:block th:if="${post.contentHtml() != null and post.contentHtml().contains('<pre')}"><!-- 코드 블록이 있을 때만(40 §2) -->
     <script src="/webjars/highlightjs__cdn-assets/11.11.1/highlight.min.js" defer></script>
-    <script src="/js/code-highlight.js" defer></script>
+    <script src="/js/code-highlight.js" defer></script></th:block>
     <script src="/js/gif-play.js" defer></script>
     <script src="/js/post/post-detail.js" defer></script>
     <script src="/js/post/comments.js" defer></script>

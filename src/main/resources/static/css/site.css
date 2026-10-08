@@ -232,7 +232,7 @@ main.list-page { max-width: 1120px; }
 /* 버튼: 기본은 테두리 둥근 보조 버튼, .btn-primary(세이지)·.btn-danger(분홍)·.btn-text */
 button, .btn, .button-link { font: inherit; font-size: .93em; font-weight: 600; line-height: 1.4; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 8px 16px; border-radius: 999px; border: 1px solid var(--color-border);
+    padding: 8px 16px; border-radius: 999px; border: 1px solid var(--color-control-border);
     background: var(--color-surface); color: var(--color-text); text-decoration: none; }
 button:hover, .btn:hover, .button-link:hover { background: var(--color-surface-muted); }
 button:disabled { opacity: .55; cursor: not-allowed; }
@@ -251,7 +251,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 a.follow-button { display: inline-flex; padding: 6px 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .9em; }
 .follow-button[aria-pressed="true"] { color: var(--color-brand); border-color: var(--color-brand); }
 .theme-toggle { border-radius: 999px; padding: 4px 10px; line-height: 1.4; font-size: 1em; }
-.theme-toggle, .menu-toggle { background: var(--color-surface); border: 1px solid var(--color-border); }
+.theme-toggle, .menu-toggle { background: var(--color-surface); border: 1px solid var(--color-control-border); }
 .notif-bell { display: inline-flex; padding: 4px 6px; border-radius: 999px; }
 .notif-bell:hover { background: var(--color-surface-muted); }
 .like-button { padding: 6px 14px; }
@@ -260,7 +260,7 @@ a.follow-button { display: inline-flex; padding: 6px 16px; border-radius: 999px;
 
 /* 입력 칸 */
 input[type=text], input[type=email], input[type=password], input[type=search], input[type=url], input:not([type]), textarea, select {
-    font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border);
+    font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-control-border);
     border-radius: 12px; padding: 10px 14px; max-width: 100%; }
 input::placeholder, textarea::placeholder { color: var(--color-text-muted); }
 input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-focus); }
@@ -315,7 +315,7 @@ input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-fill);
 .hero-slogan .icon-paw { width: .6em; height: .6em; vertical-align: .1em; }
 .hero-sub { margin: 0 0 24px; color: var(--color-text-muted); font-size: 1.05em; }
 .hero-search { display: flex; align-items: center; max-width: 420px; background: var(--color-surface); border-radius: 999px;
-    border: 1px solid var(--color-border); padding: 4px 4px 4px 18px; box-shadow: 0 4px 14px var(--color-shadow); }
+    border: 1px solid var(--color-control-border); padding: 4px 4px 4px 18px; box-shadow: 0 4px 14px var(--color-shadow); }
 .hero-search input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 10px 4px; border-radius: 999px; }
 .hero-search input:focus-visible { outline: none; }
 .hero-search:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
@@ -430,7 +430,7 @@ main.auth-page-single h1 { margin-top: 0; font-size: 1.5em; }
 .footer-slogan { margin: 0; color: var(--color-text-muted); font-family: Gaegu, "Pretendard Variable", cursive; font-size: 1.15em; }
 .footer-links { margin: 0 0 0 auto; font-size: .9em; }
 .footer-links a { color: var(--color-text-muted); }
-.more-button { display: inline-flex; padding: 10px 28px; border-radius: 999px; border: 1px solid var(--color-border);
+.more-button { display: inline-flex; padding: 10px 28px; border-radius: 999px; border: 1px solid var(--color-control-border);
     background: var(--color-surface); color: var(--color-text); text-decoration: none; font-weight: 600; }
 .more-button:hover { background: var(--color-surface-muted); }
 .comment-actions button { padding: 2px 10px; font-size: .82em; font-weight: 500; border-color: transparent; background: none; color: var(--color-text-muted); }

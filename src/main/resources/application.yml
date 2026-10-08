@@ -316,7 +316,7 @@ blog:
   # 020-search: 33 §4·§5
   search:
     recent-window: 3000
-    page-size: 9
+    page-size: 12  # 강성찬 개인 확장: 카드 한 줄 4개(공통 9)
     people-limit: 20
     per-minute: 30
   # 019-trending: 32 §2~§4
@@ -329,7 +329,7 @@ blog:
     gravity: 1.5
     per-author: 3
     top: 100
-    page-size: 9
+    page-size: 12  # 강성찬 개인 확장: 카드 한 줄 4개(공통 9)
     snapshot-ttl: 30m
     refresh-enabled: true
     refresh-interval: 10m

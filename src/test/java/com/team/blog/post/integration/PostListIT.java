@@ -50,31 +50,31 @@ class PostListIT extends IntegrationTestBase {
     }
 
     @Test
-    void ninePerPageNewestFirstAndEndDetected() {
+    void pageSizeNewestFirstAndEndDetected() {
+        // 한 쪽 카드 수: 공통 9, 강성찬 개인 확장 12(PostListQuery.PAGE_SIZE)
         long a = writer(members, "listauthor");
-        List<Long> ids = publishMany(a, 20);
+        List<Long> ids = publishMany(a, 26);
         CardPage first = listQuery.feed(null);
-        assertThat(ids(first)).containsExactly(ids.get(19), ids.get(18), ids.get(17), ids.get(16), ids.get(15),
-                ids.get(14), ids.get(13), ids.get(12), ids.get(11));
+        assertThat(ids(first)).containsExactlyElementsOf(ids.reversed().subList(0, 12));
         assertThat(first.nextCursor()).isNotNull();
         CardPage second = listQuery.feed(first.nextCursor());
-        assertThat(ids(second).get(0)).isEqualTo(ids.get(10));
+        assertThat(ids(second).get(0)).isEqualTo(ids.get(13));
         CardPage third = listQuery.feed(second.nextCursor());
         assertThat(ids(third)).containsExactly(ids.get(1), ids.get(0));
         assertThat(third.nextCursor()).isNull();
         PostCard card = first.items().get(0);
-        assertThat(card.url()).isEqualTo("/@listauthor/posts/" + ids.get(19));
-        assertThat(card.excerpt()).isEqualTo("요약 19");
-        assertThat(card.commentCount()).isEqualTo(19);
-        assertThat(card.likeCount()).isEqualTo(38);
+        assertThat(card.url()).isEqualTo("/@listauthor/posts/" + ids.get(25));
+        assertThat(card.excerpt()).isEqualTo("요약 25");
+        assertThat(card.commentCount()).isEqualTo(25);
+        assertThat(card.likeCount()).isEqualTo(50);
         assertThat(card.author().handle()).isEqualTo("listauthor");
     }
 
     @Test
-    void exactlyNineHasNoNextCursorAndSameTimeOrdersById() {
+    void exactlyOnePageHasNoNextCursorAndSameTimeOrdersById() {
         long a = writer(members, "ninepost");
         List<Long> ids = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 12; i++) {
             ids.add(posts.published(a, "같은 시각 " + i, "본문", 1, T0));
         }
         CardPage page = listQuery.feed(null);
@@ -85,11 +85,11 @@ class PostListIT extends IntegrationTestBase {
     @Test
     void changesWhileBrowsingNeverDuplicateOrSkip() {
         long a = writer(members, "browsing");
-        List<Long> ids = publishMany(a, 20);
+        List<Long> ids = publishMany(a, 26);
         CardPage first = listQuery.feed(null);
         // 보는 도중: 새 글 공개, 첫 페이지 글 삭제, 다음 페이지 글 비공개, 다시 발행(시각 유지)
         posts.published(a, "새 글", "본문", 1, T0.plus(Duration.ofDays(30)));
-        posts.trash(ids.get(19));
+        posts.trash(ids.get(25));
         jdbc.update("UPDATE post SET visibility = 'PRIVATE' WHERE id = ?", ids.get(9));
         jdbc.update("UPDATE post SET edited_at = now(), title = '고친 제목' WHERE id = ?", ids.get(8));
         List<Long> seen = new ArrayList<>(ids(first));
@@ -137,11 +137,11 @@ class PostListIT extends IntegrationTestBase {
     @Test
     void apiAndSsrAndInvalidCursor() throws Exception {
         long a = writer(members, "apiuser");
-        List<Long> ids = publishMany(a, 10);
+        List<Long> ids = publishMany(a, 13);
         String json = mockMvc.perform(get("/api/posts").param("size", "100"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.length()").value(9))
-                .andExpect(jsonPath("$.items[0].title").value("글 9"))
+                .andExpect(jsonPath("$.items.length()").value(12))
+                .andExpect(jsonPath("$.items[0].title").value("글 12"))
                 .andExpect(jsonPath("$.items[0].author.nickname").value("apiuser"))
                 .andExpect(jsonPath("$.items[0].firstPublicAt").exists())
                 .andReturn().getResponse().getContentAsString();
@@ -154,11 +154,11 @@ class PostListIT extends IntegrationTestBase {
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_CURSOR"));
 
         String home = mockMvc.perform(get("/")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertThat(home).contains("글 9").contains("href=\"?cursor=" + next + "\"").doesNotContain("글 0<");
+        assertThat(home).contains("글 12").contains("href=\"?cursor=" + next + "\"").doesNotContain("글 0<");
         String page2 = mockMvc.perform(get("/").param("cursor", next)).andReturn().getResponse().getContentAsString();
         assertThat(page2).contains("글 0").contains("모든 글을 다 봤어요").contains("처음부터 보기");
         assertThat(mockMvc.perform(get("/").param("cursor", "garbage!")).andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString()).contains("글 9");
+                .andReturn().getResponse().getContentAsString()).contains("글 12");
     }
 
     @Test

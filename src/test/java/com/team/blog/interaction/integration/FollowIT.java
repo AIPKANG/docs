@@ -175,7 +175,7 @@ class FollowIT extends IntegrationTestBase {
         assertThat(mockMvc.perform(get("/feed").with(TestAuth.member(me))).andReturn().getResponse().getContentAsString())
                 .contains("팔로우한 사람의 공개 글이 아직 없어요");
         Set<Long> expected = new HashSet<>();
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 15; i++) {
             expected.add(posts.published(i % 2 == 0 ? w1 : w2, "피드글" + i, "본문", 1, T.plusSeconds(i)));
         }
         posts.published(stranger, "모르는 사람", "본문", 1, T);
@@ -193,7 +193,7 @@ class FollowIT extends IntegrationTestBase {
         assertThat(body).doesNotContain("\"nextCursor\":\"");
         assertThat(seen).isEqualTo(expected);
         String page = mockMvc.perform(get("/feed").with(TestAuth.member(me))).andReturn().getResponse().getContentAsString();
-        assertThat(page).contains("피드글11").contains("?cursor=").doesNotContain("모르는 사람");
+        assertThat(page).contains("피드글14").contains("?cursor=").doesNotContain("모르는 사람");
         // 언팔로우 직후 다음 요청부터 빠짐, 작성자 탈퇴 유예도 빠짐
         mockMvc.perform(delete("/api/members/fdwriter2/follow").with(csrf()).with(TestAuth.member(me))).andExpect(status().isOk());
         jdbc.update("UPDATE member SET status = 'WITHDRAWN', withdrawn_at = ? WHERE id = ?", Timestamp.from(T), w1);

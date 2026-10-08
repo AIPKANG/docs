@@ -30,7 +30,7 @@
     </p>
 </article>
 
-<!-- [더 보기] 영역: JS가 없으면 ?cursor= 링크로 다음 9개 -->
+<!-- [더 보기] 영역: JS가 없으면 ?cursor= 링크로 다음 묶음(PostListQuery.PAGE_SIZE) -->
 <!-- 019: 링크 모양({@code linkBase})과 순위가 사라졌을 때 갈 주소({@code expiredUrl})를 받는 판 -->
 <div th:fragment="moreWith(nextCursor, listApi, showAuthor, hasCards, linkBase, expiredUrl)" class="list-more"
      th:attr="data-list-api=${listApi},data-show-author=${showAuthor},data-link-base=${linkBase},data-expired-url=${expiredUrl}">

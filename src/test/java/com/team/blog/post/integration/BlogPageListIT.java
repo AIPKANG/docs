@@ -52,11 +52,11 @@ class BlogPageListIT extends IntegrationTestBase {
                 .contains("아직 공개한 글이 없어요");
         assertThat(mockMvc.perform(get("/@blogpager").with(TestAuth.member(me))).andReturn().getResponse().getContentAsString())
                 .contains("첫 글을 써 보세요");
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 14; i++) {
             posts.published(me, "블로그 글 " + i, "본문", 1, T0.plus(Duration.ofHours(i)));
         }
         String html = mockMvc.perform(get("/@blogpager")).andReturn().getResponse().getContentAsString();
-        assertThat(html).contains("공개 글 11").contains("블로그 글 10").contains("더 보기").doesNotContain("블로그 글 1<");
+        assertThat(html).contains("공개 글 14").contains("블로그 글 13").contains("더 보기").doesNotContain("블로그 글 1<");
         mockMvc.perform(get("/@nobodyhere")).andExpect(status().isNotFound());
         mockMvc.perform(get("/api/members/nobodyhere/posts")).andExpect(status().isNotFound());
         jdbc.update("UPDATE member SET status = 'WITHDRAWN', withdrawn_at = now() WHERE id = ?", me);

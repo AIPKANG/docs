@@ -58,6 +58,7 @@
           : call('DELETE', '/api/posts/' + id + '/permanent');
         request.then(function (data) {
           if (data && data.purged) { notice('빈 글이라 바로 삭제했어요'); }
+          if (action === 'restore') { notice('복구했어요. 발행 글 탭이나 임시글 탭에서 볼 수 있어요'); }
           row.remove();
         }).catch(function (err) {
           fail(row, (err.data && err.data.message) || '처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
