@@ -75,16 +75,17 @@ class ViewCountIT extends IntegrationTestBase {
         mockMvc.perform(view(post).cookie(new Cookie("vid", "11111111-1111-1111-1111-111111111111"))).andExpect(status().isNoContent());
         mockMvc.perform(view(post).with(r -> { r.setRemoteAddr("203.0.113.7"); return r; })).andExpect(status().isNoContent());
         mockMvc.perform(view(post).with(r -> { r.setRemoteAddr("203.0.113.7"); return r; })).andExpect(status().isNoContent());
-        assertThat(views(post)).isEqualTo(4);
+        // 027 강성찬 개인 확장: 30분에 5번까지 → a 3 + b 1 + 쿠키 방문자 2 + IP 방문자 2
+        assertThat(views(post)).isEqualTo(8);
         // 기간이 지나면(판정 기록 만료) 다시 센다
         Set<String> seen = redis.keys("view:seen:" + post + ":*");
         assertThat(String.join(",", seen)).doesNotContain("203.0.113.7").doesNotContain("11111111-1111");
-        seen.forEach(k -> assertThat(redis.getExpire(k)).isBetween(1L, 86400L));
+        seen.forEach(k -> assertThat(redis.getExpire(k)).isBetween(1L, 1800L));
         redis.delete("view:seen:" + post + ":m:" + a);
         mockMvc.perform(view(post).with(TestAuth.member(a))).andExpect(status().isNoContent());
-        assertThat(views(post)).isEqualTo(5);
+        assertThat(views(post)).isEqualTo(9);
         assertThat(jdbc.queryForObject("SELECT views FROM post_view_daily WHERE post_id = ? AND view_date = ?",
-                Integer.class, post, Date.valueOf(LocalDate.of(2026, 10, 8)))).isEqualTo(5);
+                Integer.class, post, Date.valueOf(LocalDate.of(2026, 10, 8)))).isEqualTo(9);
     }
 
     @Test
@@ -128,7 +129,7 @@ class ViewCountIT extends IntegrationTestBase {
             assertThat(f.get()).isEqualTo(204);
         }
         pool.shutdown();
-        assertThat(views(post)).isEqualTo(1);
+        assertThat(views(post)).isEqualTo(5); // 027: 30분에 5번까지
     }
 
     @Test
@@ -160,7 +161,7 @@ class ViewCountIT extends IntegrationTestBase {
         var guest = mockMvc.perform(get("/@viewpage/posts/{id}", post)).andReturn().getResponse();
         assertThat(guest.getHeaders("Set-Cookie")).anyMatch(c -> c.startsWith("vid=") && c.contains("HttpOnly")
                 && c.contains("SameSite=Lax") && c.contains("Max-Age=31536000"));
-        assertThat(guest.getContentAsString()).contains("같은 사람은 하루에 한 번만 세요").contains("/js/post/post-view.js");
+        assertThat(guest.getContentAsString()).contains("같은 사람은 30분에 5번까지 세요").contains("/js/post/post-view.js");
         assertThat(mockMvc.perform(get("/@viewpage/posts/{id}", post).with(TestAuth.member(author)))
                 .andReturn().getResponse().getContentAsString()).doesNotContain("/js/post/post-view.js");
         mockMvc.perform(get("/@viewpage/posts/{id}", post)).andExpect(status().isOk());
