@@ -25,7 +25,7 @@
         <div class="field">
             <label for="handle">블로그 주소</label>
             <div class="handle-input">
-                <span aria-hidden="true">devlog.com/@</span>
+                <span aria-hidden="true" th:text="${siteHost + '/@'}">blog.example.com/@</span>
                 <input id="handle" name="handle" type="text" required maxlength="36"
                        data-handle-field data-email-source="#email"
                        data-availability="handle" data-availability-target="#handle-status"

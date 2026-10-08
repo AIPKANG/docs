@@ -11,8 +11,30 @@ public class LayoutModelAdvice {
 
     private final CurrentUserProvider currentUserProvider;
 
-    public LayoutModelAdvice(CurrentUserProvider currentUserProvider) {
+    private final String siteHost;
+
+    public LayoutModelAdvice(CurrentUserProvider currentUserProvider,
+                             @org.springframework.beans.factory.annotation.Value("${blog.auth.mail.link-base-url:}") String siteUrl) {
         this.currentUserProvider = currentUserProvider;
+        this.siteHost = hostOf(siteUrl);
+    }
+
+    /** 가입 화면의 "주소/@" 앞부분 등에 쓰는 사이트 호스트(APP_BASE_URL 기준, 예: {@code blog.example.com}). */
+    @ModelAttribute("siteHost")
+    public String siteHost() {
+        return siteHost;
+    }
+
+    static String hostOf(String url) {
+        try {
+            java.net.URI uri = java.net.URI.create(url == null ? "" : url.strip());
+            if (uri.getHost() == null) {
+                return "";
+            }
+            return uri.getPort() > 0 ? uri.getHost() + ":" + uri.getPort() : uri.getHost();
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
     }
 
     /** 022: 머리말 [관리] 링크. */

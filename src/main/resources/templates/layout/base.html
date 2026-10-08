@@ -64,9 +64,9 @@
             <a href="/login">로그인</a>
             <a href="/signup">가입하기</a>
         </th:block>
+        <!-- 024 테마 전환: 메뉴 맨 끝(헤더 맨 오른쪽), 스크립트가 없으면 숨김 -->
+        <button type="button" id="theme-toggle" class="theme-toggle" hidden aria-label="테마 바꾸기">🖥</button>
     </nav>
-    <!-- 024 테마 전환: 헤더 맨 오른쪽, 스크립트가 없으면 숨김 -->
-    <button type="button" id="theme-toggle" class="theme-toggle" hidden aria-label="테마 바꾸기">🖥</button>
 </header>
 <div hidden id="logout-cleanup" th:if="${logoutCleanupMemberId != null}" th:attr="data-member-id=${logoutCleanupMemberId}"></div>
 <main th:replace="${content}">

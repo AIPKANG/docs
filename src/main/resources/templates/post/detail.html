@@ -111,6 +111,7 @@
                 </form>
                 <p th:if="${commentWriteState == 'UNVERIFIED'}" class="notice">이메일 인증을 마치면 댓글을 쓸 수 있어요.</p>
                 <p th:if="${commentWriteState == 'GUEST'}"><a th:href="${loginRedirect}">로그인하고 댓글 쓰기</a></p>
+                <p th:if="${commentWriteState == 'HIDDEN_POST'}" class="help">숨겨진 글에는 댓글을 쓸 수 없어요.</p>
             </th:block>
         </section>
     </article>

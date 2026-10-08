@@ -66,6 +66,9 @@ public class CommentDetailSection implements PostDetailSection {
                 writeState = "UNVERIFIED";
             }
         }
+        if (post.hidden()) {
+            writeState = "HIDDEN_POST"; // 점검(10-08): 숨긴 글에는 작성자도 댓글을 쓸 수 없다(쓰기 대상 판정과 같게)
+        }
         model.addAttribute("commentWriteState", writeState);
         model.addAttribute("comments", page);
         model.addAttribute("commentDates", dates);

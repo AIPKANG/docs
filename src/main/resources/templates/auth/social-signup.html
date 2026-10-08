@@ -30,7 +30,7 @@
         <div class="field">
             <label for="handle">블로그 주소</label>
             <div class="handle-input">
-                <span aria-hidden="true">devlog.com/@</span><strong th:text="${handlePrefix}">go-</strong>
+                <span aria-hidden="true" th:text="${siteHost + '/@'}">blog.example.com/@</span><strong th:text="${handlePrefix}">go-</strong>
                 <input id="handle" name="handle" type="text" required maxlength="36"
                        data-handle-field th:attr="data-prefix-locked=${handlePrefix}"
                        data-availability="handle" data-availability-target="#handle-status"
