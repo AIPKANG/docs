@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_parameter" th:if="${_csrf != null}" th:content="${_csrf.parameterName}">
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <title th:replace="${title}">블로그</title>
     <th:block th:if="${pageMeta != null}">
@@ -173,6 +174,22 @@
         .post-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid #eaeef2; }
         .badge { font-size: 0.8em; border: 1px solid #d0d7de; border-radius: 999px; padding: 0 8px; color: #57606a; }
         .badge-editing { border-color: #d4a72c; color: #7d4e00; }
+        /* 017 알림 */
+        .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .notif-bell-wrap { position: relative; }
+        .notif-bell { text-decoration: none; position: relative; }
+        .notif-badge { background: #cf222e; color: #fff; border-radius: 999px; font-size: .75em; padding: 0 6px; margin-left: 2px; }
+        .notif-panel { position: absolute; right: 0; top: 100%; z-index: 10; width: min(360px, 90vw); background: #fff;
+            border: 1px solid #d0d7de; border-radius: 6px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+        .notif-list { list-style: none; padding: 0; margin: 0; }
+        .notif { display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid #eaeef2; padding: 6px 0; }
+        .notif form { margin: 0; }
+        .notif-open { flex: 1; min-width: 0; }
+        .notif-main { all: unset; cursor: pointer; display: block; width: 100%; overflow-wrap: anywhere; }
+        .notif-main:focus-visible { outline: 2px solid #0969da; }
+        .notif-unread .notif-message { font-weight: 700; }
+        .notif-dot { color: #0969da; margin-right: 4px; }
+        .notif-time { display: block; color: #6e7781; font-size: .85em; }
     </style>
 </head>
 <body>
@@ -186,6 +203,11 @@
             </form>
             <a href="/manage/posts">내 글</a>
             <a href="/tags">태그</a>
+            <span class="notif-bell-wrap">
+                <a href="/notifications" id="notif-bell" class="notif-bell" aria-label="알림"
+                   aria-haspopup="true" aria-expanded="false">🔔<span id="notif-badge" class="notif-badge" hidden></span></a>
+                <div id="notif-panel" class="notif-panel" hidden></div>
+            </span>
             <a href="/settings">설정</a>
             <form method="post" action="/logout" data-logout-form th:attr="data-member-id=${currentMemberId}">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -203,5 +225,6 @@
 <main th:replace="${content}">
 </main>
 <script src="/js/auth/auth-logout.js" defer></script>
+<script th:if="${currentMemberId != null}" src="/js/notification/bell.js" defer></script>
 </body>
 </html>

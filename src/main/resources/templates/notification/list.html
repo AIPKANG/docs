@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>알림</title>
+</head>
+<body>
+<main id="notifications">
+    <div class="manage-head">
+        <h1>알림</h1>
+        <form method="post" action="/notifications/read-all" id="notif-read-all">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">모두 읽음</button>
+        </form>
+    </div>
+    <p th:if="${page.items().isEmpty()}" class="notice" id="notif-empty">새 알림이 없어요</p>
+    <ul class="notif-list" id="notif-list">
+        <li th:each="n : ${page.items()}" th:class="${n.read() ? 'notif' : 'notif notif-unread'}"
+            th:attr="data-id=${n.id()}">
+            <form method="post" th:action="@{/notifications/{id}/open(id=${n.id()})}" class="notif-open">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="notif-main" th:attr="data-url=${n.url()}">
+                    <span class="notif-dot" th:if="${!n.read()}" aria-hidden="true">●</span>
+                    <span class="visually-hidden" th:if="${!n.read()}">안 읽음</span>
+                    <span class="notif-message" th:text="${n.message()}">알림</span>
+                    <span class="notif-time" th:text="${n.timeLabel()}">방금 전</span>
+                </button>
+            </form>
+            <form method="post" th:action="@{/notifications/{id}/delete(id=${n.id()})}" class="notif-delete">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" aria-label="알림 삭제">×</button>
+            </form>
+        </li>
+    </ul>
+    <p th:if="${page.nextCursor() != null}">
+        <a id="notif-more" th:href="@{/notifications(cursor=${page.nextCursor()})}"
+           th:attr="data-cursor=${page.nextCursor()}">더 보기</a>
+    </p>
+    <p id="notif-status" aria-live="polite"></p>
+    <script src="/js/notification/list.js" defer></script>
+</main>
+</body>
+</html>

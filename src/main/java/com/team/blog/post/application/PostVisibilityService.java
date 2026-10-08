@@ -68,7 +68,8 @@ public class PostVisibilityService {
                 WHERE id = ?
                 RETURNING first_public_at
                 """, (rs, n) -> instant(rs.getTimestamp("first_public_at")), to, to, now, now, postId);
-        events.publishEvent(new PostVisibilityChanged(postId, user.memberId(), current.visibility(), to, firstPublicAt));
+        events.publishEvent(new PostVisibilityChanged(postId, user.memberId(), current.visibility(), to, firstPublicAt,
+                current.firstPublicAt() == null && firstPublicAt != null));
         return new Result(to, firstPublicAt);
     }
 

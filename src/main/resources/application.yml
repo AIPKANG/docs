@@ -260,3 +260,17 @@ blog:
     flush-interval: 1m
     daily-retention: 90d
     retention-cron: "0 0 5 * * *"
+  # 017-notification: 25 §4~§7
+  notification:
+    async: true
+    queue-capacity: 1000
+    follow-dedupe: 7d
+    retention: 90d
+    max-per-member: 1000
+    cleanup-batch: 1000
+    cleanup-enabled: true
+    cleanup-cron: "0 30 4 * * *"
+    dropdown-size: 10
+    page-size: 20
+    poll-seconds: 30
+    preview-length: 50

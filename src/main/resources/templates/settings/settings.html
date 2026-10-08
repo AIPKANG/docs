@@ -130,6 +130,24 @@
         <p class="help">한 사람당 1GB, 하루 200장까지 올릴 수 있어요. 지운 글의 사진은 정리 작업이 지울 때 공간이 돌아와요.</p>
     </section>
 
+    <!-- 017 알림 종류 끄기(FR-031) -->
+    <section aria-labelledby="notification-heading">
+        <h2 id="notification-heading">알림</h2>
+        <form method="post" action="/settings/notifications" id="notification-settings">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="field" th:each="opt : ${notificationLabels}">
+                <label>
+                    <input type="checkbox" th:name="${opt.key}" value="on"
+                           th:checked="${notificationSettings.getOrDefault(opt.key, true)}">
+                    <span th:text="${opt.value}">종류</span>
+                </label>
+            </div>
+            <p class="help">운영 알림(신고 결과·숨김)은 끌 수 없어요</p>
+            <button type="submit">알림 설정 저장</button>
+            <p class="form-status" id="notification-status" aria-live="polite"></p>
+        </form>
+    </section>
+
     <!-- 회원 탈퇴 진입점(FR-029, 처리는 023) -->
     <section aria-labelledby="withdraw-heading">
         <h2 id="withdraw-heading">회원 탈퇴</h2>

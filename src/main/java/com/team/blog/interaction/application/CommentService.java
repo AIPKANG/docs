@@ -113,11 +113,13 @@ public class CommentService {
             created = transactionTemplate.execute(status -> {
                 Long rootId = null;
                 Long replyToMember = null;
+                Long replyTargetAuthor = null;
                 if (replyTo != null) {
                     // 대상과 그 최상위를 잠근다: 동시에 최상위 삭제가 오면 한쪽이 먼저 반영된다(FR-028)
                     Target t = target(replyTo, " FOR SHARE OF c").filter(Target::normal)
                             .orElseThrow(() -> new PostContentException(REPLY_TARGET_UNAVAILABLE));
                     rootId = t.rootId();
+                    replyTargetAuthor = t.authorId();
                     if (t.parentId() != null) {
                         Target root = target(rootId, " FOR SHARE OF c")
                                 .orElseThrow(() -> new PostContentException(REPLY_TARGET_UNAVAILABLE));
@@ -135,7 +137,8 @@ public class CommentService {
                         """, Long.class, postId, user.memberId(), rootId, replyToMember, content, Timestamp.from(now),
                         Timestamp.from(now));
                 postCounters.adjustComments(postId, +1);
-                events.publishEvent(new CommentCreated(id, postId, user.memberId(), rootId, replyToMember));
+                events.publishEvent(new CommentCreated(id, postId, user.memberId(), rootId, replyToMember,
+                        replyTargetAuthor));
                 return id;
             });
         } catch (RuntimeException e) {

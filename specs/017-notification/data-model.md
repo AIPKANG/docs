@@ -1,0 +1,2 @@
+# Data Model: 인앱 알림 (017)
+새 마이그레이션 없음. V1 `notification`(대상별 FK CASCADE, `group_key` `LIKE:post:{id}`/`FOLLOW`, 안 읽은 묶음 유일 인덱스), `notification_actor`(PK 알림·사람), `notification_mute`(끈 종류만 행). 사건 레코드 필드 추가: `CommentCreated.replyTargetAuthorId`, `PostVisibilityChanged.firstPublic`. 설정 `blog.notification.*`(async, queue-capacity 1000, follow-dedupe 7d, retention 90d, max-per-member 1000, cleanup-cron, page-size 20, dropdown-size 10, poll-seconds 30, preview-length 50).

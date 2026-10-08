@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * 012 권한 매트릭스(42 §5·§9·§10, FR-032): 구현된 기능의 표 1·2·7·8 모든 칸. 표 3~6·9는 해당 기능이 행을 더한다.
+ * 017은 §10-3 알림 행("작성자" 칸 = 받은 사람 본인)을 더했다.
  * 행위자: 비회원, 인증 전 회원, 회원(남), 작성자, 관리자(남). 404는 없는 글과 본문이 같아야 한다.
  */
 class PermissionMatrixIT extends IntegrationTestBase {
@@ -210,6 +211,29 @@ class PermissionMatrixIT extends IntegrationTestBase {
         row("누르기", id -> put("/api/posts/" + id + "/like").with(csrf()), () -> post, 401, 403, 200, 400, 200);
         row("취소", id -> delete("/api/posts/" + id + "/like").with(csrf()), () -> post, 401, 403, 200, 400, 200);
         row("볼 수 없는 글", id -> put("/api/posts/" + id + "/like").with(csrf()), () -> priv, 401, 403, 404, 400, 404);
+    }
+
+    // ----- §10-3: 알림(017) — "작성자" 칸이 받은 사람 본인 -----
+
+    private long notificationFor(long receiver) {
+        return jdbc.queryForObject("""
+                INSERT INTO notification (receiver_id, type, result, actor_count) VALUES (?, 'REPORT_RESOLVED', 'NO_VIOLATION', 0)
+                RETURNING id
+                """, Long.class, receiver);
+    }
+
+    @Test
+    void section10_3Notifications() throws Exception {
+        row("목록", id -> get("/api/notifications"), () -> 0, 401, 200, 200, 200, 200);
+        row("안 읽은 수", id -> get("/api/notifications/unread-count"), () -> 0, 401, 200, 200, 200, 200);
+        row("읽음", id -> patch("/api/notifications/" + id + "/read").with(csrf()), () -> notificationFor(author),
+                401, 404, 404, 204, 404);
+        row("삭제", id -> delete("/api/notifications/" + id).with(csrf()), () -> notificationFor(author),
+                401, 404, 404, 204, 404);
+        row("모두 읽음", id -> post("/api/notifications/read-all").with(csrf()), () -> 0, 401, 200, 200, 200, 200);
+        row("종류 끄기", id -> put("/api/me/notification-settings").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"LIKE\":false}"), () -> 0, 401, 200, 200, 200, 200);
+        assertThat(run(get("/notifications"), null).getStatus()).isEqualTo(303);
     }
 
     // ----- 판정 순서(42 §3) -----

@@ -23,6 +23,9 @@ blog:
     reconcile-enabled: false
   view:
     flush-enabled: false
+  notification:
+    async: false
+    cleanup-enabled: false
 spring:
   jpa:
     properties:
