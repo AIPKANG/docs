@@ -1,0 +1,97 @@
+# 소스코드 레포의 .github/workflows/deploy.yml로 복사해서 쓴다(문서 레포에서는 돌지 않게 여기 둠).
+# 학교 공용 서버 배포(서버 배포 설명서 10-08): main에 올리면 테스트 → 이미지 생성 → SSH로 서버에 보내 실행.
+# 필요한 Repository secrets: SSH_ADDRESS SSH_PORT SSH_ID SSH_PASSWORD, DB_ADDRESS DB_PORT DB_NAME DB_USERNAME DB_PASSWORD DB_SCHEMA,
+#   APP_PORT APP_DOMAIN, MAIL_USERNAME MAIL_PASSWORD, GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET,
+#   (선택) GEMINI_API_KEY
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: "테스트 건너뛰기(급할 때만)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: ${{ github.event_name == 'push' || !inputs.skip_tests }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: 테스트(Testcontainers가 PostgreSQL·Redis·Mailpit·MinIO를 띄움)
+        run: ./gradlew --no-daemon test
+      - name: 실패한 테스트 보고서
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
+  deploy:
+    needs: test
+    if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 도커 이미지 만들기
+        run: |
+          docker build -t team-blog:latest .
+          docker save team-blog:latest | gzip > image.tar.gz
+          ls -lh image.tar.gz
+
+      - name: 서버로 이미지·스크립트 보내기
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_ADDRESS }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_ID }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: "image.tar.gz,deploy/school/run-on-server.sh"
+          target: "~/team-blog"
+          strip_components: 0
+          overwrite: true
+
+      - name: 서버에서 실행
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_PORT: ${{ secrets.APP_PORT }}
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+          DB_ADDRESS: ${{ secrets.DB_ADDRESS }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GITHUB_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        with:
+          host: ${{ secrets.SSH_ADDRESS }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_ID }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          command_timeout: 15m
+          envs: APP_PORT,APP_DOMAIN,DB_ADDRESS,DB_PORT,DB_NAME,DB_USERNAME,DB_PASSWORD,DB_SCHEMA,MAIL_USERNAME,MAIL_PASSWORD,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,GEMINI_API_KEY
+          script: |
+            mv ~/team-blog/deploy/school/run-on-server.sh ~/team-blog/run-on-server.sh
+            chmod 700 ~/team-blog/run-on-server.sh
+            ~/team-blog/run-on-server.sh
