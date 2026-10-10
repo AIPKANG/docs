@@ -1,7 +1,7 @@
 # 소스코드 레포의 .github/workflows/deploy.yml로 복사해서 쓴다(문서 레포에서는 돌지 않게 여기 둠).
 # 학교 공용 서버 배포(서버 배포 설명서 10-08): main에 올리면 테스트 → 이미지 생성 → SSH로 서버에 보내 실행.
 # 필요한 Repository secrets: SSH_ADDRESS SSH_PORT SSH_ID SSH_PASSWORD, DB_ADDRESS DB_PORT DB_NAME DB_USERNAME DB_PASSWORD DB_SCHEMA,
-#   APP_PORT APP_DOMAIN, MAIL_USERNAME MAIL_PASSWORD, GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET,
+#   APP_PORT APP_DOMAIN, MAIL_USERNAME MAIL_PASSWORD, GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET, GH_CLIENT_ID GH_CLIENT_SECRET,
 #   (선택) GEMINI_API_KEY
 name: deploy
 
@@ -81,8 +81,8 @@ jobs:
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID }}
-          GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET }}
+          GITHUB_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         with:
           host: ${{ secrets.SSH_ADDRESS }}

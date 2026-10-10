@@ -26,7 +26,7 @@
 | `DB_SCHEMA` | 스키마 탭의 스키마(이 프로젝트: `cf_u39_d1`) |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | `.env`의 Gmail 주소·앱 비밀번호 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `.env` 값 |
-| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | `.env` 값 |
+| `GH_CLIENT_ID`, `GH_CLIENT_SECRET` | `.env`의 GITHUB_CLIENT_ID·SECRET 값 (GitHub는 GITHUB_로 시작하는 Secret 이름을 막아서 GH_로 넣는다) |
 | `GEMINI_API_KEY` | (선택) AI 태그 추천 |
 
 사진 주소 서명용 비밀값(`STORAGE_LOCAL_SECRET`)은 서버가 처음 배포할 때 스스로 만들어 `~/team-blog/storage-secret`에 보관한다.
