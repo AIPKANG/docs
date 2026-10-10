@@ -3,7 +3,10 @@
 -- ERD Cloud DATETIME은 timestamptz로 변환; 현재 시각 기본값은 CURRENT_TIMESTAMP.
 -- friendship은 포함하되 FRIENDS 공개 범위 및 친구 알림 종류는 활성화하지 않는다.
 -- 신고는 report_case(사건) + report(신고), 동의는 member_agreement, 정지는 member_suspension으로 분리했다(팀 합의 대기).
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- 학교 공용 DB(Crowfoot)는 확장을 만들 권한이 없다. 그때는 확장·trgm 인덱스 없이 간다(검색은 ILIKE라 그대로 동작, 느려질 뿐).
+DO $$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_trgm;
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'pg_trgm 확장을 만들 권한이 없어 trgm 인덱스를 건너뜁니다';
+END $$;
 
 -- 회원
 CREATE TABLE member (
@@ -38,9 +41,13 @@ CREATE UNIQUE INDEX uq_member_nickname ON member (lower(nickname));
 
 CREATE INDEX ix_member_withdraw_purge ON member (withdrawn_at) WHERE status = 'WITHDRAWN' AND deleted_at IS NULL;
 
-CREATE INDEX ix_member_nickname_trgm ON member USING gin (nickname gin_trgm_ops);
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+    CREATE INDEX ix_member_nickname_trgm ON member USING gin (nickname gin_trgm_ops);
+END IF; END $$;
 
-CREATE INDEX ix_member_handle_trgm ON member USING gin (handle gin_trgm_ops);
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+    CREATE INDEX ix_member_handle_trgm ON member USING gin (handle gin_trgm_ops);
+END IF; END $$;
 
 COMMENT ON TABLE member IS '회원';
 
@@ -264,9 +271,13 @@ CREATE INDEX ix_post_manage ON post (author_id, status, updated_at DESC) WHERE d
 
 CREATE INDEX ix_post_trash ON post (author_id, deleted_at DESC) WHERE deleted_at IS NOT NULL;
 
-CREATE INDEX ix_post_title_trgm ON post USING gin (title gin_trgm_ops);
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+    CREATE INDEX ix_post_title_trgm ON post USING gin (title gin_trgm_ops);
+END IF; END $$;
 
-CREATE INDEX ix_post_content_trgm ON post USING gin (content_md gin_trgm_ops);
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+    CREATE INDEX ix_post_content_trgm ON post USING gin (content_md gin_trgm_ops);
+END IF; END $$;
 
 COMMENT ON TABLE post IS '글';
 
