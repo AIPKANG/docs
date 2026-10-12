@@ -12,6 +12,7 @@
 | 경로 | 내용 |
 |---|---|
 | [`docs/`](docs/) | 팀이 쓴 원본 설계 문서(요구사항·아키텍처·ERD·기능별 설계). 결정 근거의 원문이라 고치지 않는다 |
+| [`guide/`](guide/) | 발표·설명용 안내서: 배포 순서, Git 규칙(깃플로우), 배포 환경, 개발 환경(Claude Code), 파일 관리, 최적화, AI 사용 |
 | [`specs/README.md`](specs/README.md) | 문서 간 차이와 팀 결정 기록, 개인 확장 목록 |
 | `specs/NNN-기능/` | 기능별 `spec.md`(명세) → `plan.md`·`research.md`(설계·결정) → `tasks.md`(작업) |
 | [`specs/personal-extensions.md`](specs/personal-extensions.md) | 강성찬 개인 확장 후보·순서 |
