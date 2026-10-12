@@ -70,7 +70,7 @@
 ## 개인 확장: 강성찬 (2026-10-09~)
 
 팀은 공통 최소 요구사항(명세 001~024, v1.0.0)만 맞추고 각자 **추가만** 하기로 했다(docs/01 §2-4, 원칙 2).
-명세 025부터는 **강성찬 개인 확장**이며, 공통 완료 기준은 그대로 지킨다. 후보·순서: [personal-extensions.md](./personal-extensions.md), 릴리스: [CHANGELOG.md](../CHANGELOG.md)
+명세 025부터는 **강성찬 개인 확장**이며, 공통 완료 기준은 그대로 지킨다. 후보·순서: [personal-extensions.md](./personal-extensions.md), 릴리스: [CHANGELOG.md](https://github.com/practicech/blog/blob/main/CHANGELOG.md)(소스 저장소)
 
 | 명세 | 기능 | 근거 문서 |
 |---|---|---|

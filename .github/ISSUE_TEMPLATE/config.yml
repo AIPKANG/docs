@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 버그·화면 문제(소스 저장소)
+    url: https://github.com/practicech/blog/issues
+    about: 사이트가 이상하게 동작하면 소스 저장소에 알려 주세요
