@@ -28,9 +28,9 @@
 - **FR-001** 새 표 `close_friend(owner_id, friend_id, created_at)`, PK(owner, friend), 자기 자신 금지, 회원 삭제 시 CASCADE(V15). 공통 표 `friendship`은 구조를 바꾸지 않고 비운다.
 - **FR-002** `POST /@{handle}/friend` action=add|remove. add는 내가 대상을 팔로우할 때만 넣고(아니면 아무것도 바꾸지 않음), 두 번 넣어도 한 줄. 없는 회원 404, 비회원은 로그인.
 - **FR-003** 친구 요청 알림·하루 요청 수 제한·CANNOT_FRIEND_SELF 오류는 없앤다(알림이 없으니 남발 걱정이 없음).
-- **FR-005** 팔로우 끊기(`MemberUnfollowed`)와 같은 트랜잭션에서 그 친구 관계와 내 그룹 자리를 지운다. V16: 내가 팔로우하지 않는 close_friend 행과 친구가 아닌 그룹 구성원을 지운다.
-- **FR-006** `/settings/friends?q=` 내가 팔로우하는 사람(아직 친구 아님)을 주소·별명 부분 일치로 찾는다(% _ \\는 글자 그대로).
 - **FR-004** 탈퇴 정리(13 §3-3)는 그 회원이 고른 친구와 그 회원을 고른 관계를 모두 지운다.
+- **FR-005** 팔로우 끊기(`MemberUnfollowed`)와 같은 트랜잭션에서 그 친구 관계와 내 그룹 자리를 지운다. V16: 내가 팔로우하지 않는 close_friend 행과 친구가 아닌 그룹 구성원을 지운다.
+- **FR-006** `/settings/friends?q=` 내가 팔로우하는 사람(아직 친구 아님)을 주소·별명 부분 일치로 찾는다(% _ \는 글자 그대로).
 
 ## Success Criteria
 - FriendIT: 내가 팔로우하는 사람만 넣기, 한쪽 관계, 알림 없음, 읽기·목록 규칙, 블로그 버튼, 설정 화면, 탈퇴 정리.
