@@ -14,7 +14,7 @@
 ## 순서 (push부터 사이트 반영까지, 약 6분)
 1. **test 잡** (GitHub 임시 컴퓨터, 약 3분)
    - 코드 받기 → Java 21 설치(Gradle 캐시) → `./gradlew test`
-   - 테스트 656개. Testcontainers가 PostgreSQL·Redis·Mailpit·MinIO를 잠깐 띄워 실제와 같은 조건으로 검사. 색을 색상 토큰 파일 밖에 쓰면 실패하는 디자인 검사도 포함
+   - 테스트 661개(1.18.0 기준). Testcontainers가 PostgreSQL·Redis·Mailpit·MinIO를 잠깐 띄워 실제와 같은 조건으로 검사. 색을 색상 토큰 파일 밖에 쓰면 실패하는 디자인 검사도 포함
    - 하나라도 실패하면 보고서(`backend/build/reports/tests/test`)를 올리고 **여기서 멈춤** → 사이트는 옛 버전 그대로
 2. **deploy 잡** (test가 성공했을 때만, PR이면 건너뜀)
    1. `Dockerfile`로 이미지 만들기: JDK 21에서 `:backend:bootJar`(frontend jar가 안에 들어감) → JRE 21 실행 이미지, root 아닌 `blog` 사용자, 비밀값은 이미지에 넣지 않음
