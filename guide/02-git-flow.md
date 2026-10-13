@@ -14,7 +14,7 @@
 | `release/X.Y.Z` | `develop` | `main` (PR) → `develop` | 배포 직전 CHANGELOG·버전 정리 |
 | `hotfix/X.Y.Z` | `main` | `main` → `develop` | 운영 급한 수정 |
 
-흐름: `feature/…` → PR → (GitHub에서 테스트 656개) → `develop` 머지 → `release/X.Y.Z` → PR → `main` 머지(= 배포) → `vX.Y.Z` 태그·GitHub Release → `develop`에도 머지 → 과제 제출 저장소에 같은 내용 올리기.
+흐름: `feature/…` → PR → (GitHub에서 테스트 656개) → `develop` 머지 → `release/X.Y.Z` → PR → `main` 머지(= 배포) → `vX.Y.Z` 태그·GitHub Release → PR로 `develop`에도 머지 → 과제 제출 저장소에 같은 내용 올리기.
 
 ## 버전 번호 (SemVer)
 - MAJOR: 팀 공통 요구사항이 바뀔 때(1.0.0 = 팀 공통 최소 요구사항 완성)
@@ -38,5 +38,15 @@
 ## AI와 함께 쓰는 규칙
 Claude Code가 작업할 때도 같은 규칙을 따릅니다: 기능마다 `feature/` 브랜치, PR 본문은 템플릿대로, GitHub 테스트가 초록일 때만 머지, `main`에는 직접 push하지 않음, 되돌리기는 `git revert`(강제 push 금지). 이 규칙은 프로젝트 메모리에 적어 두어 다음 작업에서도 이어집니다.
 
-## 아직 안 한 것
-- GitHub 브랜치 보호 규칙(`main`·`develop`에 PR·테스트 필수)은 저장소 설정이라 아직 켜지 않았습니다. 켜면 규칙을 실수로 어기는 일을 GitHub가 막아 줍니다.
+## GitHub가 규칙을 지키게 하는 장치 (브랜치 보호, 10-13부터)
+소스 저장소의 `main`·`develop`에 브랜치 보호를 켰습니다.
+
+| 설정 | 값 | 이유 |
+|---|---|---|
+| PR 없이 push | 막음 | 모든 변경이 브랜치 → PR로만 들어오게 |
+| 필수 검사 | `test`(GitHub Actions의 테스트 656개) 통과 | 테스트가 실패한 코드는 머지 버튼이 막힘 |
+| 승인 수 | 0 | 혼자 관리하는 저장소라 자기 PR을 승인할 수 없어서(리뷰 대신 검사 통과를 조건으로) |
+| 관리자 예외 | 없음 | 저장소 주인 계정도 직접 push할 수 없게. 예외를 두면 사실상 아무것도 막지 못함 |
+| 강제 push·브랜치 삭제 | 막음 | 기록이 지워지지 않게 |
+
+그래서 릴리스 뒤 `main`을 `develop`에 다시 합치는 것도 PR(`main` → `develop`)로 합니다. 과제 제출 저장소는 소스 저장소를 그대로 옮겨 담는 사본이라 보호를 걸지 않았습니다.
