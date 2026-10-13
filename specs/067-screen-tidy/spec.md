@@ -27,10 +27,14 @@
 - **FR-004** 꼬리말 `.footer-garden`(SVG)과 css를 지우고 `.footer-inner` 위아래 여백 28px → 18px.
 - **FR-005** `/images/**`도 css·js처럼 주소에 내용 지문을 붙이고 1년 `immutable` 보관(StaticCacheConfig). 템플릿의 사진 주소는 `@{...}`로, css 안 `url()`은 Spring이 같은 지문 주소로 바꾼다. 홈 첫 화면은 배너 사진을 `<link rel="preload" as="image" fetchpriority="high">`로 먼저 받는다.
 
+- **FR-006** (후속, 10-13) 배너 사진을 hero.jpg(230KB)에서 같은 크기 hero.webp(72KB, WebP 품질 80)로 바꾼다. 원본과 1:1로 잘라 비교해 차이가 보이지 않을 것.
+- **FR-007** (후속, 10-13) 홈 탭 줄에서 인기 태그 3개를 빼고 최신 글·트렌딩만 둔다. 인기 태그는 오른쪽 인기 태그 상자(태그 수·아이콘) 하나로.
+
 ## Success Criteria
 - 로컬에서 홈 배너 사진 주소에 지문이 붙고 `Cache-Control: max-age=31536000, public, immutable`, preload 주소와 css 안 주소가 같다.
 - 홈에 바로가기 카드가 없고 꼬리말은 한 줄.
 - 가짜 API로 무한 스크롤이 저절로 부르고, 실패 뒤 멈추고, [다시 시도] 뒤 이어진다.
+- 배너 사진이 `image/webp` 72KB로 내려가고 1년 보관된다. 홈 탭 줄에 태그가 없다.
 - CI `test` 통과.
 
 ## 남은 것
