@@ -13,7 +13,8 @@
 backend/    Spring Boot 서버
   src/main/java/com/team/blog/<기능 모듈>/   account·post·tag·media·interaction·discovery·notification·moderation·shared + 개인 확장 모듈
      application/(규칙) infra/(DB·Redis·외부 API) web/(주소 처리)
-  src/main/resources/  application*.yml, db/migration(V1 공통 ~ V14), policy(금칙어), security(흔한 비밀번호)
+     ※ 모듈 경계는 폴더 약속일 뿐 검사로 막지는 않는다(예: notification이 post 코드를 import). 경계 검사(ArchUnit 등)는 아직 없음
+  src/main/resources/  application*.yml, db/migration(V1 공통 ~ V15), policy(금칙어), security(흔한 비밀번호)
   src/test/            통합 테스트(Testcontainers)
 frontend/   화면
   src/main/resources/templates/  Thymeleaf 화면(기능별 폴더, fragments/ 공통 조각)
