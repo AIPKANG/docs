@@ -14,13 +14,13 @@
 | `release/X.Y.Z` | `develop` | `main` (PR) → `develop` | 배포 직전 CHANGELOG·버전 정리 |
 | `hotfix/X.Y.Z` | `main` | `main` → `develop` | 운영 급한 수정 |
 
-흐름: `feature/…` → PR → (GitHub에서 테스트 656개) → `develop` 머지 → `release/X.Y.Z` → PR → `main` 머지(= 배포) → `vX.Y.Z` 태그·GitHub Release → PR로 `develop`에도 머지 → 과제 제출 저장소에 같은 내용 올리기.
+흐름: `feature/…` → PR → (GitHub에서 전체 테스트) → `develop` 머지 → `release/X.Y.Z` → PR → `main` 머지(= 배포) → `vX.Y.Z` 태그·GitHub Release → PR로 `develop`에도 머지 → 과제 제출 저장소에 같은 내용 올리기.
 
 ## 버전 번호 (SemVer)
 - MAJOR: 팀 공통 요구사항이 바뀔 때(1.0.0 = 팀 공통 최소 요구사항 완성)
 - MINOR: 새 기능(명세 하나 또는 묶음). 예: 063 설정 섹션 → 1.13.0
 - PATCH: 버그·디자인 수정
-- 새로 바뀐 것이 생길 때마다 릴리스를 냅니다: `CHANGELOG.md`에 `## [X.Y.Z] — 날짜 · 강성찬 개인 확장 (기능)` 절, 주석 태그 `vX.Y.Z`, 같은 내용의 **GitHub Release**
+- 새로 바뀐 것이 생길 때마다 릴리스를 냅니다: `CHANGELOG.md`에 `## [X.Y.Z] — 날짜 · 강성찬 개인 확장 (기능)` 절, 주석 태그 `vX.Y.Z`, 같은 내용의 **GitHub Release**. 단 v1.2.0~v1.13.0(과 v1.4.1)은 이 규칙 전에 만든 가벼운(lightweight) 태그라 메시지가 없고, 주석 태그는 v1.0.0·v1.1.0과 v1.14.0부터
 - GitHub Release는 소스 저장소와 과제 제출 저장소([AIP-1/blog-basic-AIGJ_01_001-geulgreen](https://github.com/AIP-1/blog-basic-AIGJ_01_001-geulgreen)) 둘 다에 올립니다(v1.0.0~v1.14.1은 10-13에 CHANGELOG로 채움)
 
 ## 커밋·PR 규칙
@@ -44,7 +44,7 @@ Claude Code가 작업할 때도 같은 규칙을 따릅니다: 기능마다 `fea
 | 설정 | 값 | 이유 |
 |---|---|---|
 | PR 없이 push | 막음 | 모든 변경이 브랜치 → PR로만 들어오게 |
-| 필수 검사 | `test`(GitHub Actions의 테스트 656개) 통과 | 테스트가 실패한 코드는 머지 버튼이 막힘 |
+| 필수 검사 | `test`(GitHub Actions의 전체 테스트, 1.18.0 기준 661개) 통과 | 테스트가 실패한 코드는 머지 버튼이 막힘 |
 | 승인 수 | 0 | 혼자 관리하는 저장소라 자기 PR을 승인할 수 없어서(리뷰 대신 검사 통과를 조건으로) |
 | 관리자 예외 | 없음 | 저장소 주인 계정도 직접 push할 수 없게. 예외를 두면 사실상 아무것도 막지 못함 |
 | 강제 push·브랜치 삭제 | 막음 | 기록이 지워지지 않게 |
