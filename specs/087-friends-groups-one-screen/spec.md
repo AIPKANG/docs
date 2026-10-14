@@ -14,6 +14,9 @@
 - **FR-003** 설정 > 계정에 비공개 계정 스위치(`role="switch"`, `aria-checked`)를 둔다. 누르면 `POST /settings/privacy`(back=`/settings#settings-account`)로 바꾸고 그 자리로 돌아온다. back은 같은 사이트 경로만, 아니면 `/settings/privacy`.
 - **FR-004** `/settings/privacy`는 지금 상태 한 줄과 받은 팔로우 요청(수락·거절)만 보여 주고, 켜고 끄기는 설정 > 계정으로 안내한다.
 
+- **FR-005** (10-14 후속, chan "친구관리화면으로 가는 방법이 설정에서 친구 들어가는 방법밖에 없나?") 내 블로그 숫자 줄(팔로워·팔로잉 옆)에 본인에게만 "친구 N" 링크 → `/settings/friends`. 팔로워·팔로잉 숫자는 원래대로 각 목록으로 간다(친구 화면에는 팔로워 목록이 없어서 바꾸면 내 팔로워 목록을 볼 길이 사라짐). 글 화면의 [친구 그룹 만들기]는 `/settings/friends#groups`로.
+
 ## Success Criteria
 - GroupIT: 예전 주소가 친구 화면 #groups로, 친구 화면에 그룹 칸, 그룹 폼이 그 자리로 돌아옴, 로그인 필요, 이름 검사 그대로.
+- FriendIT: 내 블로그에만 "친구 N" 링크.
 - PrivateAccountIT: 설정 화면 스위치 상태(켜짐/꺼짐), back으로 돌아옴, 다른 사이트 back은 무시.
