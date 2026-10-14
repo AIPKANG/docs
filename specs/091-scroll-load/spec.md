@@ -1,6 +1,6 @@
 # Feature Specification: 무한 스크롤은 내려갔을 때만
 
-**Feature Branch**: `089-scroll-load` | **Created**: 2026-10-14 | **Status**: Implemented
+**Feature Branch**: `091-scroll-load` | **Created**: 2026-10-14 | **Status**: Implemented
 
 **Scope**: **강성찬 개인 확장** (10-14 chan "무한 스크롤인데 일정 수준 내려가면 그때 불러오는 형식으로 바꿔줘").
 
