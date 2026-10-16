@@ -1,0 +1,15 @@
+# Feature Specification: 시리즈 설명과 대표 사진
+
+**Feature Branch**: `107-series-cover` | **Created**: 2026-10-16 | **Status**: Implemented (blog 1.64.0)
+
+**Scope**: **강성찬 개인 확장**.
+
+## 결정
+- 시리즈에 설명 한 줄(100자)과 대표 사진(주소 500자)을 둔다. 대표 사진이 비면 1편부터 찾은 첫 사진을 쓴다.
+- 시리즈 화면 머리, 블로그의 시리즈 목록, 탐색 [시리즈] 탭 카드에 보인다.
+- 내 글 [시리즈] 탭의 "이름·설명·대표 사진 고치기, 삭제"에서 고친다.
+- 글이 다 빠진 시리즈도 지우지 않고 남긴다. 삭제는 [삭제] 버튼으로만.
+- DB: V26 `series.description`, `series.cover_url` 칸 추가(더하기만).
+
+## Success Criteria
+- 통합 테스트(ProfileTabsIT, TistoryFeaturesIT): 설명·대표 사진 저장과 표시, 사진이 없을 때 첫 사진, 빈 시리즈가 남음.
