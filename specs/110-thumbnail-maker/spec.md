@@ -12,6 +12,6 @@
 - DB 바뀜 없음.
 
 ## Success Criteria
-- 화면: thumbnail.test.mjs(배치·줄바꿈).
-- 서버: ThumbnailRendererTest(크기·글꼴), McpIT(내 임시글만, 1600×1000 PNG가 카드 대표 사진).
+- 화면: thumbnail.test.mjs(띄어쓰기 단위 줄바꿈, 긴 단어 끊기, 넘치면 …, 빈 제목).
+- 서버: ThumbnailRendererTest(배경 위 한글 제목), McpIT(내 임시글만, 1600×1000 PNG가 카드 대표 사진).
 - 운영과 같은 Docker 이미지에서 한글이 네모로 깨지지 않음(1.66.1 배포 전 확인).
